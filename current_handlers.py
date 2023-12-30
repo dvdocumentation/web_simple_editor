@@ -17,43 +17,54 @@ import qrcode
 import socket
 from jinja2 import Template
 
+from app import session
 
-filename = None
-filename_base = None
-processes_table_id = -1
-screens_table_id = -1
-elements_table_id = -1
 
-current_element =None
-parent_element = None
+
+SESSION_TYPE= 'filesystem'
+
+session["filename"] = None
+session["filename_base"] = None
+
+session["processes_table_id"] = -1
+session["screens_table_id"] = -1
+session["elements_table_id"] = -1
+
+session["current_element"] =None
+session["parent_element"] = None
 #parent_elelments_element = None
 
-current_parent = (None,None)
-current_parent_dict = {}
+session["current_parent"] = (None,None)
+session["current_parent_dict"] = {}
 
-edit_handler_mode = -1
+session["edit_handler_mode"] = -1
 postExecute = ""
-layouts_edit = False
-host_uid = ""
+session["layouts_edit"] = False
+
+
+
 
 WSPORT = "1555"
 
 locale_filename = "ru_locale.json"
+
+session["host_uid"]=""
 
 
 events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult"]
 
 events_screen = ["","onStart","onPostStart","onInput"]
 
-opened_element_uid = None
+session["opened_element_uid"] = None
 
 main_menu_elements = ["","qr_settings","offline_exchange","documents","tasklist","product_log","store","save_settings","keyboard_test","ping_bt","update_configurations","Custom menu item"]
 
 action_types = ["","run","runasync","runprogress"]
 handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set"]
 
-configuration = {"ClientConfiguration":{}}
-processes_table = []
+session["configuration"] = {"ClientConfiguration":{}}
+
+session["processes_table"] = []
 
 configuration_properties_list = ["ConfigurationName","ConfigurationVersion","ConfigurationDescription","agent","ForegroundService","StopForegroundServiceOnExit","BroadcastIntent","BroadcastVariable","FaceRecognitionURL","OnKeyboardMain","LaunchProcess","LaunchVar","MenuWebTemplate","Launch"]
 configuration_settings_list = ["dictionaries","vendor","vendor_url","vendor_password","handler_split_mode","handler_url","handler_password"]
@@ -267,15 +278,15 @@ def remove_empty(d):
     return d        
 
 def get_recognition_template(name):
-    if 'RecognitionTemplates' in configuration['ClientConfiguration']:
-        res = list(filter(lambda item: item['name'] == name, configuration['ClientConfiguration']['RecognitionTemplates']))
+    if 'RecognitionTemplates' in session["configuration"]['ClientConfiguration']:
+        res = list(filter(lambda item: item['name'] == name, session["configuration"]['ClientConfiguration']['RecognitionTemplates']))
         if len(res)>0:
             return json.dumps(remove_empty(res[0]),ensure_ascii=False)
     return None
 
 def get_style(name):
-    if 'StyleTemplates' in configuration['ClientConfiguration']:
-        res = list(filter(lambda item: item['name'] == name, configuration['ClientConfiguration']['StyleTemplates']))
+    if 'StyleTemplates' in session["configuration"]['ClientConfiguration']:
+        res = list(filter(lambda item: item['name'] == name, session["configuration"]['ClientConfiguration']['StyleTemplates']))
         if len(res)>0:
             return remove_empty(res[0])
     return None
@@ -371,29 +382,29 @@ def get_operation_elemets(root):
     return new_element        
 
 def configuration_open(hashMap,_files=None,_data=None):    
-    global configuration
-    global host_uid
-    #global filename
-    
-    hashMap.put("host_uid",host_uid) 
+
+    #_configuration  = json.loads(hashMap.get("configuration"))
+
+   
+    hashMap.put("host_uid",session["host_uid"]) 
     hashMap.put("Launch_elements",captions_start_screen_elements)
 
     
     for prop in configuration_properties_list:
-        hashMap.put(prop,configuration['ClientConfiguration'].get(prop,""))
+        hashMap.put(prop,session["configuration"]['ClientConfiguration'].get(prop,""))
         if prop == "Launch":
-            hashMap.put(prop,get_synonym(start_screen_elements,configuration['ClientConfiguration'].get(prop,"")))
+            hashMap.put(prop,get_synonym(start_screen_elements,session["configuration"]['ClientConfiguration'].get(prop,"")))
 
-    if "ConfigurationSettings" in  configuration['ClientConfiguration']:
+    if "ConfigurationSettings" in  session["configuration"]['ClientConfiguration']:
         for prop in configuration_settings_list:
-            hashMap.put(prop,configuration['ClientConfiguration']["ConfigurationSettings"].get(prop,""))
+            hashMap.put(prop,session["configuration"]['ClientConfiguration']["ConfigurationSettings"].get(prop,""))
 
 
     #if filename!=None:
     
-    filename = host_uid+".ui"
+    filename = session["host_uid"]+".ui"
 
-    link = "http://"+ socket.gethostbyname(socket.gethostname())+":"+str(WSPORT)+"/get_conf_text?filename="+host_uid+".ui"
+    link = "http://"+ socket.gethostbyname(socket.gethostname())+":"+str(WSPORT)+"/get_conf_text?filename="+session["host_uid"]+".ui"
 
     jqr = {
             "RawConfigurationURL":link,
@@ -410,8 +421,8 @@ def configuration_open(hashMap,_files=None,_data=None):
     
 
     hashMap.put("url_configuration",'<html><body>URL конфигурации: <a href="'+link+'">' +link+ '</a></body></html>')  
-    if filename_base!=None:
-        hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" download="'+ filename_base+ '">скачать конфигурацию</a>')     
+    if session["filename_base"]!=None:
+        hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" download="'+ session["filename_base"]+ '">скачать конфигурацию</a>')     
     else:    
         hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" ">скачать конфигурацию</a>')     
 
@@ -419,28 +430,26 @@ def configuration_open(hashMap,_files=None,_data=None):
 
 
 def update_configuration_properties(write_file=True):
-    global configuration
-
 
     isPython = False
     isOnline = False
     isCV=False
 
-    if 'PyHandlers' in configuration['ClientConfiguration']:
-        if len(configuration['ClientConfiguration']['PyHandlers'])>0:
+    if 'PyHandlers' in session["configuration"]['ClientConfiguration']:
+        if len(session["configuration"]['ClientConfiguration']['PyHandlers'])>0:
             isPython=True
   
-    if 'DefServiceConfiguration' in configuration['ClientConfiguration']:
-        if len(configuration['ClientConfiguration']['DefServiceConfiguration'])>0:
+    if 'DefServiceConfiguration' in session["configuration"]['ClientConfiguration']:
+        if len(session["configuration"]['ClientConfiguration']['DefServiceConfiguration'])>0:
             isPython=True  
 
-    if 'OnlineServiceConfiguration' in configuration['ClientConfiguration']:
-        if len(configuration['ClientConfiguration']['OnlineServiceConfiguration'])>0:
+    if 'OnlineServiceConfiguration' in session["configuration"]['ClientConfiguration']:
+        if len(session["configuration"]['ClientConfiguration']['OnlineServiceConfiguration'])>0:
             isOnline=True            
             
 
-    if 'Processes' in configuration['ClientConfiguration']:        
-        for process in configuration['ClientConfiguration']['Processes']:
+    if 'Processes' in session["configuration"]['ClientConfiguration']:        
+        for process in session["configuration"]['ClientConfiguration']['Processes']:
             if process['type']=='Process' and 'Operations' in process:
                 for operation in process['Operations']:
                     if len(operation.get('PythonOnCreate',''))>0 or len(operation.get('PythonOnInput',''))>0 or len(operation.get('DefOnCreate',''))>0 or len(operation.get('DefOnInput',''))>0 :
@@ -483,7 +492,7 @@ def update_configuration_properties(write_file=True):
                            
 
     if isPython:
-        configuration['ClientConfiguration']['RunPython']  =True   
+        session["configuration"]['ClientConfiguration']['RunPython']  =True   
 
             
     tags=[]
@@ -495,21 +504,19 @@ def update_configuration_properties(write_file=True):
     if isCV:
         tags.append('ActiveCV®')    
 
-    configuration['ClientConfiguration']['ConfigurationTags']=",".join(tags) 
+    session["configuration"]['ClientConfiguration']['ConfigurationTags']=",".join(tags) 
 
 
         
 
 def save_configuration(configuration,hashMap,full=False):
-    global filename
-    global host_uid
 
     no_agent=False
 
     #configuration["ClientConfiguration"]["agent"] = hashMap.get("agent")
     if full:
         update_configuration_properties()
-    filename = hashMap.get("base_path")+os.sep+"uploads"+os.sep+host_uid+".ui"
+    filename = hashMap.get("base_path")+os.sep+"uploads"+os.sep+session["host_uid"]+".ui"
 
     FilePyHandlers = None
     FilePyFiles = None
@@ -529,7 +536,7 @@ def save_configuration(configuration,hashMap,full=False):
     new_configuration = copy.deepcopy(configuration)
     new_configuration['ClientConfiguration']['Processes'] =[]
 
-    for process in processes_table:
+    for process in session["processes_table"]:
         if process.get('type') == 'CVOperation':
             new_process = copy.deepcopy(process)
             new_process = remove_uid(new_process)
@@ -609,22 +616,40 @@ def save_configuration(configuration,hashMap,full=False):
         json.dump(new_configuration, f,ensure_ascii=False,indent=4)
 
 def configuration_input(hashMap,_files=None,_data=None):
-    global configuration
-    global filename
-    global host_uid
-    global processes_table
-    global filename_base
+
+    if hashMap.containsKey("set_configuration"):
+        session["configuration"] = json.loads(hashMap.get("configuration"))
+        session["filename"] = hashMap.get("filename")
+        session["filename_base"] = hashMap.get("filename_base")
+
+        hashMap.remove("set_configuration")
+        hashMap.remove("configuration")
+        hashMap.remove("filename")
+        hashMap.remove("filename_base")
+        
+        if "host_uid" in session["configuration"]["ClientConfiguration"]:
+            session["host_uid"] = session["configuration"]["ClientConfiguration"]["host_uid"]
+        else:
+            session["host_uid"] =  str(uuid.uuid4().hex)  
+            session["configuration"]["ClientConfiguration"]["host_uid"] = session["host_uid"]
+
+        session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
 
     if hashMap.get("listener") == "btn_upload":
         id = "configuration_file"
         hashMap.put("UploadFile",id)
-
+    # elif hashMap.get("listener") == "btn_test":    
+    #     var2 = hashMap.get("ConfigurationName")
+    #     session["var1"] = hashMap.get("ConfigurationName")
+    # elif hashMap.get("listener") == "btn_test2":    
+    #     hashMap.put("toast","var1="+session["var1"]+", var2="+var2)
     elif hashMap.get("listener") == "btn_new_configuration":
+              
 
         #generating new uuid for SimpleUI configuration
         current_uid = uuid.uuid4().hex
             #create simple template of SimpleUi configuration
-        configuration={"ClientConfiguration":
+        session["configuration"]={"ClientConfiguration":
         {"ConfigurationName": 'Новая конфигурация',"ConfigurationDescription": "Создание новой конфигурации", "ConfigurationVersion": "0.0.1", "Processes":[
                             {
                         "type": "Process",
@@ -645,35 +670,42 @@ def configuration_input(hashMap,_files=None,_data=None):
             }
             }
 
-        host_uid =  str(uuid.uuid4().hex)  
-        configuration["ClientConfiguration"]["host_uid"] = host_uid 
+        session["host_uid"] =  str(uuid.uuid4().hex)  
+        session["configuration"]["ClientConfiguration"]["host_uid"] = session["host_uid"] 
 
-        processes_table = configuration["ClientConfiguration"]["Processes"] 
+        session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
 
-        save_configuration(configuration,hashMap,True) 
+        save_configuration(session["configuration"],hashMap,True) 
 
         hashMap.put("RefreshScreen","")  
         
     elif hashMap.get("listener") == "upload_file":    
-        filename =hashMap.get("base_path")+os.sep+"uploads"+os.sep+ hashMap.get("filename")
-        filename_base = hashMap.get("filename")[21:]
-        with open(filename,encoding="utf-8") as conf_file:
-            configuration = json.load(conf_file)
+        
 
-            if "host_uid" in configuration["ClientConfiguration"]:
-                host_uid = configuration["ClientConfiguration"]["host_uid"]
-            else:
-                host_uid =  str(uuid.uuid4().hex)  
-                configuration["ClientConfiguration"]["host_uid"] = host_uid
-    
-            processes_table = configuration["ClientConfiguration"]["Processes"] 
+        session["filename"] =hashMap.get("base_path")+os.sep+"uploads"+os.sep+ hashMap.get("filename")
+        session["filename_base"] = hashMap.get("filename")[21:]
+        with open(session["filename"],encoding="utf-8") as conf_file:
+            session["configuration"] = json.load(conf_file)
 
+            hashMap.put("configuration",json.dumps(session["configuration"],ensure_ascii=False))
+            hashMap.put("filename",session["filename_base"])
+            hashMap.put("filename_base",json.dumps(session["configuration"],ensure_ascii=False))
+            hashMap.put("set_configuration","")
             
+
+            if "host_uid" in session["configuration"]["ClientConfiguration"]:
+                session["host_uid"] = session["configuration"]["ClientConfiguration"]["host_uid"]
+            else:
+                session["host_uid"] =  str(uuid.uuid4().hex)  
+                session["configuration"]["ClientConfiguration"]["host_uid"] = session["host_uid"]
+    
+            session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
+
             hashMap.put("RefreshScreen","")
       
     elif hashMap.get("listener") == "btn_download":
-        filename = host_uid+".ui" 
-        hashMap.put("DownloadFile",filename)  
+        session["filename"] = session["host_uid"]+".ui" 
+        hashMap.put("DownloadFile",session["filename"])  
             
     elif hashMap.get("listener") == "btn_upload_github":   
         url = 'https://api.github.com/repos/dvdocumentation/simple_editor/contents/_debug_template.py'
@@ -688,31 +720,31 @@ def configuration_input(hashMap,_files=None,_data=None):
 
     elif hashMap.get("listener") == "btn_save_configuration": 
         for prop in configuration_properties_list:
-            configuration['ClientConfiguration'][prop] = hashMap.get(prop)
+            session["configuration"]['ClientConfiguration'][prop] = hashMap.get(prop)
 
             if prop == "Launch":
-                configuration['ClientConfiguration'][prop] = get_key(start_screen_elements,hashMap.get(prop))
+                session["configuration"]['ClientConfiguration'][prop] = get_key(start_screen_elements,hashMap.get(prop))
 
-        if not 'ConfigurationSettings' in configuration['ClientConfiguration']: configuration['ClientConfiguration']['ConfigurationSettings']={}
+        if not 'ConfigurationSettings' in session["configuration"]['ClientConfiguration']: session["configuration"]['ClientConfiguration']['ConfigurationSettings']={}
 
         for prop in configuration_settings_list:
-            configuration['ClientConfiguration']['ConfigurationSettings'][prop] = hashMap.get(prop)
+            session["configuration"]['ClientConfiguration']['ConfigurationSettings'][prop] = hashMap.get(prop)
 
             if hashMap.get("vendor_login")!=None and hashMap.get("vendor_login")!="":
                 authstring =hashMap.get("vendor_login")+":"+ hashMap.get("vendor_password")
-                configuration['ClientConfiguration']['ConfigurationSettings']['vendor_auth']=  'Basic '+   base64.b64encode(authstring.encode('utf-8')).decode('utf-8') 
+                session["configuration"]['ClientConfiguration']['ConfigurationSettings']['vendor_auth']=  'Basic '+   base64.b64encode(authstring.encode('utf-8')).decode('utf-8') 
 
             if hashMap.get("handler_login")!=None and hashMap.get("handler_login")!="":
                 authstring =hashMap.get("handler_login")+":"+ hashMap.get("handler_password")
-                configuration['ClientConfiguration']['ConfigurationSettings']['handler_auth']=  'Basic '+   base64.b64encode(authstring.encode('utf-8')).decode('utf-8')    
+                session["configuration"]['ClientConfiguration']['ConfigurationSettings']['handler_auth']=  'Basic '+   base64.b64encode(authstring.encode('utf-8')).decode('utf-8')    
 
     
-        save_configuration(configuration,hashMap,True)
+        save_configuration(session["configuration"],hashMap,True)
 
     return hashMap
 
 
-current_process_name = ""
+session["current_process_name"] = ""
 
 def get_synonym(elements,key):
     if key in elements:
@@ -1093,56 +1125,43 @@ def make_handlers_table(table,use_alias):
     return t
 
 def main_tab_selected(hashMap,_files=None,_data=None):
-    global current_parent_dict
-    global current_parent
-    global current_element
-    global processes_table_id
-    global screens_table_id
 
     CurrentTabKey = hashMap.get("CurrentTabKey")
-    if CurrentTabKey in current_parent_dict:
-        current_parent = current_parent_dict[CurrentTabKey]
-        current_element = current_parent[0]
+    if CurrentTabKey in session["current_parent_dict"]:
+        session["current_parent"] = session["current_parent_dict"][CurrentTabKey]
+        session["current_element"] = session["current_parent"][0]
 
-        if current_element!=None:
-            if current_element.get("type") == "Process" or "ProcessName" in current_element:
-                processes_table_id = processes_table.index(current_element)
-            elif current_element.get("type") == "Operation":    
-                if current_parent[1]!=None:
-                    if current_parent[1][0]!=None:
-                        if "Operations" in current_parent[1][0]:
-                            screens_table_id = current_parent[1][0]["Operations"].index(current_element)
+        if session["current_element"]!=None:
+            if session["current_element"].get("type") == "Process" or "ProcessName" in session["current_element"]:
+                session["processes_table_id"] = session["processes_table"].index(session["current_element"])
+            elif session["current_element"].get("type") == "Operation":    
+                if session["current_parent"][1]!=None:
+                    if session["current_parent"][1][0]!=None:
+                        if "Operations" in session["current_parent"][1][0]:
+                            session["screens_table_id"] = session["current_parent"][1][0]["Operations"].index(session["current_element"])
 
     return hashMap
 
 def processes_open(hashMap,_files=None,_data=None):
 
-    if processes_table!=None:
+    if session["processes_table"]!=None:
         
-        hashMap.put("processes_table",json.dumps(make_processes_table(processes_table),ensure_ascii=False))
+        hashMap.put("processes_table",json.dumps(make_processes_table(session["processes_table"]),ensure_ascii=False))
  
     return hashMap
 
 def process_input(hashMap,_files=None,_data=None):
 
-    global current_parent
-    global current_parent_dict
-    global processes_table
-    global parent_element
-    global processes_table_id
-    global screens_table_id
-    global current_element
-
-    if current_element==None:
+    if session["current_element"]==None:
         closeuid  =hashMap.get("process_uid")
     else:    
-        closeuid = current_element['uid']
+        closeuid = session["current_element"]['uid']
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_add_screen" or hashMap.get("listener")=="btn_edit_screen":
 
 
-        if processes_table_id==-1:
-            processes_table.append({
+        if session["processes_table_id"]==-1:
+            session["processes_table"].append({
                                                     "ProcessName": hashMap.get("process_name"),
                                                     "PlanFactHeader": hashMap.get("PlanFactHeader"),
                                                     "hidden": hashMap.get("hidden"),
@@ -1154,32 +1173,32 @@ def process_input(hashMap,_files=None,_data=None):
                                                     "Operations":[]
                                                 
                                                 })
-            processes_table_id=len(processes_table)-1
+            session["processes_table_id"]=len(session["processes_table"])-1
 
         else:   
-            current_element["ProcessName"] =hashMap.get("process_name") 
-            current_element["PlanFactHeader"] =hashMap.get("PlanFactHeader") 
-            current_element["hidden"] =hashMap.get("hidden") 
-            current_element["DefineOnBackPressed"] =hashMap.get("DefineOnBackPressed") 
-            current_element["login_screen"] =hashMap.get("login_screen") 
-            current_element["SC"] =hashMap.get("SC") 
-            current_element["uid"] =closeuid 
+            session["current_element"]["ProcessName"] =hashMap.get("process_name") 
+            session["current_element"]["PlanFactHeader"] =hashMap.get("PlanFactHeader") 
+            session["current_element"]["hidden"] =hashMap.get("hidden") 
+            session["current_element"]["DefineOnBackPressed"] =hashMap.get("DefineOnBackPressed") 
+            session["current_element"]["login_screen"] =hashMap.get("login_screen") 
+            session["current_element"]["SC"] =hashMap.get("SC") 
+            session["current_element"]["uid"] =closeuid 
           
         
-        current_parent = (processes_table[processes_table_id],None)
-        current_element = current_parent[0]
-        current_parent_dict[closeuid] = current_parent
+        session["current_parent"] = (session["processes_table"][session["processes_table_id"]],None)
+        session["current_element"] = session["current_parent"][0]
+        session["current_parent_dict"][closeuid] = session["current_parent"]
 
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_close":
 
         hashMap.put("CloseTab",closeuid)
 
-        hashMap.put("processes_table",json.dumps(make_processes_table(processes_table),ensure_ascii=False))
+        hashMap.put("processes_table",json.dumps(make_processes_table(session["processes_table"]),ensure_ascii=False))
 
         hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"main_screen", "key":"Процессы", "reopen":True},ensure_ascii=False))
 
-        save_configuration(configuration,hashMap)
+        save_configuration(session["configuration"],hashMap)
      
     elif hashMap.get("listener")=="btn_add_screen":
 
@@ -1187,8 +1206,8 @@ def process_input(hashMap,_files=None,_data=None):
         hashMap.put("screen_uid",uid)
 
         hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"screen_form","key":uid,"reopen":True},ensure_ascii=False))  
-        current_process_name = "Новый экран"
-        hashMap.put("screen_name",current_process_name)
+        session["current_process_name"] = "Новый экран"
+        hashMap.put("screen_name",session["current_process_name"])
         hashMap.put("Timer","")
         hashMap.put("hideToolBarScreen","")
         hashMap.put("noScroll","")
@@ -1200,14 +1219,14 @@ def process_input(hashMap,_files=None,_data=None):
         #блокировка
         #hashMap.put("BlockTabs","")
 
-        screens_table_id = -1
-        current_element = None 
-        current_parent = (None,current_parent)
-        current_parent_dict[uid] = current_parent   
+        session["screens_table_id"] = -1
+        session["current_element"] = None 
+        session["current_parent"] = (None,session["current_parent"])
+        session["current_parent_dict"][uid] = session["current_parent"]   
     elif hashMap.get("listener")=="btn_edit_screen" or (hashMap.get("listener") == "TableDoubleClick"):
-        screens_table_id = int(hashMap.get("selected_line_id"))
-        #row = parent_element["Operations"][screens_table_id]
-        row = current_element["Operations"][screens_table_id]
+        session["screens_table_id"] = int(hashMap.get("selected_line_id"))
+
+        row = session["current_element"]["Operations"][session["screens_table_id"]]
         if not 'uid' in row:
            row['uid'] = str(uuid.uuid4().hex)
 
@@ -1227,14 +1246,14 @@ def process_input(hashMap,_files=None,_data=None):
         #блокировка
         #hashMap.put("BlockTabs","")
 
-        current_element = row  
-        current_parent = (row,current_parent) 
-        current_parent_dict[row['uid']] = current_parent      
+        session["current_element"] = row  
+        session["current_parent"] = (row,session["current_parent"]) 
+        session["current_parent_dict"][row['uid']] = session["current_parent"]      
     elif hashMap.get("listener")=="btn_delete_screen":
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-                current_element['Operations'].pop(int(hashMap.get(sel_line)))
+                session["current_element"]['Operations'].pop(int(hashMap.get(sel_line)))
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)    
 
@@ -1242,37 +1261,25 @@ def process_input(hashMap,_files=None,_data=None):
 
 
 def screen_input(hashMap,_files=None,_data=None):
-    global current_parent
-    global current_parent_dict
-    global processes_table
-    global parent_element
-    global screens_table_id
-    global elements_table_id
-    global current_element
-    global process_table_id
 
-    global edit_handler_mode
-    global layouts_edit
-    global opened_element_uid
-
-    layouts_edit=False
+    session["layouts_edit"]=False
 
     closeuid = None
 
-    if current_element==None:
+    if session["current_element"]==None:
         closeuid = hashMap.get("screen_uid")
     else:    
-        closeuid = current_element['uid']
+        closeuid = session["current_element"]['uid']
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_add_element" or hashMap.get("listener") == "btn_add_handler":
 
         
 
-        current_parent =current_parent[1]
-        current_element = current_parent[0]
+        session["current_parent"] =session["current_parent"][1]
+        session["current_element"] = session["current_parent"][0]
 
-        if screens_table_id==-1:
-            current_element['Operations'].append({
+        if session["screens_table_id"]==-1:
+            session["current_element"]['Operations'].append({
                                                     "type": "Operation",
                                                     "Name": hashMap.get("screen_name"),
                                                     "uid": closeuid,
@@ -1289,27 +1296,27 @@ def screen_input(hashMap,_files=None,_data=None):
                                                 
                                                 }) 
             
-            screens_table_id=len(current_element['Operations'])-1
+            session["screens_table_id"]=len(session["current_element"]['Operations'])-1
             
             
         else:   
-            current_element['Operations'][screens_table_id]["Name"] = hashMap.get("screen_name")
-            current_element['Operations'][screens_table_id]["uid"] = closeuid
+            session["current_element"]['Operations'][session["screens_table_id"]]["Name"] = hashMap.get("screen_name")
+            session["current_element"]['Operations'][session["screens_table_id"]]["uid"] = closeuid
 
-            current_element['Operations'][screens_table_id]["Timer"] = hashMap.get("Timer")
-            current_element['Operations'][screens_table_id]["hideToolBarScreen"] = hashMap.get("hideToolBarScreen")
-            current_element['Operations'][screens_table_id]["layout_file"] = hashMap.get("layout_file")
-            current_element['Operations'][screens_table_id]["noScroll"] = hashMap.get("noScroll")
-            current_element['Operations'][screens_table_id]["handleKeyUp"] = hashMap.get("handleKeyUp")
-            current_element['Operations'][screens_table_id]["noConfirmation"] = hashMap.get("noConfirmation")
-            current_element['Operations'][screens_table_id]["hideBottomBarScreen"] = hashMap.get("hideBottomBarScreen")
+            session["current_element"]['Operations'][session["screens_table_id"]]["Timer"] = hashMap.get("Timer")
+            session["current_element"]['Operations'][session["screens_table_id"]]["hideToolBarScreen"] = hashMap.get("hideToolBarScreen")
+            session["current_element"]['Operations'][session["screens_table_id"]]["layout_file"] = hashMap.get("layout_file")
+            session["current_element"]['Operations'][session["screens_table_id"]]["noScroll"] = hashMap.get("noScroll")
+            session["current_element"]['Operations'][session["screens_table_id"]]["handleKeyUp"] = hashMap.get("handleKeyUp")
+            session["current_element"]['Operations'][session["screens_table_id"]]["noConfirmation"] = hashMap.get("noConfirmation")
+            session["current_element"]['Operations'][session["screens_table_id"]]["hideBottomBarScreen"] = hashMap.get("hideBottomBarScreen")
             
         
-        current_parent = (current_element['Operations'][screens_table_id],current_parent)
-        current_parent_dict[closeuid] = current_parent
+        session["current_parent"] = (session["current_element"]['Operations'][session["screens_table_id"]],session["current_parent"])
+        session["current_parent_dict"][closeuid] = session["current_parent"]
 
         
-        current_element = current_parent[0]
+        session["current_element"] = session["current_parent"][0]
         
     
         
@@ -1317,13 +1324,13 @@ def screen_input(hashMap,_files=None,_data=None):
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_close":
  
         hashMap.put("CloseTab",closeuid)
-        hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"process_form", "key":current_parent[1][0]['uid'], "reopen":True},ensure_ascii=False))
+        hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"process_form", "key":session["current_parent"][1][0]['uid'], "reopen":True},ensure_ascii=False))
 
-        current_parent = current_parent[1]
-        process_table_id = processes_table.index(current_parent[0])
-        current_element = current_parent[0]
+        session["current_parent"] = session["current_parent"][1]
+        process_table_id = session["processes_table"].index(session["current_parent"][0])
+        session["current_element"] = session["current_parent"][0]
 
-        save_configuration(configuration,hashMap)
+        save_configuration(session["configuration"],hashMap)
 
         #блокировка
         hashMap.put("UnblockTabs","")
@@ -1335,13 +1342,13 @@ def screen_input(hashMap,_files=None,_data=None):
         uid = str(uuid.uuid4().hex)
         hashMap.put("element_uid",uid)
 
-        if opened_element_uid != None:
+        if session["opened_element_uid"] != None:
                 hashMap.put("toast","Может быть открыт только 1 элемент")
                 return hashMap
             
-        opened_element_uid = uid
+        session["opened_element_uid"] = uid
 
-        if layouts_edit:
+        if session["layouts_edit"]:
             hashMap.put("OpenScreen",json.dumps({"process":"Контейнеры","screen":"element_form","key":uid,"reopen":True,"no_close":True},ensure_ascii=False))  
         else:    
             hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form","key":uid,"reopen":True,"no_close":True},ensure_ascii=False))  
@@ -1360,28 +1367,28 @@ def screen_input(hashMap,_files=None,_data=None):
         hashMap.put("SetTitle","Новый элемент экрана - *")
         
                 
-        elements_table_id = -1
-        current_element = None  
+        session["elements_table_id"] = -1
+        session["current_element"] = None  
 
-        current_parent = (current_element,current_parent)
-        current_parent_dict[uid] = current_parent 
+        session["current_parent"] = (session["current_element"],session["current_parent"])
+        session["current_parent_dict"][uid] = session["current_parent"] 
 
     elif hashMap.get("listener")=="btn_edit_element" or (hashMap.get("listener") == "TableDoubleClick" and hashMap.get("table_id")=='screen_elements_table'):
         
         if hashMap.containsKey("selected_line_id"):
-            elements_table_id = int(hashMap.get("selected_line_id"))
-            row = current_element["Elements"][elements_table_id]
+            session["elements_table_id"] = int(hashMap.get("selected_line_id"))
+            row = session["current_element"]["Elements"][session["elements_table_id"]]
             
             if not 'uid' in row:
                 row['uid'] = str(uuid.uuid4().hex)
             
-            if opened_element_uid != None:
+            if session["opened_element_uid"] != None:
                 hashMap.put("toast","Может быть открыт только 1 элемент")
                 return hashMap
             
-            opened_element_uid = row['uid']
+            session["opened_element_uid"] = row['uid']
 
-            if layouts_edit:
+            if session["layouts_edit"]:
                 hashMap.put("OpenScreen",json.dumps({"process":"Контейнеры","screen":"element_form","key":row['uid'],"reopen":True,"no_close":True},ensure_ascii=False))  
             else:    
                 hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form","key":row['uid'],"reopen":True,"no_close":True},ensure_ascii=False))  
@@ -1393,17 +1400,17 @@ def screen_input(hashMap,_files=None,_data=None):
 
             #parent_elelments_element = current_element
 
-            current_parent = (row,current_parent)
-            current_parent_dict[row['uid']] = current_parent
+            session["current_parent"] = (row,session["current_parent"])
+            session["current_parent_dict"][row['uid']] = session["current_parent"]
 
-            current_element = row     
+            session["current_element"] = row     
 
             hashMap.remove("selected_line_id")  
 
     elif hashMap.get("listener")=="btn_delete_element":
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-                current_element['Elements'].pop(int(hashMap.get(sel_line)))
+                session["current_element"]['Elements'].pop(int(hashMap.get(sel_line)))
                 #hashMap.put("screens_table",json.dumps(jtable,ensure_ascii=False)) 
                 #hashMap.put("SetValuesTable",json.dumps([{"screens_table":jtable}]) )       
                 hashMap.put("RefreshScreen","")
@@ -1426,16 +1433,16 @@ def screen_input(hashMap,_files=None,_data=None):
         hashMap.put("method_postExecute","")
 
         postExecute = ""
-        edit_handler_mode = -1
+        session["edit_handler_mode"] = -1
     elif hashMap.get("listener") == "btn_edit_handler" or (hashMap.get("listener") == "TableDoubleClick" and hashMap.get("table_id")=='handlers_table'):
         if hashMap.containsKey("selected_line_id"):
             hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            edit_handler_mode = int(hashMap.get("selected_line_id"))
+            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
-            handler_str = current_element['Handlers'][edit_handler_mode]
+            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
 
            
             hashMap.put("event",handler_str.get("event",""))
@@ -1465,22 +1472,22 @@ def screen_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
             pos = int(hashMap.get("selected_line_id"))   
-            current_element['Handlers'].pop(pos)
+            session["current_element"]['Handlers'].pop(pos)
             hashMap.put("RefreshScreen","")
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if edit_handler_mode == -1:
+        if session["edit_handler_mode"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "Handlers" in current_element:
-                current_element['Handlers'] = []
+            if not "Handlers" in session["current_element"]:
+                session["current_element"]['Handlers'] = []
             
             postExecute = ""
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
+            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
             hashMap.put("RefreshScreen","")
             hashMap.put("callSelectTab","Обработчики")
             hashMap.put("SelectTab","Обработчики")
@@ -1492,7 +1499,7 @@ def screen_input(hashMap,_files=None,_data=None):
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'][edit_handler_mode] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
             hashMap.put("callSelectTab","Обработчики")
             hashMap.put("SelectTab","Обработчики")
@@ -1505,39 +1512,28 @@ def screen_input(hashMap,_files=None,_data=None):
 
 
 def element_input(hashMap,_files=None,_data=None):
-    global current_parent
-    global current_parent_dict
-
-    global processes_table
     
-    #global parent_elelments_element
-    global screens_table_id
-    global current_element
-    global elements_table_id
-    global configuration
-    global opened_element_uid
-
-    if current_element==None:
+    if session["current_element"]==None:
         closeuid = hashMap.get("element_uid")
     else:    
-        closeuid = current_element['uid']
+        closeuid = session["current_element"]['uid']
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_add_element" or  hashMap.get("listener")=="btn_edit_element":
-        current_parent =current_parent[1]
-        if current_parent!=None:
-            current_element = current_parent[0]
+        session["current_parent"] =session["current_parent"][1]
+        if session["current_parent"]!=None:
+            session["current_element"] = session["current_parent"][0]
 
-            if current_element.get("type") == "Operation":
+            if session["current_element"].get("type") == "Operation":
                 element_base = screen_elements
             else:
                 element_base = layout_elements 
-            row = current_element['Elements']     
+            row = session["current_element"]['Elements']     
         else:         
             element_base = layout_elements  
-            if not "Layouts" in configuration["ClientConfiguration"]:
-                configuration["ClientConfiguration"]["Layouts"]=[]
+            if not "Layouts" in session["configuration"]["ClientConfiguration"]:
+                session["configuration"]["ClientConfiguration"]["Layouts"]=[]
             #current_element = configuration["ClientConfiguration"]["Layouts"]
-            row = configuration["ClientConfiguration"]['Layouts'] 
+            row = session["configuration"]["ClientConfiguration"]['Layouts'] 
         
 
         if get_key(scale_elements,hashMap.get("width"))=="manual":
@@ -1557,7 +1553,7 @@ def element_input(hashMap,_files=None,_data=None):
             height  = get_key(scale_elements,hashMap.get("height"))    
 
 
-        if elements_table_id==-1:
+        if session["elements_table_id"]==-1:
                   
             
             d = {
@@ -1598,68 +1594,63 @@ def element_input(hashMap,_files=None,_data=None):
                 d["Elements"] =[]
 
             row.append(d) 
-            elements_table_id = len(row) - 1
+            session["elements_table_id"] = len(row) - 1
              
         else:   
-            row[elements_table_id]['type'] = get_key(element_base,hashMap.get("type"))
+            row[session["elements_table_id"]]['type'] = get_key(element_base,hashMap.get("type"))
 
-            row[elements_table_id]['orientation'] = get_key(orientation_elements,hashMap.get("orientation"))
-            row[elements_table_id]['gravity_vertical'] = get_key(vertical_gravity_elements,hashMap.get("gravity_vertical"))
-            row[elements_table_id]['drawable'] = hashMap.get("drawable")
-            row[elements_table_id]['gravity_horizontal'] = get_key(gravity_elements,hashMap.get("gravity_horizontal"))
-            row[elements_table_id]['height'] = height
-            row[elements_table_id]['width'] = width
-            row[elements_table_id]['Value'] = hashMap.get("Value")
-            row[elements_table_id]['Variable'] = hashMap.get("Variable")
-            row[elements_table_id]['BackgroundColor'] = hashMap.get("BackgroundColor")
-            row[elements_table_id]['StrokeWidth'] = hashMap.get("StrokeWidth")
-            row[elements_table_id]['Padding'] = hashMap.get("Padding")
-            row[elements_table_id]['height_value'] = hashMap.get("height_value")
-            row[elements_table_id]['width_value'] = hashMap.get("width_value")
-            row[elements_table_id]['weight'] = hashMap.get("weight")
-            row[elements_table_id]['TextSize'] = hashMap.get("TextSize")
-            row[elements_table_id]['TextColor'] = hashMap.get("TextColor")
-            row[elements_table_id]['TextBold'] = hashMap.get("TextBold")
-            row[elements_table_id]['TextItalic'] = hashMap.get("TextItalic")
-            row[elements_table_id]['NumberPrecision'] = hashMap.get("NumberPrecision")
-            row[elements_table_id]['RecognitionTemplate'] = hashMap.get("RecognitionTemplate")
-            row[elements_table_id]['style_name'] = hashMap.get("style_name")
+            row[session["elements_table_id"]]['orientation'] = get_key(orientation_elements,hashMap.get("orientation"))
+            row[session["elements_table_id"]]['gravity_vertical'] = get_key(vertical_gravity_elements,hashMap.get("gravity_vertical"))
+            row[session["elements_table_id"]]['drawable'] = hashMap.get("drawable")
+            row[session["elements_table_id"]]['gravity_horizontal'] = get_key(gravity_elements,hashMap.get("gravity_horizontal"))
+            row[session["elements_table_id"]]['height'] = height
+            row[session["elements_table_id"]]['width'] = width
+            row[session["elements_table_id"]]['Value'] = hashMap.get("Value")
+            row[session["elements_table_id"]]['Variable'] = hashMap.get("Variable")
+            row[session["elements_table_id"]]['BackgroundColor'] = hashMap.get("BackgroundColor")
+            row[session["elements_table_id"]]['StrokeWidth'] = hashMap.get("StrokeWidth")
+            row[session["elements_table_id"]]['Padding'] = hashMap.get("Padding")
+            row[session["elements_table_id"]]['height_value'] = hashMap.get("height_value")
+            row[session["elements_table_id"]]['width_value'] = hashMap.get("width_value")
+            row[session["elements_table_id"]]['weight'] = hashMap.get("weight")
+            row[session["elements_table_id"]]['TextSize'] = hashMap.get("TextSize")
+            row[session["elements_table_id"]]['TextColor'] = hashMap.get("TextColor")
+            row[session["elements_table_id"]]['TextBold'] = hashMap.get("TextBold")
+            row[session["elements_table_id"]]['TextItalic'] = hashMap.get("TextItalic")
+            row[session["elements_table_id"]]['NumberPrecision'] = hashMap.get("NumberPrecision")
+            row[session["elements_table_id"]]['RecognitionTemplate'] = hashMap.get("RecognitionTemplate")
+            row[session["elements_table_id"]]['style_name'] = hashMap.get("style_name")
 
 
-            row[elements_table_id]['uid'] = closeuid
+            row[session["elements_table_id"]]['uid'] = closeuid
 
             if width == "manual":
-                row[elements_table_id]["width_value"] = hashMap.get("width_value")
+                row[session["elements_table_id"]]["width_value"] = hashMap.get("width_value")
             else:
-                if "width_value" in current_element:
-                    del row[elements_table_id]["width_value"]    
+                if "width_value" in session["current_element"]:
+                    del row[session["elements_table_id"]]["width_value"]    
             
             if height == "manual":
-                row[elements_table_id]["height_value"] = hashMap.get("height_value")  
+                row[session["elements_table_id"]]["height_value"] = hashMap.get("height_value")  
             else:
-                if "height_value" in current_element:
-                    del row[elements_table_id]["height_value"] 
+                if "height_value" in session["current_element"]:
+                    del row[session["elements_table_id"]]["height_value"] 
 
 
-        current_parent =(row[elements_table_id],current_parent)
+        session["current_parent"] =(row[session["elements_table_id"]],session["current_parent"])
 
-        current_element = current_parent[0]
-        current_parent_dict[closeuid] = current_parent
+        session["current_element"] = session["current_parent"][0]
+        session["current_parent_dict"][closeuid] = session["current_parent"]
         
-        # if current_parent[1][0].get("type") == "Operation":
-        #     screens_table_id = current_parent[1][0]['Operations'].index(current_element)
-        # else:    
-        #     elements_table_id = current_parent[1][0]['Elements'].index(current_element) 
 
 
     if hashMap.get("listener")=="btn_close":
-        if current_parent!=None:
-            current_parent =current_parent[1]
-            if current_parent!=None:
-                current_element = current_parent[0]
-
+        if session["current_parent"]!=None:
+            session["current_parent"] =session["current_parent"][1]
+            if session["current_parent"]!=None:
+                session["current_element"] = session["current_parent"][0]
             
-                current_parent_dict[closeuid] = current_parent
+                session["current_parent_dict"][closeuid] = session["current_parent"]
     
     if hashMap.get("listener")=="btn_save" :
 
@@ -1669,16 +1660,16 @@ def element_input(hashMap,_files=None,_data=None):
         hashMap.put("Show_RecognitionTemplate","-1")
         hashMap.put("Show_RecognitionTemplate_p","-1")
 
-        if current_parent[1]==None:
-            hashMap.put("layouts_table",json.dumps(make_onefield_table(configuration["ClientConfiguration"]['Layouts'],"Variable","Переменная"),ensure_ascii=False))
+        if session["current_parent"][1]==None:
+            hashMap.put("layouts_table",json.dumps(make_onefield_table(session["configuration"]["ClientConfiguration"]['Layouts'],"Variable","Переменная"),ensure_ascii=False))
             hashMap.put("OpenScreen",json.dumps({"process":"Контейнеры","screen":"main_form", "key":"Контейнеры", "reopen":True},ensure_ascii=False))
         else:    
-            if current_parent[1][0].get("type") == "Operation":
-                hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(current_parent[1][0]['Elements']),ensure_ascii=False))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"screen_form", "key":current_parent[1][0]['uid'], "reopen":True},ensure_ascii=False))
+            if session["current_parent"][1][0].get("type") == "Operation":
+                hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(session["current_parent"][1][0]['Elements']),ensure_ascii=False))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"screen_form", "key":session["current_parent"][1][0]['uid'], "reopen":True},ensure_ascii=False))
             else:    
 
-                if current_element.get("type") == 'LinearLayout' or current_element.get("type") == 'Tab' or current_element.get("type") == 'Tabs' :
+                if session["current_element"].get("type") == 'LinearLayout' or session["current_element"].get("type") == 'Tab' or session["current_element"].get("type") == 'Tabs' :
                         hashMap.put("Show_layout_elements_table","1")
                         hashMap.put("Show_btns_table_elements","1")
                         hashMap.put("Show_layout_properties","1")
@@ -1695,40 +1686,40 @@ def element_input(hashMap,_files=None,_data=None):
 
                         hashMap.put("Show_element_properties","1") 
 
-                        if current_element.get("type") == 'Vision':
+                        if session["current_element"].get("type") == 'Vision':
                             hashMap.put("Show_RecognitionTemplate_div","1")  
                             hashMap.put("Show_RecognitionTemplate_p","1") 
                             hashMap.put("Show_RecognitionTemplate","1")   
                             
 
                 
-                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(current_parent[1][0]['Elements']),ensure_ascii=False))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form", "key":current_parent[1][0]['uid'], "reopen":True},ensure_ascii=False))
+                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_parent"][1][0]['Elements']),ensure_ascii=False))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form", "key":session["current_parent"][1][0]['uid'], "reopen":True},ensure_ascii=False))
 
-        current_parent = current_parent[1]
+        session["current_parent"] = session["current_parent"][1]
           
         
-        if current_parent==None:
+        if session["current_parent"]==None:
             pass
-            #elements_table_id =current_parent[1][0]['Operations'].index(current_parent[0])
+
         else:    
-            if current_parent[0].get("type") == "Operation":
-                screens_table_id = current_parent[1][0]['Operations'].index(current_parent[0])
+            if session["current_parent"][0].get("type") == "Operation":
+                session["screens_table_id"] = session["current_parent"][1][0]['Operations'].index(session["current_parent"][0])
             else:    
-                if current_parent[1]==None:
-                    elements_table_id = configuration['ClientConfiguration']['Layouts'].index(current_parent[0]) 
+                if session["current_parent"][1]==None:
+                    session["elements_table_id"] = session["configuration"]['ClientConfiguration']['Layouts'].index(session["current_parent"][0]) 
                 else:    
-                    elements_table_id = current_parent[1][0]['Elements'].index(current_parent[0]) 
+                    session["elements_table_id"] = session["current_parent"][1][0]['Elements'].index(session["current_parent"][0]) 
 
-            current_element = current_parent[0] 
+            session["current_element"] = session["current_parent"][0] 
 
-        save_configuration(configuration,hashMap) 
+        save_configuration(session["configuration"],hashMap) 
 
-        opened_element_uid = None    
+        session["opened_element_uid"] = None    
 
     if  hashMap.get("listener")=="btn_close":
 
-        opened_element_uid = None 
+        session["opened_element_uid"] = None 
 
         hashMap.put("CloseTab",closeuid)
 
@@ -1736,16 +1727,16 @@ def element_input(hashMap,_files=None,_data=None):
         hashMap.put("Show_RecognitionTemplate","-1")
         hashMap.put("Show_RecognitionTemplate_p","-1")
 
-        if current_parent==None:
-            hashMap.put("layouts_table",json.dumps(make_onefield_table(configuration["ClientConfiguration"]['Layouts'],"Variable","Переменная"),ensure_ascii=False))
+        if session["current_parent"]==None:
+            hashMap.put("layouts_table",json.dumps(make_onefield_table(session["configuration"]["ClientConfiguration"]['Layouts'],"Variable","Переменная"),ensure_ascii=False))
             hashMap.put("OpenScreen",json.dumps({"process":"Контейнеры","screen":"main_form", "key":"Контейнеры", "reopen":True},ensure_ascii=False))
         else:  
-            if current_element.get("type") == "Operation":
-                hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(current_element['Elements']),ensure_ascii=False))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"screen_form", "key":current_parent[0]['uid'], "reopen":True},ensure_ascii=False))
+            if session["current_element"].get("type") == "Operation":
+                hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(session["current_element"]['Elements']),ensure_ascii=False))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"screen_form", "key":session["current_parent"][0]['uid'], "reopen":True},ensure_ascii=False))
             else:    
 
-                if current_element.get("type") == 'LinearLayout' or current_element.get("type") == 'Tab' or current_element.get("type") == 'Tabs':
+                if session["current_element"].get("type") == 'LinearLayout' or session["current_element"].get("type") == 'Tab' or session["current_element"].get("type") == 'Tabs':
                         hashMap.put("Show_layout_elements_table","1")
                         hashMap.put("Show_btns_table_elements","1")
                         hashMap.put("Show_layout_properties","1")
@@ -1762,20 +1753,20 @@ def element_input(hashMap,_files=None,_data=None):
 
                         hashMap.put("Show_element_properties","1")    
 
-                        if current_element.get("type") == 'Vision':
+                        if session["current_element"].get("type") == 'Vision':
                             hashMap.put("Show_RecognitionTemplate_div","1")  
                             hashMap.put("Show_RecognitionTemplate_p","1")
                             hashMap.put("Show_RecognitionTemplate","1") 
 
-                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(current_parent[0]['Elements']),ensure_ascii=False))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form", "key":current_parent[0]['uid'], "reopen":True},ensure_ascii=False))
+                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_parent"][0]['Elements']),ensure_ascii=False))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"element_form", "key":session["current_parent"][0]['uid'], "reopen":True},ensure_ascii=False))
 
             
             
-            if current_parent[0].get("type") == "Operation":
-                screens_table_id = current_parent[1][0]['Operations'].index(current_parent[0])
+            if session["current_parent"][0].get("type") == "Operation":
+                session["screens_table_id"] = session["current_parent"][1][0]['Operations'].index(session["current_parent"][0])
             else:    
-                elements_table_id = current_parent[1][0]['Elements'].index(current_parent[0]) 
+                session["elements_table_id"] = session["current_parent"][1][0]['Elements'].index(session["current_parent"][0]) 
 
         
              
@@ -1802,17 +1793,17 @@ def element_input(hashMap,_files=None,_data=None):
         
 
                 
-        elements_table_id = -1
-        current_element = None   
+        session["elements_table_id"] = -1
+        session["current_element"] = None   
 
-        current_parent = (current_element,current_parent) 
+        session["current_parent"] = (session["current_element"],session["current_parent"]) 
         
-        current_parent_dict[uid] = current_parent
+        session["current_parent_dict"][uid] = session["current_parent"]
 
     elif hashMap.get("listener")=="btn_edit_element" or (hashMap.get("listener") == "TableDoubleClick"):
 
-        elements_table_id = int(hashMap.get("selected_line_id"))
-        row = current_element["Elements"][elements_table_id]
+        session["elements_table_id"] = int(hashMap.get("selected_line_id"))
+        row = session["current_element"]["Elements"][session["elements_table_id"]]
         
         if not 'uid' in row:
            row['uid'] = str(uuid.uuid4().hex)
@@ -1823,36 +1814,36 @@ def element_input(hashMap,_files=None,_data=None):
         hashMap.put("element_uid",row.get("uid"))
         
         #parent_elelments_element = current_element
-        current_parent = (row,current_parent)
-        current_element = row 
+        session["current_parent"] = (row,session["current_parent"])
+        session["current_element"] = row 
 
-        current_parent_dict[row['uid']] = current_parent
+        session["current_parent_dict"][row['uid']] = session["current_parent"]
 
     elif hashMap.get("listener")=="btn_delete_element":
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-                current_element['Elements'].pop(int(hashMap.get(sel_line)))
+                session["current_element"]['Elements'].pop(int(hashMap.get(sel_line)))
                 #hashMap.put("screens_table",json.dumps(jtable,ensure_ascii=False)) 
                 #hashMap.put("SetValuesTable",json.dumps([{"screens_table":jtable}]) )       
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)  
 
     elif hashMap.get("listener")=="btn_copy":
-        hashMap.put("WriteClipboard",json.dumps(current_element,ensure_ascii=False))
+        hashMap.put("WriteClipboard",json.dumps(session["current_element"],ensure_ascii=False))
     elif hashMap.get("listener")=="btn_paste":
         hashMap.put("ReadClipboard","")
     elif hashMap.get("listener")=="clipboard_result":    
         try:
             jelement = json.loads(hashMap.get("clipboard_result"))
             if "type" in jelement:
-                current_element['Elements'].append(jelement)
+                session["current_element"]['Elements'].append(jelement)
                 hashMap.put("RefreshScreen","")
 
         except:
             hashMap.put("toast","Ошибка буфера")    
     if hashMap.get("listener")=="type":
 
-        if current_parent[1][0].get("type") == "Operation":
+        if session["current_parent"][1][0].get("type") == "Operation":
                 element_base = screen_elements
         else:
                 element_base = layout_elements    
@@ -1882,7 +1873,7 @@ def element_input(hashMap,_files=None,_data=None):
             hashMap.put("SetShow_layout_properties","-1")
             hashMap.put("SetShow_common_properties","1")
             
-            if current_parent[1][0].get("type") == "Operation":
+            if session["current_parent"][1][0].get("type") == "Operation":
                 hashMap.put("SetShow_element_properties","-1")  
                 hashMap.put("SetShow_common_properties","-1")
             else:
@@ -1903,7 +1894,7 @@ def element_input(hashMap,_files=None,_data=None):
             hashMap.put("SetShow_layout_properties","-1")
             hashMap.put("SetShow_common_properties","1")
             
-            if current_parent[1][0].get("type") == "Operation":
+            if session["current_parent"][1][0].get("type") == "Operation":
                 hashMap.put("SetShow_element_properties","-1")  
                 hashMap.put("SetShow_common_properties","-1")
             else:
@@ -1916,8 +1907,8 @@ def element_input(hashMap,_files=None,_data=None):
 
 def process_open(hashMap,_files=None,_data=None):
 
-    if not current_element == None:
-        hashMap.put("screens_table",json.dumps(make_onefield_table(current_element["Operations"],"Name","Экран"),ensure_ascii=False))
+    if not session["current_element"] == None:
+        hashMap.put("screens_table",json.dumps(make_onefield_table(session["current_element"]["Operations"],"Name","Экран"),ensure_ascii=False))
     else:
         hashMap.put("screens_table",json.dumps(make_onefield_table([],"Name","Экран"),ensure_ascii=False))
    
@@ -1930,34 +1921,34 @@ def screen_open(hashMap,_files=None,_data=None):
 
     recognition_templates = []
     recognition_templates.append("")
-    if "RecognitionTemplates" in configuration['ClientConfiguration']:
-        for t in configuration['ClientConfiguration']["RecognitionTemplates"]:
+    if "RecognitionTemplates" in session["configuration"]['ClientConfiguration']:
+        for t in session["configuration"]['ClientConfiguration']["RecognitionTemplates"]:
             recognition_templates.append(t.get('name'))
     hashMap.put("recognition_templates",";".join(recognition_templates)) 
 
     xml_files = []
     xml_files.append("")
-    if "Mediafile" in configuration['ClientConfiguration']:
-        for t in configuration['ClientConfiguration']["Mediafile"]:
+    if "Mediafile" in session["configuration"]['ClientConfiguration']:
+        for t in session["configuration"]['ClientConfiguration']["Mediafile"]:
             if t.get("MediafileExt") == "xml":
                 xml_files.append(t.get('MediafileKey'))
     hashMap.put("xml_files",";".join(xml_files)) 
 
     style_templates = []
     style_templates.append("")
-    if "StyleTemplates" in configuration['ClientConfiguration']:
-        for t in configuration['ClientConfiguration']["StyleTemplates"]:
+    if "StyleTemplates" in session["configuration"]['ClientConfiguration']:
+        for t in session["configuration"]['ClientConfiguration']["StyleTemplates"]:
             style_templates.append(t.get('name'))
     hashMap.put("style_templates",";".join(style_templates))        
 
-    if not current_element == None:
-        if "Elements" in current_element:
-            hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(current_element["Elements"]),ensure_ascii=False))
+    if not session["current_element"] == None:
+        if "Elements" in session["current_element"]:
+            hashMap.put("screen_elements_table",json.dumps(make_screenelements_table(session["current_element"]["Elements"]),ensure_ascii=False))
         else:    
             hashMap.put("screen_elements_table",json.dumps(make_screenelements_table([]),ensure_ascii=False))
     
-        if  "Handlers" in current_element:
-            hashMap.put("handlers_table",json.dumps(make_handlers_table(current_element["Handlers"],True),ensure_ascii=False))
+        if  "Handlers" in session["current_element"]:
+            hashMap.put("handlers_table",json.dumps(make_handlers_table(session["current_element"]["Handlers"],True),ensure_ascii=False))
         else:
             hashMap.put("handlers_table",json.dumps(make_handlers_table([],True),ensure_ascii=False))    
 
@@ -1986,10 +1977,10 @@ def element_open(hashMap,_files=None,_data=None):
     hashMap.put("vertical_gravity_elements",captions_vertical_gravity_elements)
 
     
-    if current_parent != None:
+    if session["current_parent"] != None:
         element_base = layout_elements  
-        if current_parent[1]!=None:
-            par = current_parent[1][0]
+        if session["current_parent"][1]!=None:
+            par = session["current_parent"][1][0]
             if par.get("type") == "Operation":
                 hashMap.put("screen_elements",captions_screen_elements)
                 element_base = screen_elements
@@ -1998,60 +1989,60 @@ def element_open(hashMap,_files=None,_data=None):
                 
                 element_base = layout_elements  
 
-        if current_element!=None:
-            if "Elements" in current_element:
-                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(current_element["Elements"]),ensure_ascii=False))    
+        if session["current_element"]!=None:
+            if "Elements" in session["current_element"]:
+                hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_element"]["Elements"]),ensure_ascii=False))    
    
-    if current_parent == (None,None):
+    if session["current_parent"] == (None,None):
         hashMap.put("type", get_synonym(element_base,"LinearLayout"))
         hashMap.put("screen_elements",captions_layout_elements)
 
-    if not current_element == None:
-        hashMap.put("type", get_synonym(element_base,current_element.get("type")))
+    if not session["current_element"] == None:
+        hashMap.put("type", get_synonym(element_base,session["current_element"].get("type")))
         
-        hashMap.put("orientation", get_synonym(orientation_elements,current_element.get("orientation")))
-        hashMap.put("gravity_vertical", get_synonym(vertical_gravity_elements,current_element.get("gravity_vertical")))
-        hashMap.put("gravity_horizontal", get_synonym(gravity_elements,current_element.get("gravity_horizontal")))
+        hashMap.put("orientation", get_synonym(orientation_elements,session["current_element"].get("orientation")))
+        hashMap.put("gravity_vertical", get_synonym(vertical_gravity_elements,session["current_element"].get("gravity_vertical")))
+        hashMap.put("gravity_horizontal", get_synonym(gravity_elements,session["current_element"].get("gravity_horizontal")))
         
-        if "height_element" in current_element:
-            hashMap.put("height", get_synonym(scale_elements,current_element.get("manual")))
+        if "height_element" in session["current_element"]:
+            hashMap.put("height", get_synonym(scale_elements,session["current_element"].get("manual")))
         else:    
-            hashMap.put("height", get_synonym(scale_elements,current_element.get("height")))
+            hashMap.put("height", get_synonym(scale_elements,session["current_element"].get("height")))
 
-        if "width_element" in current_element:
-            hashMap.put("width", get_synonym(scale_elements,current_element.get("manual")))
+        if "width_element" in session["current_element"]:
+            hashMap.put("width", get_synonym(scale_elements,session["current_element"].get("manual")))
         else:    
-            hashMap.put("width", get_synonym(scale_elements,current_element.get("width")))    
+            hashMap.put("width", get_synonym(scale_elements,session["current_element"].get("width")))    
         
         
 
-        hashMap.put("drawable", current_element.get("drawable"))
-        hashMap.put("Value", current_element.get("Value",""))
-        hashMap.put("Variable", current_element.get("Variable",""))
-        hashMap.put("BackgroundColor", current_element.get("BackgroundColor",""))
-        hashMap.put("StrokeWidth", current_element.get("StrokeWidth",""))
-        hashMap.put("Padding", current_element.get("Padding",""))
-        hashMap.put("height_value", current_element.get("height_value",""))
-        hashMap.put("width_value", current_element.get("width_value",""))
-        hashMap.put("weight", current_element.get("weight",""))
-        hashMap.put("BackgroundColor", current_element.get("BackgroundColor",""))
-        hashMap.put("TextSize", current_element.get("TextSize",""))
-        hashMap.put("TextColor", current_element.get("TextColor",""))
-        hashMap.put("TextBold", current_element.get("TextBold",""))
-        hashMap.put("TextItalic", current_element.get("TextItalic",""))
-        hashMap.put("NumberPrecision", current_element.get("NumberPrecision",""))
-        hashMap.put("RecognitionTemplate", current_element.get("RecognitionTemplate",""))
-        hashMap.put("style_name", current_element.get("style_name",""))
+        hashMap.put("drawable", session["current_element"].get("drawable"))
+        hashMap.put("Value", session["current_element"].get("Value",""))
+        hashMap.put("Variable", session["current_element"].get("Variable",""))
+        hashMap.put("BackgroundColor", session["current_element"].get("BackgroundColor",""))
+        hashMap.put("StrokeWidth", session["current_element"].get("StrokeWidth",""))
+        hashMap.put("Padding", session["current_element"].get("Padding",""))
+        hashMap.put("height_value", session["current_element"].get("height_value",""))
+        hashMap.put("width_value", session["current_element"].get("width_value",""))
+        hashMap.put("weight", session["current_element"].get("weight",""))
+        hashMap.put("BackgroundColor", session["current_element"].get("BackgroundColor",""))
+        hashMap.put("TextSize", session["current_element"].get("TextSize",""))
+        hashMap.put("TextColor", session["current_element"].get("TextColor",""))
+        hashMap.put("TextBold", session["current_element"].get("TextBold",""))
+        hashMap.put("TextItalic", session["current_element"].get("TextItalic",""))
+        hashMap.put("NumberPrecision", session["current_element"].get("NumberPrecision",""))
+        hashMap.put("RecognitionTemplate", session["current_element"].get("RecognitionTemplate",""))
+        hashMap.put("style_name", session["current_element"].get("style_name",""))
 
 
 
-        if "Elements" in current_element:
-            hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(current_element["Elements"]),ensure_ascii=False))
+        if "Elements" in session["current_element"]:
+            hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_element"]["Elements"]),ensure_ascii=False))
         else:    
             hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table([]),ensure_ascii=False))
     else:
         hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table([]),ensure_ascii=False))
-        if  current_parent != (None,None):
+        if  session["current_parent"] != (None,None):
             hashMap.put("type", "")
         hashMap.put("orientation", "")
         hashMap.put("gravity_horizontal", "")
@@ -2078,7 +2069,7 @@ def element_open(hashMap,_files=None,_data=None):
 
 
 
-    is_new_element = current_element == None
+    is_new_element = session["current_element"] == None
 
     if is_new_element:
         hashMap.put("orientation", get_synonym(orientation_elements,"vertical"))
@@ -2090,7 +2081,7 @@ def element_open(hashMap,_files=None,_data=None):
     hashMap.put("Show_RecognitionTemplate_div","-1") 
     hashMap.put("Show_RecognitionTemplate_p","-1") 
     hashMap.put("Show_RecognitionTemplate","-1")  
-    if is_new_element and not current_parent[1]==None:
+    if is_new_element and not session["current_parent"][1]==None:
              hashMap.put("Show_layout_elements_table","-1")
              hashMap.put("Show_btns_table_elements","-1")
              hashMap.put("Show_layout_properties","-1")
@@ -2117,7 +2108,7 @@ def element_open(hashMap,_files=None,_data=None):
             hashMap.put("Show_layout_properties","-1")
             hashMap.put("Show_common_properties","-1")
             
-            if current_parent[1][0].get("type") == "Operation":
+            if session["current_parent"][1][0].get("type") == "Operation":
                 hashMap.put("Show_element_properties","-1")  
                 hashMap.put("Show_common_properties","-1")
             else:
@@ -2138,7 +2129,7 @@ def element_open(hashMap,_files=None,_data=None):
             hashMap.put("Show_layout_properties","-1")
             hashMap.put("Show_common_properties","1")
             
-            if current_parent[1][0].get("type") == "Operation":
+            if session["current_parent"][1][0].get("type") == "Operation":
                 hashMap.put("Show_element_properties","-1")  
                 hashMap.put("Show_common_properties","-1")
             else:
@@ -2156,24 +2147,16 @@ def element_post_open(hashMap,_files=None,_data=None):
     return hashMap
 
 def processes_input(hashMap,_files=None,_data=None):
-    global current_parent
-    global current_parent_dict
-    
-
-    global processes_table
-    global current_process_name
-    global processes_table_id
-    global current_element
   
     if hashMap.get("listener")=="btn_add_process":
-        #hashMap.put("TableAddRow","processes_table") 
-        processes_table_id = -1
+
+        session["processes_table_id"] = -1
         uid = str(uuid.uuid4().hex)
         hashMap.put("process_uid",uid)
         hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"process_form", "key":uid, "reopen":True},ensure_ascii=False))  
-        current_process_name = "Новый процесс"
-        hashMap.put("process_name",current_process_name)
-        hashMap.put("SetTitle",current_process_name+" - *")
+        session["current_process_name"] = "Новый процесс"
+        hashMap.put("process_name",session["current_process_name"])
+        hashMap.put("SetTitle",session["current_process_name"]+" - *")
 
         hashMap.put("hidden","")
         hashMap.put("DefineOnBackPressed","")
@@ -2181,43 +2164,43 @@ def processes_input(hashMap,_files=None,_data=None):
         hashMap.put("SC","")
         hashMap.put("PlanFactHeader","")
        
-        current_element = None
-        current_parent =(None,None)
+        session["current_element"] = None
+        session["current_parent"] =(None,None)
 
     elif hashMap.get("listener")=="btn_add_processcv":
-        #hashMap.put("TableAddRow","processes_table") 
-        processes_table_id = -1
+
+        session["processes_table_id"] = -1
         uid = str(uuid.uuid4().hex)
         hashMap.put("process_uid",uid)
         hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"activecv_process_form", "key":uid, "reopen":True},ensure_ascii=False))  
-        current_process_name = "Новый ActiveCV"
-        hashMap.put("process_name",current_process_name)
-        hashMap.put("SetTitle",current_process_name+" - *")
+        session["current_process_name"] = "Новый ActiveCV"
+        hashMap.put("process_name",session["current_process_name"])
+        hashMap.put("SetTitle",session["current_process_name"]+" - *")
 
         hashMap.put("hidden","")
       
        
-        current_element = None
-        current_parent =(None,None)    
+        session["current_element"] = None
+        session["current_parent"] =(None,None)    
 
 
     elif hashMap.get("listener")=="btn_edit_process" or hashMap.get("listener")=="TableDoubleClick":
         
         if hashMap.containsKey("selected_line_id"):
          
-            processes_table_id = int(hashMap.get("selected_line_id"))
-            row = processes_table[processes_table_id]
+            session["processes_table_id"] = int(hashMap.get("selected_line_id"))
+            row = session["processes_table"][session["processes_table_id"]]
 
             if not 'uid' in row:
                 row['uid'] = str(uuid.uuid4().hex)
 
             if row.get("type") == "Process":   
 
-                hashMap.put("process_uid",processes_table[processes_table_id].get("uid"))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"process_form", "key":processes_table[processes_table_id].get("uid"), "reopen":True},ensure_ascii=False))  
-                current_process_name = row.get("ProcessName","")
-                hashMap.put("process_name",current_process_name)
-                hashMap.put("SetTitle",current_process_name)
+                hashMap.put("process_uid",session["processes_table"][session["processes_table_id"]].get("uid"))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"process_form", "key":session["processes_table"][session["processes_table_id"]].get("uid"), "reopen":True},ensure_ascii=False))  
+                session["current_process_name"] = row.get("ProcessName","")
+                hashMap.put("process_name",session["current_process_name"])
+                hashMap.put("SetTitle",session["current_process_name"])
 
                 hashMap.put("hidden",row.get("hidden"))
                 hashMap.put("DefineOnBackPressed",row.get("DefineOnBackPressed"))
@@ -2225,21 +2208,21 @@ def processes_input(hashMap,_files=None,_data=None):
                 hashMap.put("SC",row.get("SC"))
                 hashMap.put("PlanFactHeader",row.get("PlanFactHeader",""))
 
-                current_element = row
-                current_parent = (row,None)
-                current_parent_dict[processes_table[processes_table_id].get("uid")] = current_parent
+                session["current_element"] = row
+                session["current_parent"] = (row,None)
+                session["current_parent_dict"][session["processes_table"][session["processes_table_id"]].get("uid")] = session["current_parent"]
             elif row.get("type") == "CVOperation":    
-                hashMap.put("process_uid",processes_table[processes_table_id].get("uid"))
-                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"activecv_process_form", "key":processes_table[processes_table_id].get("uid"), "reopen":True},ensure_ascii=False))  
-                current_process_name = row.get("CVOperationName","")
-                hashMap.put("process_name",current_process_name)
-                hashMap.put("SetTitle",current_process_name)
+                hashMap.put("process_uid",session["processes_table"][session["processes_table_id"]].get("uid"))
+                hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"activecv_process_form", "key":session["processes_table"][session["processes_table_id"]].get("uid"), "reopen":True},ensure_ascii=False))  
+                session["current_process_name"] = row.get("CVOperationName","")
+                hashMap.put("process_name",session["current_process_name"])
+                hashMap.put("SetTitle",session["current_process_name"])
 
                 hashMap.put("hidden",row.get("hidden"))
               
-                current_element = row
-                current_parent = (row,None)
-                current_parent_dict[processes_table[processes_table_id].get("uid")] = current_parent
+                session["current_element"] = row
+                session["current_parent"] = (row,None)
+                session["current_parent_dict"][session["processes_table"][session["processes_table_id"]].get("uid")] = session["current_parent"]
 
             hashMap.remove("selected_line_id")
 
@@ -2247,7 +2230,7 @@ def processes_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            processes_table.pop(int(hashMap.get(sel_line)))
+            session["processes_table"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -2255,16 +2238,16 @@ def processes_input(hashMap,_files=None,_data=None):
         hashMap.put("ReadClipboard","")
     elif hashMap.get("listener")=="clipboard_result":
         jprocess = json.loads(hashMap.get("clipboard_result"))
-        processes_table.append(jprocess)
+        session["processes_table"].append(jprocess)
 
-        save_configuration(configuration,hashMap) 
+        save_configuration(session["configuration"],hashMap) 
 
         hashMap.put("RefreshScreen","")
         
     elif hashMap.get("listener")=="btn_copy":
         if hashMap.containsKey("selected_line_id"):
-            processes_table_id = int(hashMap.get("selected_line_id"))
-            row = processes_table[processes_table_id]
+            session["processes_table_id"] = int(hashMap.get("selected_line_id"))
+            row = session["processes_table"][session["processes_table_id"]]
             hashMap.put("WriteClipboard",json.dumps(row,ensure_ascii=False))    
 
 
@@ -2277,8 +2260,8 @@ def common_handlers_dialog_on_start(hashMap,_files=None,_data=None):
     hashMap.put("handler_types",";".join(handler_types))
     hashMap.put("action_types",";".join(action_types))
     
-    if  "CommonHandlers" in configuration["ClientConfiguration"]:
-        hashMap.put("handlers_table",json.dumps(make_handlers_table(configuration["ClientConfiguration"]["CommonHandlers"],True),ensure_ascii=False))
+    if  "CommonHandlers" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("handlers_table",json.dumps(make_handlers_table(session["configuration"]["ClientConfiguration"]["CommonHandlers"],True),ensure_ascii=False))
     else:
         hashMap.put("handlers_table",json.dumps(make_handlers_table([],True),ensure_ascii=False))
 
@@ -2293,9 +2276,6 @@ def list_to_dict(lst):
     return res
 
 def common_handlers_input(hashMap,_files=None,_data=None):
-    global edit_handler_mode
-    global configuration
-    
 
     if hashMap.get("listener") == "btn_add_handler":
         hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
@@ -2314,16 +2294,16 @@ def common_handlers_input(hashMap,_files=None,_data=None):
         hashMap.put("method_postExecute","")
 
         postExecute = ""
-        edit_handler_mode = -1
+        session["edit_handler_mode"] = -1
     elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
             hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            edit_handler_mode = int(hashMap.get("selected_line_id"))
+            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
-            handler_str = configuration["ClientConfiguration"]["CommonHandlers"][edit_handler_mode]
+            handler_str = session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]]
 
             hashMap.put("alias",handler_str.get("alias",""))
             hashMap.put("event",handler_str.get("event",""))
@@ -2353,22 +2333,22 @@ def common_handlers_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
             pos = int(hashMap.get("selected_line_id"))   
-            configuration["ClientConfiguration"]["CommonHandlers"].pop(pos)
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"].pop(pos)
             hashMap.put("RefreshScreen","")
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if edit_handler_mode == -1:
+        if session["edit_handler_mode"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "CommonHandlers" in configuration:
-                configuration["ClientConfiguration"]["CommonHandlers"] = []
+            if not "CommonHandlers" in session["configuration"]:
+                session["configuration"]["ClientConfiguration"]["CommonHandlers"] = []
             
             postExecute = ""
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            configuration["ClientConfiguration"]["CommonHandlers"].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
             hashMap.put("RefreshScreen","")
         else:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
@@ -2377,18 +2357,16 @@ def common_handlers_input(hashMap,_files=None,_data=None):
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            configuration["ClientConfiguration"]["CommonHandlers"][edit_handler_mode] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
 
     return hashMap
 
-mediafiles_table_id = -1
+session["mediafiles_table_id"] = -1
 def mediafiles_input(hashMap,_files=None,_data=None):
-    global mediafiles_table_id
-    global configuration
   
     if hashMap.get("listener")=="btn_add_mediafile":
-        mediafiles_table_id = -1
+        session["mediafiles_table_id"] = -1
         hashMap.put("ShowDialogLayout",json.dumps(mediafile_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление медиафайла"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -2396,16 +2374,16 @@ def mediafiles_input(hashMap,_files=None,_data=None):
 
     
     elif hashMap.get("listener") == "onResultPositive": 
-        if mediafiles_table_id == -1:
+        if session["mediafiles_table_id"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "Mediafile" in configuration["ClientConfiguration"]:
-                configuration["ClientConfiguration"]["Mediafile"] = []
+            if not "Mediafile" in session["configuration"]["ClientConfiguration"]:
+                session["configuration"]["ClientConfiguration"]["Mediafile"] = []
             
             if 'base64' in dialog_values:
                 filename,ext = os.path.splitext(dialog_values.get("file"))
 
-                configuration["ClientConfiguration"]["Mediafile"].append({"MediafileKey":dialog_values.get("key"),"MediafileExt":ext[1:],"MediafileData":dialog_values.get("base64")}) 
+                session["configuration"]["ClientConfiguration"]["Mediafile"].append({"MediafileKey":dialog_values.get("key"),"MediafileExt":ext[1:],"MediafileData":dialog_values.get("base64")}) 
                 hashMap.put("RefreshScreen","")
      
 
@@ -2413,7 +2391,7 @@ def mediafiles_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration["ClientConfiguration"]["Mediafile"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]["ClientConfiguration"]["Mediafile"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -2423,8 +2401,8 @@ def mediafiles_input(hashMap,_files=None,_data=None):
 
 def mediafiles_open(hashMap,_files=None,_data=None):
 
-    if "Mediafile" in configuration["ClientConfiguration"]:
-        hashMap.put("mediafiles_table",json.dumps(make_mediafiles_table(configuration["ClientConfiguration"]["Mediafile"]),ensure_ascii=False))
+    if "Mediafile" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("mediafiles_table",json.dumps(make_mediafiles_table(session["configuration"]["ClientConfiguration"]["Mediafile"]),ensure_ascii=False))
     else:    
         hashMap.put("mediafiles_table",json.dumps(make_mediafiles_table([]),ensure_ascii=False))
  
@@ -2432,8 +2410,8 @@ def mediafiles_open(hashMap,_files=None,_data=None):
 
 def activecv_process_open(hashMap,_files=None,_data=None):
 
-    if not current_element == None:
-        hashMap.put("steps_table",json.dumps(make_onefield_table(current_element["CVFrames"],"Name","Шаг ActiveCV"),ensure_ascii=False))
+    if not session["current_element"] == None:
+        hashMap.put("steps_table",json.dumps(make_onefield_table(session["current_element"]["CVFrames"],"Name","Шаг ActiveCV"),ensure_ascii=False))
     else:
         hashMap.put("steps_table",json.dumps(make_onefield_table([],"Name","Шаг ActiveCV"),ensure_ascii=False))
    
@@ -2441,19 +2419,10 @@ def activecv_process_open(hashMap,_files=None,_data=None):
 
 def activecv_process_input(hashMap,_files=None,_data=None):
 
-    global current_parent
-    global current_parent_dict
-
-    global processes_table
-    global parent_element
-    global processes_table_id
-    global screens_table_id
-    global current_element
-
-    if current_element==None:
+    if session["current_element"]==None:
         closeuid  =hashMap.get("process_uid")
     else:    
-        closeuid = current_element['uid']
+        closeuid = session["current_element"]['uid']
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_add_step" or hashMap.get("listener")=="btn_edit_step":
 
@@ -2461,34 +2430,34 @@ def activecv_process_input(hashMap,_files=None,_data=None):
 
   
 
-        if processes_table_id==-1:
-            processes_table.append({
+        if session["processes_table_id"]==-1:
+            session["processes_table"].append({
                                                     "CVOperationName": hashMap.get("process_name"),
                                                     "type":"CVOperation",
                                                     "uid": closeuid,
                                                     "CVFrames":[]
                                                 
                                                 })
-            processes_table_id=len(processes_table)-1
+            session["processes_table_id"]=len(session["processes_table"])-1
 
         else:   
-            current_element["ProcessName"] =hashMap.get("process_name") 
-            current_element["hidden"] =hashMap.get("hidden") 
-            current_element["uid"] =closeuid 
+            session["current_element"]["ProcessName"] =hashMap.get("process_name") 
+            session["current_element"]["hidden"] =hashMap.get("hidden") 
+            session["current_element"]["uid"] =closeuid 
 
-        current_parent = (processes_table[processes_table_id],None)
-        current_element = current_parent[0]
-        current_parent_dict[closeuid] = current_parent
+        session["current_parent"] = (session["processes_table"][session["processes_table_id"]],None)
+        session["current_element"] = session["current_parent"][0]
+        session["current_parent_dict"][closeuid] = session["current_parent"]
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_close":
 
         hashMap.put("CloseTab",closeuid)
 
-        hashMap.put("processes_table",json.dumps(make_processes_table(processes_table),ensure_ascii=False))
+        hashMap.put("processes_table",json.dumps(make_processes_table(session["processes_table"]),ensure_ascii=False))
 
         hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"main_screen", "key":"Процессы", "reopen":True},ensure_ascii=False))
 
-        save_configuration(configuration,hashMap)
+        save_configuration(session["configuration"],hashMap)
 
         #hashMap.put("UnblockTabs","")
 
@@ -2519,13 +2488,13 @@ def activecv_process_input(hashMap,_files=None,_data=None):
         #hashMap.put("BlockTabs","")
 
                 
-        screens_table_id = -1
-        current_element = None 
-        current_parent = (None,current_parent)
-        current_parent_dict[uid] = current_parent   
+        session["screens_table_id"] = -1
+        session["current_element"] = None 
+        session["current_parent"] = (None,session["current_parent"])
+        session["current_parent_dict"][uid] = session["current_parent"]   
     elif hashMap.get("listener")=="btn_edit_step" or hashMap.get("listener") == "TableDoubleClick":
-        screens_table_id = int(hashMap.get("selected_line_id"))
-        row = current_element["CVFrames"][screens_table_id]
+        session["screens_table_id"] = int(hashMap.get("selected_line_id"))
+        row = session["current_element"]["CVFrames"][session["screens_table_id"]]
         if not 'uid' in row:
            row['uid'] = str(uuid.uuid4().hex)
 
@@ -2551,14 +2520,14 @@ def activecv_process_input(hashMap,_files=None,_data=None):
         #блокировка
         #hashMap.put("BlockTabs","")
 
-        current_element = row  
-        current_parent = (row,current_parent) 
-        current_parent_dict[row['uid']] = current_parent      
+        session["current_element"] = row  
+        session["current_parent"] = (row,session["current_parent"]) 
+        session["current_parent_dict"][row['uid']] = session["current_parent"]      
     elif hashMap.get("listener")=="btn_delete_step":
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-                current_element['CVFrames'].pop(int(hashMap.get(sel_line)))
+                session["current_element"]['CVFrames'].pop(int(hashMap.get(sel_line)))
                 #hashMap.put("screens_table",json.dumps(jtable,ensure_ascii=False)) 
                 #hashMap.put("SetValuesTable",json.dumps([{"screens_table":jtable}]) )       
                 hashMap.put("RefreshScreen","")
@@ -2579,14 +2548,14 @@ def step_open(hashMap,_files=None,_data=None):
 
     recognition_templates = []
     recognition_templates.append("")
-    if "RecognitionTemplates" in configuration['ClientConfiguration']:
-        for t in configuration['ClientConfiguration']["RecognitionTemplates"]:
+    if "RecognitionTemplates" in session["configuration"]['ClientConfiguration']:
+        for t in session["configuration"]['ClientConfiguration']["RecognitionTemplates"]:
             recognition_templates.append(t.get('name'))
     hashMap.put("recognition_templates",";".join(recognition_templates)) 
 
-    if not current_element == None:
-        if  "Handlers" in current_element:
-            hashMap.put("handlers_table",json.dumps(make_handlers_table(current_element["Handlers"],True),ensure_ascii=False))
+    if not session["current_element"] == None:
+        if  "Handlers" in session["current_element"]:
+            hashMap.put("handlers_table",json.dumps(make_handlers_table(session["current_element"]["Handlers"],True),ensure_ascii=False))
         else:
             hashMap.put("handlers_table",json.dumps(make_handlers_table([],True),ensure_ascii=False))    
     else:
@@ -2595,35 +2564,23 @@ def step_open(hashMap,_files=None,_data=None):
     return hashMap
 
 def step_input(hashMap,_files=None,_data=None):
-    global current_parent
-    global current_parent_dict
-
-    global processes_table
-    global parent_element
-    global screens_table_id
-   
-    global current_element
-   
-    global process_table_id
-
-    global edit_handler_mode
 
     closeuid = None
 
-    if current_element==None:
+    if session["current_element"]==None:
         closeuid = hashMap.get("step_uid")
     else:    
-        closeuid = current_element['uid']
+        closeuid = session["current_element"]['uid']
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_add_handler":
 
         
 
-        current_parent =current_parent[1]
-        current_element = current_parent[0]
+        session["current_parent"] =session["current_parent"][1]
+        session["current_element"] = session["current_parent"][0]
 
-        if screens_table_id==-1:
-            current_element['CVFrames'].append({
+        if session["screens_table_id"]==-1:
+            session["current_element"]['CVFrames'].append({
                                                     "type": "CVFrame",
                                                     "Name": hashMap.get("step_name"),
                                                     "uid": closeuid,
@@ -2643,43 +2600,43 @@ def step_input(hashMap,_files=None,_data=None):
                                                 
                                                 }) 
             
-            screens_table_id=len(current_element['CVFrames'])-1
+            session["screens_table_id"]=len(session["current_element"]['CVFrames'])-1
             
             
         else:   
-            current_element['CVFrames'][screens_table_id]["Name"] = hashMap.get("step_name")
-            current_element['CVFrames'][screens_table_id]["uid"] = closeuid
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["Name"] = hashMap.get("step_name")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["uid"] = closeuid
 
-            current_element['CVFrames'][screens_table_id]["CVDetector"] = get_key(detector_elements,hashMap.get("CVDetector"))
-            current_element['CVFrames'][screens_table_id]["CVResolution"] = hashMap.get("CVResolution")
-            current_element['CVFrames'][screens_table_id]["CVMode"] = get_key(visual_mode_elements,hashMap.get("CVMode"))
-            current_element['CVFrames'][screens_table_id]["CVActionButtons"] = hashMap.get("CVActionButtons")
-            current_element['CVFrames'][screens_table_id]["CVAction"] = hashMap.get("CVAction")
-            current_element['CVFrames'][screens_table_id]["CVInfo"] = hashMap.get("CVInfo")
-            current_element['CVFrames'][screens_table_id]["CVCameraDevice"] = get_key(camera_mode_elements,hashMap.get("CVCameraDevice"))
-            current_element['CVFrames'][screens_table_id]["CVDetectorMode"] = get_key(detector_mode_elements,hashMap.get("CVDetectorMode"))
-            current_element['CVFrames'][screens_table_id]["CVMask"] = hashMap.get("CVMask")
-            current_element['CVFrames'][screens_table_id]["RecognitionTemplate"] = hashMap.get("RecognitionTemplate")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVDetector"] = get_key(detector_elements,hashMap.get("CVDetector"))
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVResolution"] = hashMap.get("CVResolution")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVMode"] = get_key(visual_mode_elements,hashMap.get("CVMode"))
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVActionButtons"] = hashMap.get("CVActionButtons")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVAction"] = hashMap.get("CVAction")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVInfo"] = hashMap.get("CVInfo")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVCameraDevice"] = get_key(camera_mode_elements,hashMap.get("CVCameraDevice"))
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVDetectorMode"] = get_key(detector_mode_elements,hashMap.get("CVDetectorMode"))
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["CVMask"] = hashMap.get("CVMask")
+            session["current_element"]['CVFrames'][session["screens_table_id"]]["RecognitionTemplate"] = hashMap.get("RecognitionTemplate")
                
         
-        current_parent = (current_element['CVFrames'][screens_table_id],current_parent)
-        current_parent_dict[closeuid] = current_parent
+        session["current_parent"] = (session["current_element"]['CVFrames'][session["screens_table_id"]],session["current_parent"])
+        session["current_parent_dict"][closeuid] = session["current_parent"]
 
         
-        current_element = current_parent[0]
+        session["current_element"] = session["current_parent"][0]
         
 
 
     if hashMap.get("listener")=="btn_save" or hashMap.get("listener")=="btn_close":
  
         hashMap.put("CloseTab",closeuid)
-        hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"activecv_process_form", "key":current_parent[1][0]['uid'], "reopen":True},ensure_ascii=False))
+        hashMap.put("OpenScreen",json.dumps({"process":"Процессы","screen":"activecv_process_form", "key":session["current_parent"][1][0]['uid'], "reopen":True},ensure_ascii=False))
 
-        current_parent = current_parent[1]
-        process_table_id = processes_table.index(current_parent[0])
-        current_element = current_parent[0]
+        session["current_parent"] = session["current_parent"][1]
+        process_table_id = session["processes_table"].index(session["current_parent"][0])
+        session["current_element"] = session["current_parent"][0]
 
-        save_configuration(configuration,hashMap)
+        save_configuration(session["configuration"],hashMap)
 
         #блокировка
         #hashMap.put("UnblockTabs","")
@@ -2702,7 +2659,7 @@ def step_input(hashMap,_files=None,_data=None):
         hashMap.put("method_postExecute","")
        
         postExecute = ""
-        edit_handler_mode = -1
+        session["edit_handler_mode"] = -1
 
     elif hashMap.get("listener") == "btn_edit_handler":
         if hashMap.containsKey("selected_line_id"):
@@ -2710,9 +2667,9 @@ def step_input(hashMap,_files=None,_data=None):
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            edit_handler_mode = int(hashMap.get("selected_line_id"))
+            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
-            handler_str = current_element['Handlers'][edit_handler_mode]
+            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
 
            
             hashMap.put("event",handler_str.get("event",""))
@@ -2742,22 +2699,22 @@ def step_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
             pos = int(hashMap.get("selected_line_id"))   
-            current_element['Handlers'].pop(pos)
+            session["current_element"]['Handlers'].pop(pos)
             hashMap.put("RefreshScreen","")
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if edit_handler_mode == -1:
+        if session["edit_handler_mode"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "Handlers" in current_element:
-                current_element['Handlers'] = []
+            if not "Handlers" in session["current_element"]:
+                session["current_element"]['Handlers'] = []
             
             postExecute = ""
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
+            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
             hashMap.put("RefreshScreen","")
             
         else:
@@ -2767,7 +2724,7 @@ def step_input(hashMap,_files=None,_data=None):
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'][edit_handler_mode] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
            
 
@@ -3018,13 +2975,11 @@ platenumber_layout =  {
         }
     
 
-recognition_table_id = -1
+session["recognition_table_id"] = -1
 def recognition_input(hashMap,_files=None,_data=None):
-    global recognition_table_id
-    global configuration
-  
+ 
     if hashMap.get("listener")=="btn_add_ocr":
-        recognition_table_id = -1
+        session["recognition_table_id"]  = -1
         hashMap.put("ShowDialogLayout",json.dumps(ocr_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление Распознавание текста"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3042,7 +2997,7 @@ def recognition_input(hashMap,_files=None,_data=None):
         hashMap.put("OnlyNumbers","")
 
     elif hashMap.get("listener")=="btn_add_date":
-        recognition_table_id = -2
+        session["recognition_table_id"]  = -2
         hashMap.put("ShowDialogLayout",json.dumps(date_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление Распознавание дат"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3052,7 +3007,7 @@ def recognition_input(hashMap,_files=None,_data=None):
         hashMap.put("result_field","")
     
     elif hashMap.get("listener")=="btn_add_number":
-        recognition_table_id = -3
+        session["recognition_table_id"]  = -3
         hashMap.put("ShowDialogLayout",json.dumps(number_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление Распознавание чисел"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3062,7 +3017,7 @@ def recognition_input(hashMap,_files=None,_data=None):
         hashMap.put("count_objects","")
     
     elif hashMap.get("listener")=="btn_add_platenumbers":
-        recognition_table_id = -4
+        session["recognition_table_id"]  = -4
         hashMap.put("ShowDialogLayout",json.dumps(platenumber_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление Распознавание автомобильных номеров"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3072,8 +3027,8 @@ def recognition_input(hashMap,_files=None,_data=None):
 
     elif hashMap.get("listener")=="btn_edit_recognition" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
-            recognition_table_id = int(hashMap.get("selected_line_id"))
-            row = configuration['ClientConfiguration']["RecognitionTemplates"][recognition_table_id]     
+            session["recognition_table_id"]  = int(hashMap.get("selected_line_id"))
+            row = session["configuration"]['ClientConfiguration']["RecognitionTemplates"][session["recognition_table_id"] ]     
             if row.get("DateRecognition") == True:
                 hashMap.put("ShowDialogLayout",json.dumps(date_layout,ensure_ascii=False))
                 hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Распознавание дат"},ensure_ascii=False))
@@ -3118,12 +3073,12 @@ def recognition_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == "onResultPositive": 
         dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
         
-        if not "RecognitionTemplates" in configuration['ClientConfiguration']:
-                configuration['ClientConfiguration']["RecognitionTemplates"] = []
+        if not "RecognitionTemplates" in session["configuration"]['ClientConfiguration']:
+                session["configuration"]['ClientConfiguration']["RecognitionTemplates"] = []
 
         
-        if recognition_table_id == -1:
-            configuration['ClientConfiguration']["RecognitionTemplates"].append(
+        if session["recognition_table_id"]  == -1:
+            session["configuration"]['ClientConfiguration']["RecognitionTemplates"].append(
                 {"name":dialog_values.get("name"),
                  "query":dialog_values.get("query"),
                  "control_field":dialog_values.get("control_field"),
@@ -3134,21 +3089,21 @@ def recognition_input(hashMap,_files=None,_data=None):
                  "OnlyNumbers":dialog_values.get("OnlyNumbers"),
                  "max_length":dialog_values.get("max_length"),
                  "min_length":dialog_values.get("min_length")})         
-        elif recognition_table_id == -2:
-            configuration['ClientConfiguration']["RecognitionTemplates"].append(
+        elif session["recognition_table_id"]  == -2:
+            session["configuration"]['ClientConfiguration']["RecognitionTemplates"].append(
                 {"name":dialog_values.get("name"),
                  "DateRecognition":  True,                 
                  "result_field":dialog_values.get("result_field"),
                  })             
-        elif recognition_table_id == -3:
-            configuration['ClientConfiguration']["RecognitionTemplates"].append(
+        elif session["recognition_table_id"]  == -3:
+            session["configuration"]['ClientConfiguration']["RecognitionTemplates"].append(
                 {"name":dialog_values.get("name"),
                  "NumberRecognition":  True,                 
                  "result_field":dialog_values.get("result_field"),
                  "count_objects":dialog_values.get("count_objects"),
                  })             
-        elif recognition_table_id == -4:
-            configuration['ClientConfiguration']["RecognitionTemplates"].append(
+        elif session["recognition_table_id"]  == -4:
+            session["configuration"]['ClientConfiguration']["RecognitionTemplates"].append(
                 {"name":dialog_values.get("name"),
                  "PlateNumberRecognition":  True,                 
                  "result_field":dialog_values.get("result_field"),
@@ -3157,7 +3112,7 @@ def recognition_input(hashMap,_files=None,_data=None):
             if hashMap.containsKey("selected_line_id"):
 
                 pos = int(hashMap.get("selected_line_id"))
-                row = configuration['ClientConfiguration']["RecognitionTemplates"][pos]     
+                row = session["configuration"]['ClientConfiguration']["RecognitionTemplates"][pos]     
                 if row.get("DateRecognition") == True:
                     row["name"] = dialog_values.get("name")
                     row["result_field"] = dialog_values.get("result_field")
@@ -3192,7 +3147,7 @@ def recognition_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration['ClientConfiguration']["RecognitionTemplates"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]['ClientConfiguration']["RecognitionTemplates"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -3202,8 +3157,8 @@ def recognition_input(hashMap,_files=None,_data=None):
 
 def recognition_open(hashMap,_files=None,_data=None):
 
-    if "RecognitionTemplates" in configuration['ClientConfiguration']:
-        hashMap.put("recognition_table",json.dumps(make_onefield_table(configuration['ClientConfiguration']["RecognitionTemplates"],"name","Имя"),ensure_ascii=False))
+    if "RecognitionTemplates" in session["configuration"]['ClientConfiguration']:
+        hashMap.put("recognition_table",json.dumps(make_onefield_table(session["configuration"]['ClientConfiguration']["RecognitionTemplates"],"name","Имя"),ensure_ascii=False))
     else:    
         hashMap.put("recognition_table",json.dumps(make_onefield_table([],"name","Имя"),ensure_ascii=False))
  
@@ -3396,15 +3351,13 @@ style_layout =  {
 
 
 
-styles_table_id = -1
+session["styles_table_id"] = -1
 def styles_input(hashMap,_files=None,_data=None):
-    global styles_table_id
-    global configuration
 
     element_base = screen_elements
   
     if hashMap.get("listener")=="btn_add_style":
-        styles_table_id = -1
+        session["styles_table_id"] = -1
         hashMap.put("ShowDialogLayout",json.dumps(style_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление шаблона стиля"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3436,44 +3389,44 @@ def styles_input(hashMap,_files=None,_data=None):
    
     elif hashMap.get("listener")=="btn_edit_style" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
-            styles_table_id = int(hashMap.get("selected_line_id"))
-            current_element = configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]     
+            session["styles_table_id"] = int(hashMap.get("selected_line_id"))
+            session["current_element"] = session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]     
             
             hashMap.put("ShowDialogLayout",json.dumps(style_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Редактирование таймера"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            hashMap.put("name",current_element.get("name"))
+            hashMap.put("name",session["current_element"].get("name"))
 
             #hashMap.put("gravity_vertical", get_synonym(element_base,current_element.get("gravity_vertical")))
-            hashMap.put("gravity_horizontal", get_synonym(element_base,current_element.get("gravity_horizontal")))
+            hashMap.put("gravity_horizontal", get_synonym(element_base,session["current_element"].get("gravity_horizontal")))
             
-            if "height_element" in current_element:
-                hashMap.put("height", get_synonym(element_base,current_element.get("manual")))
+            if "height_element" in session["current_element"]:
+                hashMap.put("height", get_synonym(element_base,session["current_element"].get("manual")))
             else:    
-                hashMap.put("height", get_synonym(element_base,current_element.get("height")))
+                hashMap.put("height", get_synonym(element_base,session["current_element"].get("height")))
 
-            if "width_element" in current_element:
-                hashMap.put("width", get_synonym(element_base,current_element.get("manual")))
+            if "width_element" in session["current_element"]:
+                hashMap.put("width", get_synonym(element_base,session["current_element"].get("manual")))
             else:    
-                hashMap.put("width", get_synonym(element_base,current_element.get("width")))    
+                hashMap.put("width", get_synonym(element_base,session["current_element"].get("width")))    
             
             
 
-            hashMap.put("BackgroundColor", current_element.get("BackgroundColor",""))
-            hashMap.put("StrokeWidth", current_element.get("StrokeWidth",""))
-            hashMap.put("Padding", current_element.get("Padding",""))
-            hashMap.put("height_value", current_element.get("height_value",""))
-            hashMap.put("width_value", current_element.get("width_value",""))
-            hashMap.put("weight", current_element.get("weight",""))
-            hashMap.put("BackgroundColor", current_element.get("BackgroundColor",""))
-            hashMap.put("TextSize", current_element.get("TextSize",""))
-            hashMap.put("TextColor", current_element.get("TextColor",""))
-            hashMap.put("TextBold", current_element.get("TextBold",""))
-            hashMap.put("TextItalic", current_element.get("TextItalic",""))
-            hashMap.put("NumberPrecision", current_element.get("NumberPrecision",""))
-            hashMap.put("use_as_class", current_element.get("use_as_class",""))
-            hashMap.put("raw", current_element.get("raw",""))
+            hashMap.put("BackgroundColor", session["current_element"].get("BackgroundColor",""))
+            hashMap.put("StrokeWidth", session["current_element"].get("StrokeWidth",""))
+            hashMap.put("Padding", session["current_element"].get("Padding",""))
+            hashMap.put("height_value", session["current_element"].get("height_value",""))
+            hashMap.put("width_value", session["current_element"].get("width_value",""))
+            hashMap.put("weight", session["current_element"].get("weight",""))
+            hashMap.put("BackgroundColor", session["current_element"].get("BackgroundColor",""))
+            hashMap.put("TextSize", session["current_element"].get("TextSize",""))
+            hashMap.put("TextColor", session["current_element"].get("TextColor",""))
+            hashMap.put("TextBold", session["current_element"].get("TextBold",""))
+            hashMap.put("TextItalic", session["current_element"].get("TextItalic",""))
+            hashMap.put("NumberPrecision", session["current_element"].get("NumberPrecision",""))
+            hashMap.put("use_as_class", session["current_element"].get("use_as_class",""))
+            hashMap.put("raw", session["current_element"].get("raw",""))
             
           
     
@@ -3496,11 +3449,11 @@ def styles_input(hashMap,_files=None,_data=None):
         else:
             height  = get_key(scale_elements,dialog_values.get("height"))    
         
-        if not "StyleTemplates" in configuration['ClientConfiguration']:
-                configuration['ClientConfiguration']["StyleTemplates"] = []
+        if not "StyleTemplates" in session["configuration"]['ClientConfiguration']:
+                session["configuration"]['ClientConfiguration']["StyleTemplates"] = []
 
         
-        if styles_table_id == -1:
+        if session["styles_table_id"] == -1:
             d =  {"name":dialog_values.get("name"),
                 #"gravity_vertical":get_key(element_base,dialog_values.get("gravity_vertical")),
                 "height":height,
@@ -3521,29 +3474,29 @@ def styles_input(hashMap,_files=None,_data=None):
                 }
             if dialog_values.get("use_as_class")==True:
                 d["style_class"] = dialog_values.get("name")
-            configuration['ClientConfiguration']["StyleTemplates"].append(d)
+            session["configuration"]['ClientConfiguration']["StyleTemplates"].append(d)
         else:
-           configuration["StyleTemplates"][styles_table_id]["name"] =  dialog_values.get("name")
+           session["configuration"]["StyleTemplates"][session["styles_table_id"]]["name"] =  dialog_values.get("name")
            if dialog_values.get("use_as_class")==True:
-                configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]["style_class"] = dialog_values.get("name")
+                session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]["style_class"] = dialog_values.get("name")
            
            #configuration["StyleTemplates"][recognition_table_id]['gravity_vertical'] = get_key(element_base,hashMap.get("gravity_vertical"))
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['gravity_horizontal'] = get_key(gravity_elements,dialog_values.get("gravity_horizontal"))
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['height'] = height
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['width'] = width
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['BackgroundColor'] = dialog_values.get("BackgroundColor")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['StrokeWidth'] = dialog_values.get("StrokeWidth")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['Padding'] = dialog_values.get("Padding")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['height_value'] = dialog_values.get("height_value")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['width_value'] = dialog_values.get("width_value")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['weight'] = dialog_values.get("weight")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['TextSize'] = dialog_values.get("TextSize")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['TextColor'] = dialog_values.get("TextColor")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['TextBold'] = dialog_values.get("TextBold")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['TextItalic'] = dialog_values.get("TextItalic")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['NumberPrecision'] = dialog_values.get("NumberPrecision") 
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['use_as_class'] = dialog_values.get("use_as_class")
-           configuration['ClientConfiguration']["StyleTemplates"][styles_table_id]['raw'] = dialog_values.get("raw")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['gravity_horizontal'] = get_key(gravity_elements,dialog_values.get("gravity_horizontal"))
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['height'] = height
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['width'] = width
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['BackgroundColor'] = dialog_values.get("BackgroundColor")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['StrokeWidth'] = dialog_values.get("StrokeWidth")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['Padding'] = dialog_values.get("Padding")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['height_value'] = dialog_values.get("height_value")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['width_value'] = dialog_values.get("width_value")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['weight'] = dialog_values.get("weight")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['TextSize'] = dialog_values.get("TextSize")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['TextColor'] = dialog_values.get("TextColor")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['TextBold'] = dialog_values.get("TextBold")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['TextItalic'] = dialog_values.get("TextItalic")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['NumberPrecision'] = dialog_values.get("NumberPrecision") 
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['use_as_class'] = dialog_values.get("use_as_class")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['raw'] = dialog_values.get("raw")
                        
           
 
@@ -3557,7 +3510,7 @@ def styles_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration['ClientConfiguration']["StyleTemplates"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]['ClientConfiguration']["StyleTemplates"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -3574,8 +3527,8 @@ def styles_open(hashMap,_files=None,_data=None):
     hashMap.put("vertical_gravity_elements",captions_vertical_gravity_elements)
 
 
-    if "StyleTemplates" in configuration['ClientConfiguration']:
-        hashMap.put("styles_table",json.dumps(make_onefield_table(configuration['ClientConfiguration']["StyleTemplates"],"name","Имя"),ensure_ascii=False))
+    if "StyleTemplates" in session["configuration"]['ClientConfiguration']:
+        hashMap.put("styles_table",json.dumps(make_onefield_table(session["configuration"]['ClientConfiguration']["StyleTemplates"],"name","Имя"),ensure_ascii=False))
     else:    
         hashMap.put("styles_table",json.dumps(make_onefield_table([],"name","Имя"),ensure_ascii=False))
  
@@ -3693,15 +3646,11 @@ menu_layout =  {
 
 
 
-timers_table_id = -1
+session["timers_table_id"] = -1
 def timers_input(hashMap,_files=None,_data=None):
-    global timers_table_id
-    global configuration
-
-   
   
     if hashMap.get("listener")=="btn_add_timer":
-        timers_table_id = -1
+        session["timers_table_id"] = -1
         hashMap.put("ShowDialogLayout",json.dumps(timers_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление таймера"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3714,37 +3663,37 @@ def timers_input(hashMap,_files=None,_data=None):
    
     elif hashMap.get("listener")=="btn_edit_timer" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
-            timers_table_id = int(hashMap.get("selected_line_id"))
-            current_element = configuration["ClientConfiguration"]["PyTimerTask"][timers_table_id]     
+            session["timers_table_id"] = int(hashMap.get("selected_line_id"))
+            session["current_element"] = session["configuration"]["ClientConfiguration"]["PyTimerTask"][session["timers_table_id"]]     
             
             hashMap.put("ShowDialogLayout",json.dumps(timers_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Редактирование таймера"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            hashMap.put("PyTimerTaskKey",current_element.get("PyTimerTaskKey"))
-            hashMap.put("PyTimerTaskDef",current_element.get("PyTimerTaskDef"))
-            hashMap.put("PyTimerTaskPeriod",current_element.get("PyTimerTaskPeriod"))
-            hashMap.put("PyTimerTaskBuilIn",current_element.get("PyTimerTaskBuilIn"))
+            hashMap.put("PyTimerTaskKey",session["current_element"].get("PyTimerTaskKey"))
+            hashMap.put("PyTimerTaskDef",session["current_element"].get("PyTimerTaskDef"))
+            hashMap.put("PyTimerTaskPeriod",session["current_element"].get("PyTimerTaskPeriod"))
+            hashMap.put("PyTimerTaskBuilIn",session["current_element"].get("PyTimerTaskBuilIn"))
     
     elif hashMap.get("listener") == "onResultPositive": 
         dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
         
-        if not "PyTimerTask" in configuration["ClientConfiguration"]:
-                configuration["ClientConfiguration"]["PyTimerTask"] = []
+        if not "PyTimerTask" in session["configuration"]["ClientConfiguration"]:
+                session["configuration"]["ClientConfiguration"]["PyTimerTask"] = []
         
-        if timers_table_id == -1:
+        if session["timers_table_id"] == -1:
             d =  {"PyTimerTaskKey":dialog_values.get("PyTimerTaskKey"),
              "PyTimerTaskDef":dialog_values.get("PyTimerTaskDef"),
              "PyTimerTaskPeriod":dialog_values.get("PyTimerTaskPeriod"),
              "PyTimerTaskBuilIn":dialog_values.get("PyTimerTaskBuilIn")
                 }
 
-            configuration["ClientConfiguration"]["PyTimerTask"].append(d)
+            session["configuration"]["ClientConfiguration"]["PyTimerTask"].append(d)
         else:
-           configuration["ClientConfiguration"]["PyTimerTask"][timers_table_id]["PyTimerTaskKey"] =  dialog_values.get("PyTimerTaskKey")
-           configuration["ClientConfiguration"]["PyTimerTask"][timers_table_id]["PyTimerTaskDef"] =  dialog_values.get("PyTimerTaskDef")
-           configuration["ClientConfiguration"]["PyTimerTask"][timers_table_id]["PyTimerTaskPeriod"] =  dialog_values.get("PyTimerTaskPeriod")
-           configuration["ClientConfiguration"]["PyTimerTask"][timers_table_id]["PyTimerTaskBuilIn"] =  dialog_values.get("PyTimerTaskBuilIn")
+           session["configuration"]["ClientConfiguration"]["PyTimerTask"][session["timers_table_id"]]["PyTimerTaskKey"] =  dialog_values.get("PyTimerTaskKey")
+           session["configuration"]["ClientConfiguration"]["PyTimerTask"][session["timers_table_id"]]["PyTimerTaskDef"] =  dialog_values.get("PyTimerTaskDef")
+           session["configuration"]["ClientConfiguration"]["PyTimerTask"][session["timers_table_id"]]["PyTimerTaskPeriod"] =  dialog_values.get("PyTimerTaskPeriod")
+           session["configuration"]["ClientConfiguration"]["PyTimerTask"][session["timers_table_id"]]["PyTimerTaskBuilIn"] =  dialog_values.get("PyTimerTaskBuilIn")
                       
           
 
@@ -3758,7 +3707,7 @@ def timers_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration["ClientConfiguration"]["PyTimerTask"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]["ClientConfiguration"]["PyTimerTask"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -3768,8 +3717,8 @@ def timers_input(hashMap,_files=None,_data=None):
 
 def timers_open(hashMap,_files=None,_data=None):
 
-    if "PyTimerTask" in configuration["ClientConfiguration"]:
-        hashMap.put("timers_table",json.dumps(make_timers_table(configuration["ClientConfiguration"]["PyTimerTask"]),ensure_ascii=False))
+    if "PyTimerTask" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("timers_table",json.dumps(make_timers_table(session["configuration"]["ClientConfiguration"]["PyTimerTask"]),ensure_ascii=False))
     else:    
         hashMap.put("timers_table",json.dumps(make_timers_table([]),ensure_ascii=False))
  
@@ -3816,15 +3765,12 @@ module_layout =     {
             "Padding": ""
    }
 
-modules_table_id = -1
-handlers_file_type = -1
+session["modules_table_id"] = -1
+session["handlers_file_type"] = -1
 def modules_input(hashMap,_files=None,_data=None):
-    global modules_table_id
-    global handlers_file_type
-    global configuration
   
     if hashMap.get("listener")=="btn_add_file":
-        modules_table_id = -1
+        session["modules_table_id"]  = -1
         hashMap.put("ShowDialogLayout",json.dumps(module_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление модуля"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -3832,11 +3778,11 @@ def modules_input(hashMap,_files=None,_data=None):
 
     
     elif hashMap.get("listener") == "onResultPositive": 
-        if modules_table_id == -1:
+        if session["modules_table_id"]  == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "PyFiles" in configuration["ClientConfiguration"]:
-                    configuration["ClientConfiguration"]["PyFiles"] = []
+            if not "PyFiles" in session["configuration"]["ClientConfiguration"]:
+                    session["configuration"]["ClientConfiguration"]["PyFiles"] = []
             
             if 'base64' in dialog_values:
                 
@@ -3844,14 +3790,14 @@ def modules_input(hashMap,_files=None,_data=None):
                 filename,ext = os.path.splitext(dialog_values.get("file"))
 
                 if ext[1:]=='py':
-                    configuration["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileData":dialog_values.get("base64")}) 
+                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileData":dialog_values.get("base64")}) 
                 
             else:
 
                 if len(dialog_values.get("url",""))>0:
-                    configuration["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileLink":dialog_values.get("url")})     
+                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileLink":dialog_values.get("url")})     
                 else:    
-                    configuration["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
+                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
 
         hashMap.put("RefreshScreen","")
 
@@ -3859,28 +3805,28 @@ def modules_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration["ClientConfiguration"]["PyFiles"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]["ClientConfiguration"]["PyFiles"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
 
     elif hashMap.get("listener")=="btn_load_handlers" and hashMap.containsKey("handlers_file"):
         if ".py" in hashMap.get("handlers_file"):
-            handlers_file_type=1
+            session["handlers_file_type"] =1
             hashMap.put("UploadFile","handlers_file")
     elif     hashMap.get("listener")=="upload_file":
 
         filename = hashMap.get("base_path")+os.sep+"uploads"+os.sep+ hashMap.get("filename")
 
-        if handlers_file_type==1:
+        if session["handlers_file_type"] ==1:
             with open(filename, 'r',encoding='utf-8') as file:
                 data = file.read()
 
             base64file  = base64.b64encode(data.encode('utf-8')).decode('utf-8') 
-            configuration["ClientConfiguration"]["PyHandlers"]=base64file
+            session["configuration"]["ClientConfiguration"]["PyHandlers"]=base64file
     elif hashMap.get("listener")=="btn_handlers_save":        
-        configuration["ClientConfiguration"]["GitHubHandlers"] = hashMap.get("handlers_url")
-        configuration["ClientConfiguration"]["GitHubToken"] = hashMap.get("handlers_token")
+        session["configuration"]["ClientConfiguration"]["GitHubHandlers"] = hashMap.get("handlers_url")
+        session["configuration"]["ClientConfiguration"]["GitHubToken"] = hashMap.get("handlers_token")
         
 
         
@@ -3943,19 +3889,19 @@ def modules_open(hashMap,_files=None,_data=None):
     link = "http://"+ socket.gethostbyname(socket.gethostname())+":"+str(WSPORT)
 
     t = Template(header2)
-    docdata = { 'url': link, 'uid': host_uid }
+    docdata = { 'url': link, 'uid': session["host_uid"] }
    
 
 
     res = t.render(docdata=docdata)
 
     hashMap.put("header2",res)
-    hashMap.put("handlers_url",configuration["ClientConfiguration"].get("GitHubHandlers",""))
-    hashMap.put("handlers_token",configuration["ClientConfiguration"].get("GitHubToken",""))
-    hashMap.put("agent",configuration["ClientConfiguration"].get("agent",""))
+    hashMap.put("handlers_url",session["configuration"]["ClientConfiguration"].get("GitHubHandlers",""))
+    hashMap.put("handlers_token",session["configuration"]["ClientConfiguration"].get("GitHubToken",""))
+    hashMap.put("agent",session["configuration"]["ClientConfiguration"].get("agent",""))
 
-    if "PyFiles" in configuration["ClientConfiguration"]:
-        hashMap.put("modules_table",json.dumps(make_onefield_table(configuration["ClientConfiguration"]["PyFiles"],"PyFileKey","file"),ensure_ascii=False))
+    if "PyFiles" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("modules_table",json.dumps(make_onefield_table(session["configuration"]["ClientConfiguration"]["PyFiles"],"PyFileKey","file"),ensure_ascii=False))
     else:    
         hashMap.put("modules_table",json.dumps(make_onefield_table([],"PyFileKey","file"),ensure_ascii=False))
  
@@ -3967,31 +3913,16 @@ def layouts_open(hashMap,_files=None,_data=None):
 
 
  
-    if "Layouts" in configuration["ClientConfiguration"]:
-        hashMap.put("layouts_table",json.dumps(make_onefield_table(configuration["ClientConfiguration"]["Layouts"],"Variable","Переменная"),ensure_ascii=False))
+    if "Layouts" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("layouts_table",json.dumps(make_onefield_table(session["configuration"]["ClientConfiguration"]["Layouts"],"Variable","Переменная"),ensure_ascii=False))
     else:    
         hashMap.put("layouts_table",json.dumps(make_onefield_table([],"Variable","Переменная"),ensure_ascii=False))
  
     return hashMap
 
 def layouts_input(hashMap,_files=None,_data=None):
-    global current_parent
-    global current_parent_dict
-    
 
-    global processes_table
-    global parent_element
-
-    global elements_table_id
-    global current_element
-    #global parent_elelments_element
-    global process_table_id
-
-    global edit_handler_mode
-    global configuration
-    global layouts_edit
-
-    layouts_edit = True
+    session["layouts_edit"] = True
  
     if hashMap.get("listener")=="btn_add_element":
 
@@ -4016,17 +3947,17 @@ def layouts_input(hashMap,_files=None,_data=None):
         hashMap.put("SetTitle","Новый элемент экрана - *")
         
                 
-        elements_table_id = -1
-        current_element = None  
+        session["elements_table_id"] = -1
+        session["current_element"] = None  
 
-        current_parent = (current_element,None)
-        current_parent_dict[uid] = current_parent 
+        session["current_parent"] = (session["current_element"],None)
+        session["current_parent_dict"][uid] = session["current_parent"] 
 
     elif hashMap.get("listener")=="btn_edit_element" or hashMap.get("listener") == "TableDoubleClick":
         
         if hashMap.containsKey("selected_line_id"):
-            elements_table_id = int(hashMap.get("selected_line_id"))
-            row = configuration["ClientConfiguration"]["Layouts"][elements_table_id]
+            session["elements_table_id"] = int(hashMap.get("selected_line_id"))
+            row = session["configuration"]["ClientConfiguration"]["Layouts"][session["elements_table_id"]]
             
             if not 'uid' in row:
                 row['uid'] = str(uuid.uuid4().hex)
@@ -4040,17 +3971,17 @@ def layouts_input(hashMap,_files=None,_data=None):
 
             #parent_elelments_element = current_element
 
-            current_parent = (row,None)
-            current_parent_dict[row['uid']] = current_parent
+            session["current_parent"] = (row,None)
+            session["current_parent_dict"][row['uid']] = session["current_parent"]
 
-            current_element = row     
+            session["current_element"] = row     
 
             hashMap.remove("selected_line_id")  
 
     elif hashMap.get("listener")=="btn_delete_element":
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-                configuration["ClientConfiguration"]["Layouts"].pop(int(hashMap.get(sel_line)))
+                session["configuration"]["ClientConfiguration"]["Layouts"].pop(int(hashMap.get(sel_line)))
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)    
 
@@ -4071,16 +4002,16 @@ def layouts_input(hashMap,_files=None,_data=None):
         hashMap.put("method_postExecute","")
 
         postExecute = ""
-        edit_handler_mode = -1
+        session["edit_handler_mode"] = -1
     elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
             hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            edit_handler_mode = int(hashMap.get("selected_line_id"))
+            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
-            handler_str = current_element['Handlers'][edit_handler_mode]
+            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
 
            
             hashMap.put("event",handler_str.get("event",""))
@@ -4110,22 +4041,22 @@ def layouts_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
             pos = int(hashMap.get("selected_line_id"))   
-            current_element['Handlers'].pop(pos)
+            session["current_element"]['Handlers'].pop(pos)
             hashMap.put("RefreshScreen","")
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if edit_handler_mode == -1:
+        if session["edit_handler_mode"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "Handlers" in current_element:
-                current_element['Handlers'] = []
+            if not "Handlers" in session["current_element"]:
+                session["current_element"]['Handlers'] = []
             
             postExecute = ""
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
+            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
             hashMap.put("RefreshScreen","")
             hashMap.put("callSelectTab","Обработчики")
             hashMap.put("SelectTab","Обработчики")
@@ -4137,7 +4068,7 @@ def layouts_input(hashMap,_files=None,_data=None):
             if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
                 postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
 
-            current_element['Handlers'][edit_handler_mode] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
             hashMap.put("callSelectTab","Обработчики")
             hashMap.put("SelectTab","Обработчики")
@@ -4187,7 +4118,7 @@ def info_on_start(hashMap,_files=None,_data=None):
 def source_code(hashMap,_files=None,_data=None):
 
     
-    source = json.dumps(configuration,ensure_ascii=False,indent=4,separators=(',', ': '))
+    source = json.dumps(session["configuration"],ensure_ascii=False,indent=4,separators=(',', ': '))
 
     htmlstring = """
     <!DOCTYPE html>
@@ -4203,22 +4134,20 @@ def source_code(hashMap,_files=None,_data=None):
 def menu_open(hashMap,_files=None,_data=None):
     hashMap.put("main_menu_elements",";".join(main_menu_elements))
 
-    if "MainMenu" in configuration["ClientConfiguration"]:
-        hashMap.put("menu_table",json.dumps(make_menu_table(configuration["ClientConfiguration"]["MainMenu"]),ensure_ascii=False))
+    if "MainMenu" in session["configuration"]["ClientConfiguration"]:
+        hashMap.put("menu_table",json.dumps(make_menu_table(session["configuration"]["ClientConfiguration"]["MainMenu"]),ensure_ascii=False))
     else:    
         hashMap.put("menu_table",json.dumps(make_menu_table([]),ensure_ascii=False))
  
     return hashMap
 
-menu_table_id = -1
+session["menu_table_id"] = -1
 def menu_input(hashMap,_files=None,_data=None):
-    global menu_table_id
-    global configuration
 
-   
+  
   
     if hashMap.get("listener")=="btn_add_menu":
-        menu_table_id = -1
+        session["menu_table_id"] = -1
         hashMap.put("ShowDialogLayout",json.dumps(menu_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление меню"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
@@ -4231,37 +4160,37 @@ def menu_input(hashMap,_files=None,_data=None):
    
     elif hashMap.get("listener")=="btn_edit_menu" or hashMap.get("listener") == "TableDoubleClick":
         if hashMap.containsKey("selected_line_id"):
-            menu_table_id = int(hashMap.get("selected_line_id"))
-            current_element = configuration["ClientConfiguration"]["MainMenu"][menu_table_id]     
+            session["menu_table_id"] = int(hashMap.get("selected_line_id"))
+            session["current_element"] = session["configuration"]["ClientConfiguration"]["MainMenu"][session["menu_table_id"]]     
             
             hashMap.put("ShowDialogLayout",json.dumps(menu_layout,ensure_ascii=False))
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Редактирование меню"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            hashMap.put("MenuItem",current_element.get("MenuItem"))
-            hashMap.put("MenuTitle",current_element.get("MenuTitle"))
-            hashMap.put("MenuId",current_element.get("MenuId"))
-            hashMap.put("MenuTop",current_element.get("MenuTop"))
+            hashMap.put("MenuItem",session["current_element"].get("MenuItem"))
+            hashMap.put("MenuTitle",session["current_element"].get("MenuTitle"))
+            hashMap.put("MenuId",session["current_element"].get("MenuId"))
+            hashMap.put("MenuTop",session["current_element"].get("MenuTop"))
     
     elif hashMap.get("listener") == "onResultPositive": 
         dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
         
-        if not "MainMenu" in configuration["ClientConfiguration"]:
-                configuration["ClientConfiguration"]["MainMenu"] = []
+        if not "MainMenu" in session["configuration"]["ClientConfiguration"]:
+                session["configuration"]["ClientConfiguration"]["MainMenu"] = []
         
-        if menu_table_id == -1:
+        if session["menu_table_id"] == -1:
             d =  {"MenuItem":dialog_values.get("MenuItem"),
              "MenuTitle":dialog_values.get("MenuTitle"),
              "MenuId":dialog_values.get("MenuId"),
              "MenuTop":dialog_values.get("MenuTop")
                 }
 
-            configuration["ClientConfiguration"]["MainMenu"].append(d)
+            session["configuration"]["ClientConfiguration"]["MainMenu"].append(d)
         else:
-           configuration["ClientConfiguration"]["MainMenu"][menu_table_id]["MenuItem"] =  dialog_values.get("MenuItem")
-           configuration["ClientConfiguration"]["MainMenu"][menu_table_id]["MenuTitle"] =  dialog_values.get("MenuTitle")
-           configuration["ClientConfiguration"]["MainMenu"][menu_table_id]["MenuId"] =  dialog_values.get("MenuId")
-           configuration["ClientConfiguration"]["MainMenu"][menu_table_id]["MenuTop"] =  dialog_values.get("MenuTop")
+           session["configuration"]["ClientConfiguration"]["MainMenu"][session["menu_table_id"]]["MenuItem"] =  dialog_values.get("MenuItem")
+           session["configuration"]["ClientConfiguration"]["MainMenu"][session["menu_table_id"]]["MenuTitle"] =  dialog_values.get("MenuTitle")
+           session["configuration"]["ClientConfiguration"]["MainMenu"][session["menu_table_id"]]["MenuId"] =  dialog_values.get("MenuId")
+           session["configuration"]["ClientConfiguration"]["MainMenu"][session["menu_table_id"]]["MenuTop"] =  dialog_values.get("MenuTop")
                       
           
 
@@ -4275,7 +4204,7 @@ def menu_input(hashMap,_files=None,_data=None):
         
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
-            configuration["ClientConfiguration"]["MainMenu"].pop(int(hashMap.get(sel_line)))
+            session["configuration"]["ClientConfiguration"]["MainMenu"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
