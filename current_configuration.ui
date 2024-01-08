@@ -80,22 +80,6 @@
                                                 "weight": "0",
                                                 "Value": "Загрузить файл",
                                                 "Variable": "btn_upload"
-                                            },
-                                            {
-                                                "type": "Button",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Тест1",
-                                                "Variable": "btn_test"
-                                            },
-                                            {
-                                                "type": "Button",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Тест2",
-                                                "Variable": "btn_test2"
                                             }
                                         ],
                                         "BackgroundColor": "",

@@ -45,6 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
+WS_URL = "https://seditor.ru"
 
 locale_filename = "ru_locale.json"
 
@@ -404,7 +405,7 @@ def configuration_open(hashMap,_files=None,_data=None):
     
     filename = session["host_uid"]+".ui"
 
-    link = "http://"+ socket.gethostbyname(socket.gethostname())+":"+str(WSPORT)+"/get_conf_text?filename="+session["host_uid"]+".ui"
+    link = WS_URL+":"+str(WSPORT)+"/get_conf_text?filename="+session["host_uid"]+".ui"
 
     jqr = {
             "RawConfigurationURL":link,
@@ -549,6 +550,7 @@ def save_configuration(configuration,hashMap,full=False):
                     new_operation = copy.deepcopy(frame)
                     new_operation = remove_uid(new_operation)
                     new_operation = remove_empty(new_operation)
+                    new_operation['CVOnline']=False
 
                     if 'RecognitionTemplate' in new_operation:
                         template = get_recognition_template(frame.get('RecognitionTemplate'))
@@ -599,6 +601,8 @@ def save_configuration(configuration,hashMap,full=False):
                 handlers_txt = get_text_from_ginthub(handlers_url,handlers_token)
                 if handlers_txt!=None:
                     new_configuration["ClientConfiguration"]["PyHandlers"] = base64.b64encode(handlers_txt.encode('utf-8')).decode('utf-8')
+                else:
+                    hashMap.put("toast", "Ошибка получения данных из GitHub")
 
                 if "PyFiles" in configuration["ClientConfiguration"]:
                     for filestr in configuration["ClientConfiguration"]["PyFiles"]:
@@ -606,12 +610,14 @@ def save_configuration(configuration,hashMap,full=False):
                             handlers_txt = get_text_from_ginthub(filestr.get("PyFileLink",""),handlers_token)
                             if handlers_txt!=None:
                                 filestr["PyFileData"] = base64.b64encode(handlers_txt.encode('utf-8')).decode('utf-8')
+                                
         elif new_configuration["ClientConfiguration"].get("agent") == True and not no_agent:
             if FilePyHandlers!=None:
                 new_configuration["ClientConfiguration"]["PyHandlers"] = FilePyHandlers
             if FilePyFiles!=None:
                 new_configuration["ClientConfiguration"]["PyFiles"] = FilePyFiles    
 
+    session["configuration_file"] = new_configuration
     with open(filename, 'w',encoding="utf-8") as f:
         json.dump(new_configuration, f,ensure_ascii=False,indent=4)
 
@@ -1504,7 +1510,7 @@ def screen_input(hashMap,_files=None,_data=None):
             hashMap.put("callSelectTab","Обработчики")
             hashMap.put("SelectTab","Обработчики")
            
-    
+        save_configuration(session["configuration"],hashMap)
 
     return hashMap
 
@@ -1858,9 +1864,6 @@ def element_input(hashMap,_files=None,_data=None):
             hashMap.put("SetShow_common_properties","1")
             hashMap.put("SetShow_element_properties","-1")
 
-
-        
-        
         elif get_key(element_base,hashMap.get('type')) == 'Vision':
             
             hashMap.put("SetShow_RecognitionTemplate_div","1")  
@@ -1900,6 +1903,15 @@ def element_input(hashMap,_files=None,_data=None):
             else:
                 hashMap.put("SetShow_element_properties","1")      
                 hashMap.put("SetShow_common_properties","1")
+                
+                #if get_key(element_base,hashMap.get('type')) == 'ModernEditText':
+                #    if hashMap.get("Value")=="" or hashMap.get("Value")==None:
+                #        template = json.dumps({"hint":"Имя поля", "default_text":"default_value"},ensure_ascii=False)
+                #        hashMap.put("SetValuesEdit",json.dumps([{"Value":template}])) 
+                #        hashMap.put("Value",template) 
+                    #hashMap.put("toast",template)
+                    
+                    
   
 
     return hashMap
@@ -2341,7 +2353,7 @@ def common_handlers_input(hashMap,_files=None,_data=None):
         if session["edit_handler_mode"] == -1:
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
 
-            if not "CommonHandlers" in session["configuration"]:
+            if not "CommonHandlers" in session["configuration"]["ClientConfiguration"]:
                 session["configuration"]["ClientConfiguration"]["CommonHandlers"] = []
             
             postExecute = ""
@@ -2359,6 +2371,8 @@ def common_handlers_input(hashMap,_files=None,_data=None):
 
             session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
+        
+        save_configuration(session["configuration"],hashMap)    
 
     return hashMap
 
@@ -2396,6 +2410,7 @@ def mediafiles_input(hashMap,_files=None,_data=None):
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
 
+    save_configuration(session["configuration"],hashMap)
     
     return hashMap 
 
@@ -2727,7 +2742,7 @@ def step_input(hashMap,_files=None,_data=None):
             session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
             hashMap.put("RefreshScreen","")
            
-
+        save_configuration(session["configuration"],hashMap)
 
     return hashMap
 
@@ -3141,7 +3156,7 @@ def recognition_input(hashMap,_files=None,_data=None):
             hashMap.remove("selected_line_id")
 
         hashMap.put("RefreshScreen","")       
-     
+        save_configuration(session["configuration"],hashMap)
 
     elif hashMap.get("listener")=="btn_delete_recognition":
         
@@ -3151,7 +3166,7 @@ def recognition_input(hashMap,_files=None,_data=None):
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
-
+            save_configuration(session["configuration"],hashMap)
     
     return hashMap 
 
@@ -3503,7 +3518,8 @@ def styles_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")       
+        hashMap.put("RefreshScreen","")
+        save_configuration(session["configuration"],hashMap)
      
 
     elif hashMap.get("listener")=="btn_delete_style":
@@ -3514,6 +3530,7 @@ def styles_input(hashMap,_files=None,_data=None):
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
+            save_configuration(session["configuration"],hashMap)
 
     
     return hashMap 
@@ -3700,7 +3717,8 @@ def timers_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")       
+        hashMap.put("RefreshScreen","")
+        save_configuration(session["configuration"],hashMap)
      
 
     elif hashMap.get("listener")=="btn_delete_timer":
@@ -3711,6 +3729,7 @@ def timers_input(hashMap,_files=None,_data=None):
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
+            save_configuration(session["configuration"],hashMap)
 
     
     return hashMap 
@@ -3800,6 +3819,7 @@ def modules_input(hashMap,_files=None,_data=None):
                     session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
 
         hashMap.put("RefreshScreen","")
+        
 
     elif hashMap.get("listener")=="btn_delete_file":
         
@@ -3886,7 +3906,7 @@ def modules_open(hashMap,_files=None,_data=None):
 </html>
 """
 
-    link = "http://"+ socket.gethostbyname(socket.gethostname())+":"+str(WSPORT)
+    link = WS_URL+":"+str(WSPORT)
 
     t = Template(header2)
     docdata = { 'url': link, 'uid': session["host_uid"] }
@@ -4118,7 +4138,10 @@ def info_on_start(hashMap,_files=None,_data=None):
 def source_code(hashMap,_files=None,_data=None):
 
     
-    source = json.dumps(session["configuration"],ensure_ascii=False,indent=4,separators=(',', ': '))
+    if "configuration_file" in session:
+        source = json.dumps(session["configuration_file"],ensure_ascii=False,indent=4,separators=(',', ': '))
+    else:    
+        source = json.dumps(session["configuration"],ensure_ascii=False,indent=4,separators=(',', ': '))
 
     htmlstring = """
     <!DOCTYPE html>
@@ -4197,7 +4220,8 @@ def menu_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")       
+        hashMap.put("RefreshScreen","")
+        save_configuration(session["configuration"],hashMap)
      
 
     elif hashMap.get("listener")=="btn_delete_memu":
@@ -4208,6 +4232,7 @@ def menu_input(hashMap,_files=None,_data=None):
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
+            save_configuration(session["configuration"],hashMap)
 
     
     return hashMap 

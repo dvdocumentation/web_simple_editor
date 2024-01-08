@@ -1,4 +1,5 @@
 from flask import Flask, render_template_string, request, render_template_string, session, copy_current_request_context,   redirect,send_from_directory
+from flask_session import Session
 import json
 from flask_socketio import SocketIO,  disconnect
 import pathlib
@@ -14,9 +15,15 @@ from uiweb import Simple
 async_mode = 'threading'
 fapp = Flask(__name__,template_folder='templates',static_url_path='',  static_folder='static')
 
+SESSION_TYPE= 'filesystem'
+
 fapp.config['SECRET_KEY'] = 'secret!'
 fapp.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 fapp.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+fapp.config['SESSION_TYPE'] = 'filesystem'
+
+Session(fapp)
+
 socket_ = SocketIO(fapp,async_mode=async_mode, async_handlers=True)
 
 sid = None
@@ -266,4 +273,6 @@ def index():
 if __name__ == "__main__":
     global_data = {}
  
-    socket_.run(fapp, debug=False, host='0.0.0.0', port=1555)
+    #socket_.run(fapp, debug=False, host='0.0.0.0', port=1555,ssl_context=('seditor.crt', 'cert.key'))
+    socket_.run(fapp, debug=False, host='0.0.0.0',port=1555)
+    
