@@ -45,29 +45,29 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "https://seditor.ru"
+WS_URL = "https://192.168.1.41"
 
 locale_filename = "ru_locale.json"
 
 session["host_uid"]=""
 
 
-events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult"]
+events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusConfirmation",]
 
-events_screen = ["","onStart","onPostStart","onInput"]
+events_screen = ["","onStart","onPostStart","onInput","onResultPositive","onResultNegative"]
 
 session["opened_element_uid"] = None
 
 main_menu_elements = ["","qr_settings","offline_exchange","documents","tasklist","product_log","store","save_settings","keyboard_test","ping_bt","update_configurations","Custom menu item"]
 
 action_types = ["","run","runasync","runprogress"]
-handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set"]
+handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set","js","pythonscript"]
 
 session["configuration"] = {"ClientConfiguration":{}}
 
 session["processes_table"] = []
 
-configuration_properties_list = ["ConfigurationName","ConfigurationVersion","ConfigurationDescription","agent","ForegroundService","StopForegroundServiceOnExit","BroadcastIntent","BroadcastVariable","FaceRecognitionURL","OnKeyboardMain","LaunchProcess","LaunchVar","MenuWebTemplate","Launch"]
+configuration_properties_list = ["ConfigurationName","ConfigurationFileName","ConfigurationVersion","ConfigurationDescription","agent","ForegroundService","StopForegroundServiceOnExit","BroadcastIntent","BroadcastVariable","FaceRecognitionURL","OnKeyboardMain","LaunchProcess","LaunchVar","MenuWebTemplate","Launch","HTMLHead"]
 configuration_settings_list = ["dictionaries","vendor","vendor_url","vendor_password","handler_split_mode","handler_url","handler_password"]
 
 mediafile_layout = {
@@ -116,7 +116,8 @@ mediafile_layout = {
     "onlineOnInput": False
 }
 
-handler_layout = {
+
+handler_layout_lang = {
                         "Value": "",
                         "Variable": "",
                         "type": "LinearLayout",
@@ -175,11 +176,19 @@ handler_layout = {
                             }
                             ,
                             {
-                                "type": "MultilineText",
+                                "type": "TextView",
                                 "height": "wrap_content",
                                 "width": "match_parent",
                                 "weight": "0",
-                                "Value": "Метод|@method",
+                                "Value": "Метод",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "#type_method",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "@method",
                                 "Variable": "method",
                                 "gravity_horizontal": "left"
                             }
@@ -226,11 +235,19 @@ handler_layout = {
                             }
                             ,
                             {
-                                "type": "EditTextText",
+                                "type": "TextView",
                                 "height": "wrap_content",
                                 "width": "match_parent",
                                 "weight": "0",
-                                "Value": "Метод|@method_postExecute",
+                                "Value": "Метод",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "#_PE",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "@method_postExecute",
                                 "Variable": "method_postExecute",
                                 "gravity_horizontal": "left"
                             }
@@ -247,6 +264,143 @@ handler_layout = {
                         "Padding": ""
         }
 
+handler_layout_lang_screen = {
+                        "Value": "",
+                        "Variable": "",
+                        "type": "LinearLayout",
+                        "weight": "0",
+                        "height": "match_parent",
+                        "width": "match_parent",
+                        "orientation": "vertical",
+                        "Elements": [
+                            
+                            {
+                                "type": "SpinnerLayout",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Событие|@common_events",
+                                "Variable": "event",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "html",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "@listener",
+                                "Variable": "listener",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                                "type": "SpinnerLayout",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Действие|@action_types",
+                                "Variable": "action",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                                "type": "SpinnerLayout",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Тип обработчика|@handler_types",
+                                "Variable": "type",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                                "type": "TextView",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Метод",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "#type_method",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "@method",
+                                "Variable": "method",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                        "Value": "",
+                        "Variable": "",
+                        "type": "LinearLayout",
+                        "weight": "0",
+                        "height": "match_parent",
+                        "width": "match_parent",
+                        "orientation": "vertical",
+                        "Elements": [
+                            {
+                                "type": "TextView",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Обработчик postExecute",
+                                "Variable": "",
+                                "gravity_horizontal": "center"
+                            },
+
+                            
+                            
+                            {
+                                "type": "SpinnerLayout",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Действие|@action_types",
+                                "Variable": "action_postExecute",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                                "type": "SpinnerLayout",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Тип обработчика|@handler_types",
+                                "Variable": "type_postExecute",
+                                "gravity_horizontal": "left"
+                            }
+                            ,
+                            {
+                                "type": "TextView",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Метод",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "#_PE",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "@method_postExecute",
+                                "Variable": "method_postExecute",
+                                "gravity_horizontal": "left"
+                            }
+
+                        ]
+                        ,
+                        "BackgroundColor": "#f5bd8c",
+                        "StrokeWidth": "2",
+                        "Padding": ""
+                        }
+                        ],
+                        "BackgroundColor": "",
+                        "StrokeWidth": "",
+                        "Padding": ""
+        }
 
 
 
@@ -382,6 +536,12 @@ def get_operation_elemets(root):
 
     return new_element        
 
+def init(hashMap,_files=None,_data=None):
+
+    hashMap.put("GetCookies","")
+    return hashMap
+
+
 def configuration_open(hashMap,_files=None,_data=None):    
 
     #_configuration  = json.loads(hashMap.get("configuration"))
@@ -395,6 +555,9 @@ def configuration_open(hashMap,_files=None,_data=None):
         hashMap.put(prop,session["configuration"]['ClientConfiguration'].get(prop,""))
         if prop == "Launch":
             hashMap.put(prop,get_synonym(start_screen_elements,session["configuration"]['ClientConfiguration'].get(prop,"")))
+        if prop == "HTMLHead":
+            
+            hashMap.put(prop,base64.b64decode(session["configuration"]['ClientConfiguration'].get(prop,"")).decode("utf-8"))    
 
     if "ConfigurationSettings" in  session["configuration"]['ClientConfiguration']:
         for prop in configuration_settings_list:
@@ -422,7 +585,10 @@ def configuration_open(hashMap,_files=None,_data=None):
     
 
     hashMap.put("url_configuration",'<html><body>URL конфигурации: <a href="'+link+'">' +link+ '</a></body></html>')  
-    if session["filename_base"]!=None:
+    
+    if "ConfigurationFileName" in session["configuration"]['ClientConfiguration']:
+        hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" download="'+ session["configuration"]['ClientConfiguration']['ConfigurationFileName']+ '">скачать конфигурацию</a>')     
+    elif session["filename_base"]!=None:
         hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" download="'+ session["filename_base"]+ '">скачать конфигурацию</a>')     
     else:    
         hashMap.put("download_configuration",'Файл конфигурации можно скачать тут: <a href="/download_file?filename='+Path(filename).name+'" target="_blank" ">скачать конфигурацию</a>')     
@@ -572,6 +738,7 @@ def save_configuration(configuration,hashMap,full=False):
                     new_operation = copy.deepcopy(operation)
                     new_operation = remove_uid(new_operation)
                     new_operation = remove_empty(new_operation)
+                    
 
                     
                     res = get_operation_elemets(operation)  
@@ -591,6 +758,7 @@ def save_configuration(configuration,hashMap,full=False):
 
     
     if full:
+        hashMap.put("RefreshScreen","")
         #write handlers
         if "GitHubHandlers" in new_configuration["ClientConfiguration"]:
             handlers_url = new_configuration["ClientConfiguration"]["GitHubHandlers"]
@@ -610,7 +778,6 @@ def save_configuration(configuration,hashMap,full=False):
                             handlers_txt = get_text_from_ginthub(filestr.get("PyFileLink",""),handlers_token)
                             if handlers_txt!=None:
                                 filestr["PyFileData"] = base64.b64encode(handlers_txt.encode('utf-8')).decode('utf-8')
-                                
         elif new_configuration["ClientConfiguration"].get("agent") == True and not no_agent:
             if FilePyHandlers!=None:
                 new_configuration["ClientConfiguration"]["PyHandlers"] = FilePyHandlers
@@ -620,6 +787,70 @@ def save_configuration(configuration,hashMap,full=False):
     session["configuration_file"] = new_configuration
     with open(filename, 'w',encoding="utf-8") as f:
         json.dump(new_configuration, f,ensure_ascii=False,indent=4)
+
+    if full:
+        if hashMap.containsKey("_cookies"):
+            jcookie = json.loads(hashMap.get("_cookies"))
+
+            if str(jcookie.get("ui_to_github")).lower()=="true":
+                if new_configuration["ClientConfiguration"].get("ConfigurationFileName")!="" and new_configuration["ClientConfiguration"].get("ConfigurationFileName")!=None:
+                    r = push_to_github(filename, jcookie.get("ui_repo"), jcookie.get("ui_branch"), jcookie.get("ui_token"),new_configuration["ClientConfiguration"]["ConfigurationFileName"])
+                    if r==False:
+                        hashMap.put("toast","Не получилось отправить на GitHub")
+        
+        
+
+def push_to_github(filename, repo, branch, token,gitfilename):
+
+    if branch=="" or branch==None:
+        branch="main"
+
+    url="https://api.github.com/repos/"+repo+"/contents/"+gitfilename
+
+    base64content=base64.b64encode(open(filename,"rb").read())
+
+    if token!="":
+        r = requests.get(url+'?ref='+branch, headers = {"Authorization": "token "+token})
+       
+    else:    
+        r = requests.get(url+'?ref='+branch)
+        
+    data = r.json()
+    if r.status_code==401:
+        return False
+
+    if data.get("message") == "Not Found" or r.status_code=="404":
+        message = json.dumps({"message":"Initial commit",
+                                "branch": branch,
+                                "content": base64content.decode("utf-8") ,
+                               
+                                })
+
+        if token!="":
+            resp=requests.put(url, data = message, headers = {"Content-Type": "application/json", "Authorization": "token "+token})
+        else:    
+            resp=requests.put(url, data = message)
+    else:        
+        sha = data['sha']
+
+        if base64content.decode('utf-8')+"\n" != data['content']:
+            message = json.dumps({"message":"update",
+                                "branch": branch,
+                                "content": base64content.decode("utf-8") ,
+                                "sha": sha
+                                })
+
+            if token!="":
+                resp=requests.put(url, data = message, headers = {"Content-Type": "application/json", "Authorization": "token "+token})
+            else:    
+                resp=requests.put(url, data = message)
+
+           
+        else:
+            print("nothing to update") 
+            return False  
+             
+    return True    
 
 def configuration_input(hashMap,_files=None,_data=None):
 
@@ -642,6 +873,8 @@ def configuration_input(hashMap,_files=None,_data=None):
         session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
 
     if hashMap.get("listener") == "btn_upload":
+        hashMap.put("GetCookies","")
+
         id = "configuration_file"
         hashMap.put("UploadFile",id)
     # elif hashMap.get("listener") == "btn_test":    
@@ -650,7 +883,7 @@ def configuration_input(hashMap,_files=None,_data=None):
     # elif hashMap.get("listener") == "btn_test2":    
     #     hashMap.put("toast","var1="+session["var1"]+", var2="+var2)
     elif hashMap.get("listener") == "btn_new_configuration":
-              
+        hashMap.put("GetCookies","")      
 
         #generating new uuid for SimpleUI configuration
         current_uid = uuid.uuid4().hex
@@ -698,6 +931,7 @@ def configuration_input(hashMap,_files=None,_data=None):
             hashMap.put("filename_base",json.dumps(session["configuration"],ensure_ascii=False))
             hashMap.put("set_configuration","")
             
+            session["configuration"]["ClientConfiguration"]["ConfigurationFileName"] = session["filename_base"]
 
             if "host_uid" in session["configuration"]["ClientConfiguration"]:
                 session["host_uid"] = session["configuration"]["ClientConfiguration"]["host_uid"]
@@ -707,6 +941,7 @@ def configuration_input(hashMap,_files=None,_data=None):
     
             session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
 
+            save_configuration(session["configuration"],hashMap,True)
             hashMap.put("RefreshScreen","")
       
     elif hashMap.get("listener") == "btn_download":
@@ -731,6 +966,10 @@ def configuration_input(hashMap,_files=None,_data=None):
             if prop == "Launch":
                 session["configuration"]['ClientConfiguration'][prop] = get_key(start_screen_elements,hashMap.get(prop))
 
+            if prop == "HTMLHead":
+                section_string = hashMap.get(prop)    
+                session["configuration"]['ClientConfiguration'][prop] = base64.b64encode(section_string.encode('utf-8')).decode('utf-8')
+                
         if not 'ConfigurationSettings' in session["configuration"]['ClientConfiguration']: session["configuration"]['ClientConfiguration']['ConfigurationSettings']={}
 
         for prop in configuration_settings_list:
@@ -746,6 +985,7 @@ def configuration_input(hashMap,_files=None,_data=None):
 
     
         save_configuration(session["configuration"],hashMap,True)
+        hashMap.put("RefreshScreen","")
 
     return hashMap
 
@@ -1126,7 +1366,27 @@ def make_handlers_table(table,use_alias):
         "gravity":"left"
     })
 
-    t['rows'] = table
+    ctable = copy.deepcopy(table)
+    for line in ctable:
+        if line.get("type")=='js' or line.get("type")=='pythonscript':
+            line['method'] ="script..."
+        pe = line.get("postExecute")
+        postExecute=""
+        if pe!=None and pe!="":
+            jpe = json.loads(pe)
+            if isinstance(jpe, list) :
+                if len(jpe)>0:
+                    postExecute =  pe    
+                    
+                    if jpe[0].get("type","")=="js": 
+                        jpe[0]["method"]   ="script..."
+                        postExecute = json.dumps(jpe,ensure_ascii=False)
+
+
+        
+        line['postExecute'] =postExecute    
+
+    t['rows'] = ctable
 
     return t
 
@@ -1145,6 +1405,7 @@ def main_tab_selected(hashMap,_files=None,_data=None):
                     if session["current_parent"][1][0]!=None:
                         if "Operations" in session["current_parent"][1][0]:
                             session["screens_table_id"] = session["current_parent"][1][0]["Operations"].index(session["current_element"])
+    hashMap.put("RefreshScreen","")                
 
     return hashMap
 
@@ -1261,10 +1522,88 @@ def process_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey(sel_line):
                 session["current_element"]['Operations'].pop(int(hashMap.get(sel_line)))
                 hashMap.put("RefreshScreen","")
-                hashMap.remove(sel_line)    
+                hashMap.remove(sel_line) 
+                save_configuration(session["configuration"],hashMap)   
+    
+    elif hashMap.get("listener")=="btn_up":
+        if hashMap.containsKey("selected_line_id"):
+            session["screens_table_id"] = int(hashMap.get("selected_line_id")) 
+            if session["processes_table_id"]>0: 
+                session["current_element"]['Operations'].insert(session["screens_table_id"]-1,session["current_element"]['Operations'].pop(session["screens_table_id"]))  
+                save_configuration(session["configuration"],hashMap)    
+                hashMap.put("RefreshScreen","") 
+
+    elif hashMap.get("listener")=="btn_down":
+        if hashMap.containsKey("selected_line_id"):
+            session["screens_table_id"] = int(hashMap.get("selected_line_id")) 
+            if session["screens_table_id"]<len(session["processes_table"]): 
+                session["current_element"]['Operations'].insert(session["screens_table_id"]+1,session["current_element"]['Operations'].pop(session["screens_table_id"]))
+            
+            save_configuration(session["configuration"],hashMap) 
+            hashMap.put("RefreshScreen","") 
+    elif hashMap.get("listener")=="btn_paste":
+        hashMap.put("ReadClipboard","")
+    elif hashMap.get("listener")=="clipboard_result":    
+        try:
+            jelement = json.loads(hashMap.get("clipboard_result"))
+            if "type" in jelement:
+                session["current_element"]['Operations'].append(jelement)
+                hashMap.put("RefreshScreen","")
+
+        except:
+            hashMap.put("toast","Ошибка буфера")    
+        
 
     return hashMap
 
+def get_recursively(search_dict, field):
+
+    fields_found = [""]
+
+    for key, value in search_dict.items():
+
+        if key == field:
+            if value!="" and value!=None:
+                if field=="type":
+                    fields_found.append(value)
+                else:    
+                    if search_dict.get("type")!="CardsLayout" and search_dict.get("type")!="TableLayout":
+                        fields_found.append(value)
+
+        elif isinstance(value, dict):
+            results = get_recursively(value, field)
+            for result in results:
+                fields_found.append(result)
+
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    more_results = get_recursively(item, field)
+                    for another_result in more_results:
+                        fields_found.append(another_result)
+
+    return fields_found
+
+def get_listener_html(val):
+    listeners = get_recursively(session["current_element"],"Variable")
+    listeners2 = get_recursively(session["current_element"],"type")
+    for l in listeners2:
+        if l=="CardsLayout" or l=="TableLayout":
+            if not "CardsClick" in listeners:
+                listeners.append("CardsClick")
+                listeners.append("LayoutAction")
+                 
+        if l=="TableLayout":
+            if not "TableClick" in listeners:
+                listeners.append("TableClick")
+           
+
+    listener_html=   '<div class="container-horizontal"><p  style="text-align: left;;width:100%;margin: 3px">listener</p>   <input list="listeners" style="text-align: left;;width:100%;margin: 3px" name="listener" id="listener" value="'+val+'">  <datalist id="listeners"> '
+    for l in listeners:
+        if len(l)>0:
+            listener_html+='<option value="'+l+'">'
+    listener_html+=' </datalist> </div>'
+    return listener_html
 
 def screen_input(hashMap,_files=None,_data=None):
 
@@ -1421,18 +1760,30 @@ def screen_input(hashMap,_files=None,_data=None):
                 #hashMap.put("SetValuesTable",json.dumps([{"screens_table":jtable}]) )       
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)    
+    
+    elif hashMap.get("listener")=="btn_copy":
+        hashMap.put("WriteClipboard",json.dumps(session["current_element"],ensure_ascii=False))
 
     elif hashMap.get("listener") == "btn_add_handler":
-        hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
+
+      
+        hashMap.put("listener",get_listener_html(""))
+        
+        hashMap.put("ShowDialogLayout",json.dumps(handler_layout_lang_screen,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
+        hashMap.put("ShowDialogActive","type;type_postExecute")
+        
 
         
         hashMap.put("event","")
         hashMap.put("action","")
         hashMap.put("type","")
+
+        
+
         hashMap.put("method","")
-        hashMap.put("listener","")
+        #hashMap.put("listener","")
 
         hashMap.put("action_postExecute","")
         hashMap.put("type_postExecute","")
@@ -1440,22 +1791,48 @@ def screen_input(hashMap,_files=None,_data=None):
 
         postExecute = ""
         session["edit_handler_mode"] = -1
-    elif hashMap.get("listener") == "btn_edit_handler" or (hashMap.get("listener") == "TableDoubleClick" and hashMap.get("table_id")=='handlers_table'):
-        if hashMap.containsKey("selected_line_id"):
-            hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
+    elif hashMap.get("listener") == "btn_edit_handler" or (hashMap.get("listener") == "TableDoubleClick"  and hashMap.get("table_id")=='handlers_table') or hashMap.get("listener") == "type" or hashMap.get("listener") == "type_postExecute":
+        if hashMap.containsKey("selected_line_id") and hashMap.get("table_id")=='handlers_table':
+            dialog_layout_str = json.dumps(handler_layout_lang_screen,ensure_ascii=False)
+            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
+            
+            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
+
+            if handler_str.get("type","")=="js":
+
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+                
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+             
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+                
+                hashMap.put("method",handler_str.get("method",""))
+            
             hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
             hashMap.put("ShowDialog","")
 
-            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
-
-            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
-
-           
+            hashMap.put("alias",handler_str.get("alias",""))
             hashMap.put("event",handler_str.get("event",""))
             hashMap.put("action",handler_str.get("action",""))
             hashMap.put("type",handler_str.get("type",""))
-            hashMap.put("method",handler_str.get("method",""))
-            hashMap.put("listener",handler_str.get("listener",""))
+             
+            hashMap.put("listener",get_listener_html(handler_str.get("listener","")))
 
             hashMap.put("action_postExecute","")
             hashMap.put("type_postExecute","")
@@ -1471,9 +1848,100 @@ def screen_input(hashMap,_files=None,_data=None):
                         
                         hashMap.put("action_postExecute",jpe[0].get("action",""))
                         hashMap.put("type_postExecute",jpe[0].get("type",""))
-                        hashMap.put("method_postExecute",jpe[0].get("method",""))
+                        if jpe[0].get("type","")=="js":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)
+                        elif jpe[0].get("type","")=="pythonscript":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)    
+                        else:    
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                            hashMap.put("method_postExecute",jpe[0].get("method","")) 
+                        #hashMap.put("method_postExecute",jpe[0].get("method",""))
             
-            hashMap.remove("selected_line_id")  
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
+            hashMap.remove("selected_line_id") 
+        
+        elif hashMap.containsKey("dialog_values"):
+            dialog_layout_str = json.dumps(handler_layout_lang_screen,ensure_ascii=False)
+
+            handler_str = list_to_dict(json.loads(hashMap.get("dialog_values"))) 
+            if handler_str.get("type","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+                
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = handler_layout_lang_screen.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method",method)
+                   
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+
+                hashMap.put("method",handler_str.get("method",""))
+            
+            hashMap.put("listener",get_listener_html(handler_str.get("listener","")))
+            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
+            
+            
+            #hashMap.put("listener",handler_str.get("listener",""))
+
+            if handler_str.get("type_postExecute","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)
+            elif handler_str.get("type_postExecute","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))    
+
+
+            hashMap.put("action_postExecute",handler_str.get("action_postExecute",""))
+            hashMap.put("type_postExecute",handler_str.get("type_postExecute",""))
+            #hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))
+
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
+            hashMap.put("ShowDialog","")
+ 
 
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
@@ -1483,33 +1951,38 @@ def screen_input(hashMap,_files=None,_data=None):
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if session["edit_handler_mode"] == -1:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+        dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+        
+        if dialog_values.get("type")=='js' or dialog_values.get("type")=='pythonscript':
+            method = dialog_values.get('method')  
+            method = base64.b64encode(method.encode('utf-8')).decode('utf-8')     
+        else:    
+            method = dialog_values.get('method')  
 
-            if not "Handlers" in session["current_element"]:
-                session["current_element"]['Handlers'] = []
-            
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
+        if not "Handlers" in session["current_element"]:
+            session["current_element"]['Handlers'] = []
+        
+        postExecute = ""
+        if len(str(dialog_values.get("action_postExecute")))>0 and len(str(dialog_values.get("type_postExecute")))>0:
+            if dialog_values.get("type_postExecute")=='js' or dialog_values.get("type_postExecute")=='pythonscript':
+                methodPE = dialog_values.get('method_postExecute')  
+                methodPE = base64.b64encode(methodPE.encode('utf-8')).decode('utf-8')
+            else:    
+                methodPE = dialog_values.get('method_postExecute')  
 
-            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
-            hashMap.put("RefreshScreen","")
-            hashMap.put("callSelectTab","Обработчики")
-            hashMap.put("SelectTab","Обработчики")
             
+
+            postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":methodPE}], ensure_ascii=False)
+
+        if session["edit_handler_mode"] == -1 :
+            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
         else:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+            session["current_element"]['Handlers'][session["edit_handler_mode"]] = {"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
 
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
+        hashMap.put("RefreshScreen","")
+        hashMap.put("callSelectTab","Обработчики")
+        hashMap.put("SelectTab","Обработчики")
 
-            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
-            hashMap.put("RefreshScreen","")
-            hashMap.put("callSelectTab","Обработчики")
-            hashMap.put("SelectTab","Обработчики")
-           
         save_configuration(session["configuration"],hashMap)
 
     return hashMap
@@ -1833,7 +2306,23 @@ def element_input(hashMap,_files=None,_data=None):
                 #hashMap.put("SetValuesTable",json.dumps([{"screens_table":jtable}]) )       
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)  
+    elif hashMap.get("listener")=="btn_up":
+        if hashMap.containsKey("selected_line_id"):
+            session["elements_table_id"] = int(hashMap.get("selected_line_id")) 
+            if session["elements_table_id"]>0: 
+                session["current_element"]['Elements'].insert(session["elements_table_id"]-1,session["current_element"]['Elements'].pop(session["elements_table_id"]))  
+                save_configuration(session["configuration"],hashMap)    
+                hashMap.put("RefreshScreen","") 
 
+    elif hashMap.get("listener")=="btn_down":
+        if hashMap.containsKey("selected_line_id"):
+            session["elements_table_id"] = int(hashMap.get("selected_line_id")) 
+            if session["elements_table_id"]<len(session["current_element"]['Elements']): 
+                session["current_element"]['Elements'].insert(session["elements_table_id"]+1,session["current_element"]['Elements'].pop(session["elements_table_id"]))
+            
+            save_configuration(session["configuration"],hashMap) 
+
+            hashMap.put("RefreshScreen","") 
     elif hashMap.get("listener")=="btn_copy":
         hashMap.put("WriteClipboard",json.dumps(session["current_element"],ensure_ascii=False))
     elif hashMap.get("listener")=="btn_paste":
@@ -1863,7 +2352,7 @@ def element_input(hashMap,_files=None,_data=None):
             hashMap.put("SetShow_layout_properties","1")
             hashMap.put("SetShow_common_properties","1")
             hashMap.put("SetShow_element_properties","-1")
-
+     
         elif get_key(element_base,hashMap.get('type')) == 'Vision':
             
             hashMap.put("SetShow_RecognitionTemplate_div","1")  
@@ -1903,15 +2392,14 @@ def element_input(hashMap,_files=None,_data=None):
             else:
                 hashMap.put("SetShow_element_properties","1")      
                 hashMap.put("SetShow_common_properties","1")
-                
-                #if get_key(element_base,hashMap.get('type')) == 'ModernEditText':
-                #    if hashMap.get("Value")=="" or hashMap.get("Value")==None:
-                #        template = json.dumps({"hint":"Имя поля", "default_text":"default_value"},ensure_ascii=False)
-                #        hashMap.put("SetValuesEdit",json.dumps([{"Value":template}])) 
-                #        hashMap.put("Value",template) 
-                    #hashMap.put("toast",template)
-                    
-                    
+
+                if get_key(element_base,hashMap.get('type')) == 'ModernEditText':
+                    if hashMap.get("Value")=="" or hashMap.get("Value")==None:
+                        template = json.dumps({"hint":"Имя поля", "default_text":"default_value"},ensure_ascii=False)
+                        hashMap.put("SetValuesEdit",json.dumps([{"Value":template}])) 
+                        hashMap.put("Value",template) 
+                        #hashMap.put("toast",template)
+
   
 
     return hashMap
@@ -2261,8 +2749,21 @@ def processes_input(hashMap,_files=None,_data=None):
             session["processes_table_id"] = int(hashMap.get("selected_line_id"))
             row = session["processes_table"][session["processes_table_id"]]
             hashMap.put("WriteClipboard",json.dumps(row,ensure_ascii=False))    
-
-
+    elif hashMap.get("listener")=="btn_up":
+        if hashMap.containsKey("selected_line_id"):
+            session["processes_table_id"] = int(hashMap.get("selected_line_id"))  
+            if session["processes_table_id"]>0: 
+                session["processes_table"].insert(session["processes_table_id"]-1,session["processes_table"].pop(session["processes_table_id"]))  
+                save_configuration(session["configuration"],hashMap)    
+                hashMap.put("RefreshScreen","") 
+    elif hashMap.get("listener")=="btn_down":
+        if hashMap.containsKey("selected_line_id"):
+            session["processes_table_id"] = int(hashMap.get("selected_line_id")) 
+            if session["processes_table_id"]<len(session["processes_table"]): 
+                session["processes_table"].insert(session["processes_table_id"]+1,session["processes_table"].pop(session["processes_table_id"]))
+            
+            save_configuration(session["configuration"],hashMap) 
+            hashMap.put("RefreshScreen","") 
     
     return hashMap   
 
@@ -2290,15 +2791,21 @@ def list_to_dict(lst):
 def common_handlers_input(hashMap,_files=None,_data=None):
 
     if hashMap.get("listener") == "btn_add_handler":
-        hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
+        hashMap.put("ShowDialogLayout",json.dumps(handler_layout_lang,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
+        hashMap.put("ShowDialogActive","type;type_postExecute")
+
+        
+        
+        hashMap.put("method","")
+
 
         hashMap.put("alias","")
         hashMap.put("event","")
         hashMap.put("action","")
         hashMap.put("type","")
-        hashMap.put("method","")
+        
         hashMap.put("listener","")
 
         hashMap.put("action_postExecute","")
@@ -2307,21 +2814,47 @@ def common_handlers_input(hashMap,_files=None,_data=None):
 
         postExecute = ""
         session["edit_handler_mode"] = -1
-    elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "TableDoubleClick":
+    elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "TableDoubleClick" or hashMap.get("listener") == "type" or hashMap.get("listener") == "type_postExecute" :
         if hashMap.containsKey("selected_line_id"):
-            hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
-            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
-            hashMap.put("ShowDialog","")
-
+            dialog_layout_str = json.dumps(handler_layout_lang,ensure_ascii=False)
             session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
             handler_str = session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]]
+
+            if handler_str.get("type","")=="js":
+
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+                
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+             
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+                
+                hashMap.put("method",handler_str.get("method",""))
+            
+            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
+            hashMap.put("ShowDialog","")
 
             hashMap.put("alias",handler_str.get("alias",""))
             hashMap.put("event",handler_str.get("event",""))
             hashMap.put("action",handler_str.get("action",""))
             hashMap.put("type",handler_str.get("type",""))
-            hashMap.put("method",handler_str.get("method",""))
+            
             hashMap.put("listener",handler_str.get("listener",""))
 
             hashMap.put("action_postExecute","")
@@ -2338,9 +2871,107 @@ def common_handlers_input(hashMap,_files=None,_data=None):
                         
                         hashMap.put("action_postExecute",jpe[0].get("action",""))
                         hashMap.put("type_postExecute",jpe[0].get("type",""))
-                        hashMap.put("method_postExecute",jpe[0].get("method",""))
+                        if jpe[0].get("type","")=="js":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)
+                        elif jpe[0].get("type","")=="pythonscript":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)    
+                        else:    
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                            hashMap.put("method_postExecute",jpe[0].get("method","")) 
+                        #hashMap.put("method_postExecute",jpe[0].get("method",""))
             
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
             hashMap.remove("selected_line_id")  
+        elif hashMap.containsKey("dialog_values"):
+            dialog_layout_str = json.dumps(handler_layout_lang,ensure_ascii=False)
+
+            handler_str = list_to_dict(json.loads(hashMap.get("dialog_values"))) 
+            if handler_str.get("type","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+
+                hashMap.put("method",handler_str.get("method",""))
+            
+            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
+            
+            
+            hashMap.put("listener",handler_str.get("listener",""))
+
+            if handler_str.get("type_postExecute","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)
+            elif handler_str.get("type_postExecute","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))    
+
+
+            hashMap.put("action_postExecute",handler_str.get("action_postExecute",""))
+            hashMap.put("type_postExecute",handler_str.get("type_postExecute",""))
+            #hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))
+
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
+            hashMap.put("ShowDialog","")
+
+            #postExecute = ""
+            #pe = handler_str.get("postExecute")
+            #if pe!=None and pe!="":
+            #    jpe = json.loads(pe)
+            #    if isinstance(jpe, list) :
+            #        if len(jpe)>0:
+            #            postExecute =  pe    
+                        
+            #            hashMap.put("action_postExecute",jpe[0].get("action",""))
+            #            hashMap.put("type_postExecute",jpe[0].get("type",""))
+            #            hashMap.put("method_postExecute",jpe[0].get("method",""))
 
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
@@ -2350,29 +2981,38 @@ def common_handlers_input(hashMap,_files=None,_data=None):
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if session["edit_handler_mode"] == -1:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
-
-            if not "CommonHandlers" in session["configuration"]["ClientConfiguration"]:
-                session["configuration"]["ClientConfiguration"]["CommonHandlers"] = []
-            
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
-
-            session["configuration"]["ClientConfiguration"]["CommonHandlers"].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
-            hashMap.put("RefreshScreen","")
-        else:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
-
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
-
-            session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
-            hashMap.put("RefreshScreen","")
+        dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
         
-        save_configuration(session["configuration"],hashMap)    
+        if dialog_values.get("type")=='js' or dialog_values.get("type")=='pythonscript':
+            method = dialog_values.get('method')  
+            method = base64.b64encode(method.encode('utf-8')).decode('utf-8')     
+        else:    
+            method = dialog_values.get('method')  
+
+        
+
+        if not "CommonHandlers" in session["configuration"]["ClientConfiguration"]:
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"] = []
+        
+        postExecute = ""
+        if len(str(dialog_values.get("action_postExecute")))>0 and len(str(dialog_values.get("type_postExecute")))>0:
+            if dialog_values.get("type_postExecute")=='js' or dialog_values.get("type_postExecute")=='pythonscript':
+                methodPE = dialog_values.get('method_postExecute')  
+                methodPE = base64.b64encode(methodPE.encode('utf-8')).decode('utf-8')
+            else:    
+                methodPE = dialog_values.get('method_postExecute')  
+
+            
+
+            postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":methodPE}], ensure_ascii=False)
+
+        if session["edit_handler_mode"] == -1 :
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
+        else:
+            session["configuration"]["ClientConfiguration"]["CommonHandlers"][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+                    
+        hashMap.put("RefreshScreen","")
+        save_configuration(session["configuration"],hashMap)
 
     return hashMap
 
@@ -2399,6 +3039,7 @@ def mediafiles_input(hashMap,_files=None,_data=None):
 
                 session["configuration"]["ClientConfiguration"]["Mediafile"].append({"MediafileKey":dialog_values.get("key"),"MediafileExt":ext[1:],"MediafileData":dialog_values.get("base64")}) 
                 hashMap.put("RefreshScreen","")
+                save_configuration(session["configuration"],hashMap)
      
 
     elif hashMap.get("listener")=="btn_delete_mediafile":
@@ -2408,9 +3049,9 @@ def mediafiles_input(hashMap,_files=None,_data=None):
             session["configuration"]["ClientConfiguration"]["Mediafile"].pop(int(hashMap.get(sel_line)))
             
             hashMap.put("RefreshScreen","")
+            save_configuration(session["configuration"],hashMap)
             hashMap.remove(sel_line)
 
-    save_configuration(session["configuration"],hashMap)
     
     return hashMap 
 
@@ -2658,9 +3299,10 @@ def step_input(hashMap,_files=None,_data=None):
  
    
     elif hashMap.get("listener") == "btn_add_handler":
-        hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
+        hashMap.put("ShowDialogLayout",json.dumps(handler_layout_lang,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
+        hashMap.put("ShowDialogActive","type;type_postExecute")
 
         hashMap.put("alias","")
         hashMap.put("event","")
@@ -2676,21 +3318,50 @@ def step_input(hashMap,_files=None,_data=None):
         postExecute = ""
         session["edit_handler_mode"] = -1
 
-    elif hashMap.get("listener") == "btn_edit_handler":
-        if hashMap.containsKey("selected_line_id"):
-            hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
-            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
-            hashMap.put("ShowDialog","")
-
+    elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "type" or hashMap.get("listener") == "type_postExecute" or (hashMap.get("listener") == "TableDoubleClick"  and hashMap.get("table_id")=='handlers_table'):
+        if hashMap.containsKey("selected_line_id") and hashMap.get("table_id")=='handlers_table':
+            dialog_layout_str = json.dumps(handler_layout_lang,ensure_ascii=False)
+            
             session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
 
             handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
 
-           
+            
+
+            if handler_str.get("type","")=="js":
+
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+                
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+             
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","") 
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+                
+                hashMap.put("method",handler_str.get("method",""))
+            
+            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
+            hashMap.put("ShowDialog","")
+
+            hashMap.put("alias",handler_str.get("alias",""))
             hashMap.put("event",handler_str.get("event",""))
             hashMap.put("action",handler_str.get("action",""))
             hashMap.put("type",handler_str.get("type",""))
-            hashMap.put("method",handler_str.get("method",""))
+            
             hashMap.put("listener",handler_str.get("listener",""))
 
             hashMap.put("action_postExecute","")
@@ -2707,9 +3378,98 @@ def step_input(hashMap,_files=None,_data=None):
                         
                         hashMap.put("action_postExecute",jpe[0].get("action",""))
                         hashMap.put("type_postExecute",jpe[0].get("type",""))
-                        hashMap.put("method_postExecute",jpe[0].get("method",""))
+                        if jpe[0].get("type","")=="js":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)
+                        elif jpe[0].get("type","")=="pythonscript":
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                            try:    
+                                m = base64.b64decode(jpe[0].get("method","")).decode("utf-8")
+                            except:
+                                m=handler_str.get("method_postExecute","")    
+
+                            method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                            hashMap.put("method_postExecute",method)    
+                        else:    
+                            dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                            hashMap.put("method_postExecute",jpe[0].get("method","")) 
+                        #hashMap.put("method_postExecute",jpe[0].get("method",""))
             
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
             hashMap.remove("selected_line_id")  
+        elif hashMap.containsKey("dialog_values"):
+            dialog_layout_str = json.dumps(handler_layout_lang,ensure_ascii=False)
+
+            handler_str = list_to_dict(json.loads(hashMap.get("dialog_values"))) 
+            if handler_str.get("type","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method",method)
+            elif handler_str.get("type","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#type_method","html")
+
+                try:
+                    m = base64.b64decode(handler_str.get("method","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method","")    
+
+                method =  '<code-input required id="method" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#type_method","MultilineText")
+
+                hashMap.put("method",handler_str.get("method",""))
+            
+            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
+            
+            
+            hashMap.put("listener",handler_str.get("listener",""))
+
+            if handler_str.get("type_postExecute","")=="js":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)
+            elif handler_str.get("type_postExecute","")=="pythonscript":
+                dialog_layout_str = dialog_layout_str.replace("#_PE","html")
+                try:    
+                    m = base64.b64decode(handler_str.get("method_postExecute","")).decode("utf-8")
+                except:
+                    m=handler_str.get("method_postExecute","")    
+
+                method =  '<code-input required id="method_postExecute" class="line-numbers" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+m+'</code-input>'
+                hashMap.put("method_postExecute",method)    
+            else:    
+                dialog_layout_str = dialog_layout_str.replace("#_PE","MultilineText")
+
+                hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))    
+
+
+            hashMap.put("action_postExecute",handler_str.get("action_postExecute",""))
+            hashMap.put("type_postExecute",handler_str.get("type_postExecute",""))
+            #hashMap.put("method_postExecute",handler_str.get("method_postExecute",""))
+
+            hashMap.put("ShowDialogLayout",dialog_layout_str)
+            hashMap.put("ShowDialog","")
+
+           
+            
 
     elif hashMap.get("listener") == "btn_delete_handler":
         if hashMap.containsKey("selected_line_id"):
@@ -2719,30 +3479,39 @@ def step_input(hashMap,_files=None,_data=None):
             hashMap.remove("selected_line_id")      
 
     elif hashMap.get("listener") == "onResultPositive": 
-        if session["edit_handler_mode"] == -1:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+        dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+        
+        if dialog_values.get("type")=='js' or dialog_values.get("type")=='pythonscript':
+            method = dialog_values.get('method')  
+            method = base64.b64encode(method.encode('utf-8')).decode('utf-8')     
+        else:    
+            method = dialog_values.get('method')  
 
-            if not "Handlers" in session["current_element"]:
-                session["current_element"]['Handlers'] = []
-            
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
+        
 
-            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
-            hashMap.put("RefreshScreen","")
+        if not "Handlers" in session["current_element"]:
+            session["current_element"]['Handlers'] = []
+        
+        postExecute = ""
+        if len(str(dialog_values.get("action_postExecute")))>0 and len(str(dialog_values.get("type_postExecute")))>0:
+            if dialog_values.get("type_postExecute")=='js' or dialog_values.get("type_postExecute")=='pythonscript':
+                methodPE = dialog_values.get('method_postExecute')  
+                methodPE = base64.b64encode(methodPE.encode('utf-8')).decode('utf-8')
+            else:    
+                methodPE = dialog_values.get('method_postExecute')  
+
             
+
+            postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":methodPE}], ensure_ascii=False)
+
+        if session["edit_handler_mode"] == -1 :
+            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
         else:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
-
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
-
-            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
-            hashMap.put("RefreshScreen","")
-           
+            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":method,"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
+                    
+        hashMap.put("RefreshScreen","")
         save_configuration(session["configuration"],hashMap)
+
 
     return hashMap
 
@@ -3155,8 +3924,9 @@ def recognition_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")       
-        save_configuration(session["configuration"],hashMap)
+        hashMap.put("RefreshScreen","")
+        save_configuration(session["configuration"],hashMap)       
+     
 
     elif hashMap.get("listener")=="btn_delete_recognition":
         
@@ -3167,6 +3937,7 @@ def recognition_input(hashMap,_files=None,_data=None):
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
             save_configuration(session["configuration"],hashMap)
+
     
     return hashMap 
 
@@ -3355,8 +4126,8 @@ style_layout =  {
                     "height": "wrap_content",
                     "width": "match_parent",
                     "weight": "0",
-                    "Value": "@raw",
-                    "Variable": "raw",
+                    "Value": "@row",
+                    "Variable": "row",
                     "gravity_horizontal": "left"
                 }
 
@@ -3399,7 +4170,7 @@ def styles_input(hashMap,_files=None,_data=None):
         hashMap.put("TextItalic", "")
         hashMap.put("NumberPrecision", "")
         hashMap.put("use_as_class", "")
-        hashMap.put("raw", "")
+        hashMap.put("row", "")
    
    
     elif hashMap.get("listener")=="btn_edit_style" or hashMap.get("listener") == "TableDoubleClick":
@@ -3441,7 +4212,7 @@ def styles_input(hashMap,_files=None,_data=None):
             hashMap.put("TextItalic", session["current_element"].get("TextItalic",""))
             hashMap.put("NumberPrecision", session["current_element"].get("NumberPrecision",""))
             hashMap.put("use_as_class", session["current_element"].get("use_as_class",""))
-            hashMap.put("raw", session["current_element"].get("raw",""))
+            hashMap.put("row", session["current_element"].get("row",""))
             
           
     
@@ -3484,14 +4255,14 @@ def styles_input(hashMap,_files=None,_data=None):
                 "TextItalic":dialog_values.get("TextItalic"),
                 "NumberPrecision":dialog_values.get("NumberPrecision"),
                 "use_as_class":dialog_values.get("use_as_class"),
-                "raw":dialog_values.get("raw"),
+                "row":dialog_values.get("row"),
  
                 }
             if dialog_values.get("use_as_class")==True:
                 d["style_class"] = dialog_values.get("name")
             session["configuration"]['ClientConfiguration']["StyleTemplates"].append(d)
         else:
-           session["configuration"]["StyleTemplates"][session["styles_table_id"]]["name"] =  dialog_values.get("name")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]["name"] =  dialog_values.get("name")
            if dialog_values.get("use_as_class")==True:
                 session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]["style_class"] = dialog_values.get("name")
            
@@ -3511,15 +4282,15 @@ def styles_input(hashMap,_files=None,_data=None):
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['TextItalic'] = dialog_values.get("TextItalic")
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['NumberPrecision'] = dialog_values.get("NumberPrecision") 
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['use_as_class'] = dialog_values.get("use_as_class")
-           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['raw'] = dialog_values.get("raw")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['row'] = dialog_values.get("row")
                        
           
 
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")
-        save_configuration(session["configuration"],hashMap)
+        hashMap.put("RefreshScreen","")  
+        save_configuration(session["configuration"],hashMap)     
      
 
     elif hashMap.get("listener")=="btn_delete_style":
@@ -3717,8 +4488,8 @@ def timers_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")
-        save_configuration(session["configuration"],hashMap)
+        hashMap.put("RefreshScreen","")  
+        save_configuration(session["configuration"],hashMap)     
      
 
     elif hashMap.get("listener")=="btn_delete_timer":
@@ -3870,7 +4641,7 @@ def modules_open(hashMap,_files=None,_data=None):
 <h3 style="font-size:14px; "><u>Вариант 1: Использовать GitHub приватный или публичный.</u></h3>
 <ol>
   <li style="font-size:12px; ">Укажите URL основного файла обработчиков на GitHub в таком виде:
-<b>https://api.github.com/repos/<ваш гитхаб>/<ваше репо>/contents/<имя файла.py></b>
+<b>https://api.github.com/repos/ваш гитхаб/ваше репо/contents/имя_файла.py</b>
 </li>
   <li style="font-size:12px; ">При необходимости(если не публичный GitHub) сгенерируйте и укажите токен (Settings - Developer settings - Personal access tokens – Tokens (classic) – Generate new token)</li>
   <li style="font-size:12px; ">При необходимости дополнительных модулей укажите ключ и url файла дополнительного модуля</li>
@@ -4005,94 +4776,9 @@ def layouts_input(hashMap,_files=None,_data=None):
                 hashMap.put("RefreshScreen","")
                 hashMap.remove(sel_line)    
 
-    elif hashMap.get("listener") == "btn_add_handler":
-        hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
-        hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
-        hashMap.put("ShowDialog","")
+     
 
-        
-        hashMap.put("event","")
-        hashMap.put("action","")
-        hashMap.put("type","")
-        hashMap.put("method","")
-        hashMap.put("listener","")
-
-        hashMap.put("action_postExecute","")
-        hashMap.put("type_postExecute","")
-        hashMap.put("method_postExecute","")
-
-        postExecute = ""
-        session["edit_handler_mode"] = -1
-    elif hashMap.get("listener") == "btn_edit_handler" or hashMap.get("listener") == "TableDoubleClick":
-        if hashMap.containsKey("selected_line_id"):
-            hashMap.put("ShowDialogLayout",json.dumps(handler_layout,ensure_ascii=False))
-            hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Обработчик"},ensure_ascii=False))
-            hashMap.put("ShowDialog","")
-
-            session["edit_handler_mode"] = int(hashMap.get("selected_line_id"))
-
-            handler_str = session["current_element"]['Handlers'][session["edit_handler_mode"]]
-
-           
-            hashMap.put("event",handler_str.get("event",""))
-            hashMap.put("action",handler_str.get("action",""))
-            hashMap.put("type",handler_str.get("type",""))
-            hashMap.put("method",handler_str.get("method",""))
-            hashMap.put("listener",handler_str.get("listener",""))
-
-            hashMap.put("action_postExecute","")
-            hashMap.put("type_postExecute","")
-            hashMap.put("method_postExecute","")
-
-            postExecute = ""
-            pe = handler_str.get("postExecute")
-            if pe!=None and pe!="":
-                jpe = json.loads(pe)
-                if isinstance(jpe, list) :
-                    if len(jpe)>0:
-                        postExecute =  pe    
-                        
-                        hashMap.put("action_postExecute",jpe[0].get("action",""))
-                        hashMap.put("type_postExecute",jpe[0].get("type",""))
-                        hashMap.put("method_postExecute",jpe[0].get("method",""))
             
-            hashMap.remove("selected_line_id")  
-
-    elif hashMap.get("listener") == "btn_delete_handler":
-        if hashMap.containsKey("selected_line_id"):
-            pos = int(hashMap.get("selected_line_id"))   
-            session["current_element"]['Handlers'].pop(pos)
-            hashMap.put("RefreshScreen","")
-            hashMap.remove("selected_line_id")      
-
-    elif hashMap.get("listener") == "onResultPositive": 
-        if session["edit_handler_mode"] == -1:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
-
-            if not "Handlers" in session["current_element"]:
-                session["current_element"]['Handlers'] = []
-            
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute =json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
-
-            session["current_element"]['Handlers'].append({"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")}) 
-            hashMap.put("RefreshScreen","")
-            hashMap.put("callSelectTab","Обработчики")
-            hashMap.put("SelectTab","Обработчики")
-            
-        else:
-            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
-
-            postExecute = ""
-            if len(str(hashMap.get("action_postExecute")))>0 and len(str(hashMap.get("type_postExecute")))>0:
-                postExecute = json.dumps( [{"action":dialog_values.get("action_postExecute",""),"type":dialog_values.get("type_postExecute",""),"method":dialog_values.get("method_postExecute","")}], ensure_ascii=False)
-
-            session["current_element"]['Handlers'][session["edit_handler_mode"]] ={"event":dialog_values.get("event",""),"action":dialog_values.get("action",""),"listener":dialog_values.get("listener",""),"type":dialog_values.get("type",""),"method":dialog_values.get("method",""),"postExecute":postExecute,"alias":dialog_values.get("alias","")} 
-            hashMap.put("RefreshScreen","")
-            hashMap.put("callSelectTab","Обработчики")
-            hashMap.put("SelectTab","Обработчики")
-           
 
 
     return hashMap
@@ -4143,14 +4829,44 @@ def source_code(hashMap,_files=None,_data=None):
     else:    
         source = json.dumps(session["configuration"],ensure_ascii=False,indent=4,separators=(',', ': '))
 
+    #<body><span style="white-space: pre-wrap">"""+source+"""</span></body>
+    edit =  '<code-input required id="source_code"  style="resize: both; overflow: hidden; width: 100%;" lang="JSON">'+source+'</code-input>'
     htmlstring = """
     <!DOCTYPE html>
 <html>
-<body><span style="white-space: pre-wrap">"""+source+"""</span></body>
+<body> """+edit+""" </body>
 </html>
 """
-
+    
     hashMap.put("html", htmlstring)  
+
+    return hashMap
+
+def source_code_save(hashMap,_files=None,_data=None):
+
+    source = hashMap.get("source_code")
+
+    try:
+        session["configuration"] = json.loads(source)
+        session["configuration_file"] = session["configuration"]
+
+        hashMap.put("configuration",json.dumps(session["configuration"],ensure_ascii=False))
+        hashMap.put("set_configuration","")
+        
+        
+        if "host_uid" in session["configuration"]["ClientConfiguration"]:
+            session["host_uid"] = session["configuration"]["ClientConfiguration"]["host_uid"]
+        else:
+            session["host_uid"] =  str(uuid.uuid4().hex)  
+            session["configuration"]["ClientConfiguration"]["host_uid"] = session["host_uid"]
+
+        session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
+
+        save_configuration(session["configuration"],hashMap,True)
+
+        hashMap.put("toast", "Конфигурация обновлена")  
+    except:
+        hashMap.put("toast", "Ошибка обновления!")  
 
     return hashMap
 
@@ -4220,8 +4936,8 @@ def menu_input(hashMap,_files=None,_data=None):
         if hashMap.containsKey("selected_line_id"):
             hashMap.remove("selected_line_id")
 
-        hashMap.put("RefreshScreen","")
-        save_configuration(session["configuration"],hashMap)
+        hashMap.put("RefreshScreen","")  
+        save_configuration(session["configuration"],hashMap)     
      
 
     elif hashMap.get("listener")=="btn_delete_memu":
@@ -4236,3 +4952,141 @@ def menu_input(hashMap,_files=None,_data=None):
 
     
     return hashMap 
+
+def load_configurations_github(hashMap):
+    t = {
+    "type": "table",
+    "textsize": "25",
+    "hidecaption": "false",
+    "useDatatable": "true",
+    "columns": [
+       
+        {
+        "name": "name",
+        "header": "название",
+        "weight": "1",
+        "gravity":"left"
+    },
+        {
+        "name": "path",
+        "header": "Путь",
+        "weight": "1",
+        "gravity":"left"
+    }
+
+    ]
+    }  
+
+    folder = ""    
+    if hashMap.containsKey("ui_folder"):
+        folder = hashMap.get("ui_folder")
+
+    repo = hashMap.get("ui_repo")
+
+    url="https://api.github.com/repos/"+repo+"/contents/"+folder
+
+    if hashMap.get("ui_token")!="":
+        data = requests.get(url, headers = {"Authorization": "token "+hashMap.get("ui_token")}).json()
+    else:    
+        data = requests.get(url).json()
+
+    _table = []
+    if isinstance(data,list):
+        for f in data:
+            if ".ui" in f.get("path"):
+                _table.append({"name":f.get("name"),"path":f.get("path")})
+
+
+   
+
+    t['rows'] = _table
+
+    return t
+
+
+def user_open(hashMap,_files=None,_data=None):
+   
+   
+    if hashMap.containsKey("_cookies"):
+        jcookies = json.loads(hashMap.get("_cookies"))
+        hashMap.put("ui_to_github", jcookies.get("ui_to_github", "false"))
+        hashMap.put("ui_repo", jcookies.get("ui_repo", ""))
+        hashMap.put("ui_token", jcookies.get("ui_token", ""))
+        hashMap.put("ui_branch", jcookies.get("ui_branch", ""))
+        hashMap.put("ui_folder", jcookies.get("ui_folder", ""))
+
+        hashMap.put("github_table", json.dumps(load_configurations_github(hashMap),ensure_ascii=False))
+   
+    else:
+        hashMap.put("GetCookies","")
+        hashMap.put("toast","Переоткройте вкладку")
+
+    return hashMap
+
+def user_input(hashMap,_files=None,_data=None):
+
+    if hashMap.get("listener") == "btn_save":
+
+        jcookies = [{"key":"ui_to_github", "value":str(hashMap.get("ui_to_github")),"expires":30},{"key":"ui_repo", "value":str(hashMap.get("ui_repo")),"expires":30},{"key":"ui_token", "value":str(hashMap.get("ui_token")),"expires":30},
+                    {"key":"ui_branch", "value":str(hashMap.get("ui_branch")),"expires":30},{"key":"ui_folder", "value":str(hashMap.get("ui_folder")),"expires":30}]
+        
+        hashMap.put("SetCookie", json.dumps(jcookies,ensure_ascii=False))
+
+        _jcookies = {
+            "ui_to_github":str(hashMap.get("ui_to_github")),
+            "ui_repo":str(hashMap.get("ui_repo")),
+            "ui_token":str(hashMap.get("ui_token")),
+            "ui_branch":str(hashMap.get("ui_branch")),
+            "ui_folder":str(hashMap.get("ui_folder")),
+        }   
+
+        hashMap.put("_cookies", json.dumps(_jcookies,ensure_ascii=False))
+    elif hashMap.get("listener") == "btn_load":
+        hashMap.put("GetCookies","")
+        hashMap.put("RefreshScreen","")
+
+    elif hashMap.get("listener") == "btn_reload":
+        hashMap.put("github_table", json.dumps(load_configurations_github(hashMap),ensure_ascii=False))
+        hashMap.put("RefreshScreen","1")
+    elif hashMap.get("listener") == "btn_set_configuration":  
+         if hashMap.containsKey("selected_line_id"):
+            table_id = int(hashMap.get("selected_line_id"))
+            jtable = json.loads(hashMap.get("github_table"))
+            current_element = jtable["rows"][table_id]   
+
+            path = current_element["path"]
+
+            url="https://api.github.com/repos/"+hashMap.get("ui_repo")+"/contents/"+path
+
+            if hashMap.get("ui_token")!="":
+                req = requests.get(url, headers = {"Authorization": "token "+hashMap.get("ui_token")}).json()
+            else:    
+                req = requests.get(url).json()
+
+            content = base64.b64decode(req['content']).decode("utf-8")
+            session["filename"] =hashMap.get("base_path")+os.sep+"uploads"+os.sep+ current_element["name"]
+            session["filename_base"] = current_element["name"]
+            
+            session["configuration"] = json.loads(content)
+
+            hashMap.put("configuration",json.dumps(session["configuration"],ensure_ascii=False))
+            hashMap.put("filename",current_element["name"])
+            hashMap.put("filename_base",current_element["name"])
+            hashMap.put("set_configuration","")
+            
+            session["configuration"]["ClientConfiguration"]["ConfigurationFileName"] = session["filename_base"]
+
+            if "host_uid" in session["configuration"]["ClientConfiguration"]:
+                session["host_uid"] = session["configuration"]["ClientConfiguration"]["host_uid"]
+            else:
+                session["host_uid"] =  str(uuid.uuid4().hex)  
+                session["configuration"]["ClientConfiguration"]["host_uid"] = session["host_uid"]
+    
+            session["processes_table"] = session["configuration"]["ClientConfiguration"]["Processes"] 
+
+            save_configuration(session["configuration"],hashMap,True)
+            hashMap.put("RefreshScreen","")
+
+
+
+    return hashMap

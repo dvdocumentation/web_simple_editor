@@ -126,7 +126,13 @@ def test_message(message):
         session['SW'].set_sid(sid)
 
         connected.append((socket_, sid, SW))
-  
+
+        
+        user = get_current_connection(request.sid)
+        if user!=None:
+            user[2].on_launch({"sid":sid}) 
+
+        
 
     session['receive_count'] = session.get('receive_count', 0) + 1
  
@@ -138,7 +144,13 @@ def run_process(message):
 @socket_.on('input_event', namespace='/simpleweb')
 def input_event(message):
     user = get_current_connection(request.sid)
-    user[2].input_event(message) 
+    if user!=None:
+        user[2].input_event(message) 
+@socket_.on('cookie_event', namespace='/simpleweb')
+def cookie_event(message):
+    user = get_current_connection(request.sid)
+    if user!=None:
+        user[2].hashMap["_cookies"] =message.get('value')     
 
 @socket_.on('js_result', namespace='/simpleweb')
 def js_result(message):
@@ -273,6 +285,5 @@ def index():
 if __name__ == "__main__":
     global_data = {}
  
-    #socket_.run(fapp, debug=False, host='0.0.0.0', port=1555,ssl_context=('seditor.crt', 'cert.key'))
-    socket_.run(fapp, debug=False, host='0.0.0.0',port=1555)
-    
+    #socket_.run(fapp, debug=False, host='0.0.0.0', port=1555,ssl_context=('server.crt', 'server.key'))
+    socket_.run(fapp, debug=False, host='0.0.0.0', port=1555)

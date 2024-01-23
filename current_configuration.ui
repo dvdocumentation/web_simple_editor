@@ -1,39 +1,19 @@
 {
     "ClientConfiguration": {
-        "ConfigurationName": "Новая конфигурация",
-        "ConfigurationDescription": "Разработка новой конфигурации SimpleUI",
-        "ConfigurationVersion": "0.0.1",
+        "ConfigurationName": "Редактор конфигураций SimpeUI и SimpleWEB",
+        "ConfigurationDescription": "Редактор конфигураций, разработан на SimpleWEB",
+        "ConfigurationVersion": "0.5.5",
         "Processes": [
             {
                 "type": "Process",
-                "ProcessName": "Конфигуация",
+                "ProcessName": "Конфигурация",
                 "PlanFactHeader": "План-факт",
-                "DefineOnBackPressed": false,
-                "hidden": false,
-                "login_screen": false,
-                "SC": false,
                 "Operations": [
                     {
                         "type": "Operation",
                         "Name": "main_screen",
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "noConfirmation": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "send_when_opened": false,
-                        "send_after_opened": false,
-                        "onlineOnInput": false,
-                        "DefOnlineOnCreate": "",
-                        "DefOnlineOnInput": "",
-                        "DefOnCreate": "",
-                        "DefOnInput": "",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -43,10 +23,8 @@
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -55,7 +33,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Новая конфигурация",
-                                                "Variable": "btn_new_configuration"
+                                                "Variable": "btn_new_configuration",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "TextView",
@@ -63,7 +42,7 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "   ...или...  ",
-                                                "Variable": ""
+                                                "type_s": "Надпись"
                                             },
                                             {
                                                 "type": "file",
@@ -71,7 +50,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "@configuration_file",
-                                                "Variable": "configuration_file"
+                                                "Variable": "configuration_file",
+                                                "type_s": "Файл"
                                             },
                                             {
                                                 "type": "Button",
@@ -79,44 +59,41 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Загрузить файл",
-                                                "Variable": "btn_upload"
+                                                "Variable": "btn_upload",
+                                                "type_s": "Кнопка"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
-                                    },
-                                    {
-                                        "type": "LinearLayout",
-                                        "height": "wrap_content",
-                                        "width": "wrap_content",
-                                        "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
-                                        "orientation": "vertical",
-                                        "Elements": [
-                                            {
-                                                "type": "Button",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Сохранить конфигурацию",
-                                                "Variable": "btn_save_configuration",
-                                                "style_name": "accept_button",
-                                                "style_class": "accept_button"
-                                            }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
+                                        "orientation": "vertical",
+                                        "Elements": [
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "3",
+                                                "Value": "Сохранить конфигурацию",
+                                                "Variable": "btn_save_configuration",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
+                                            }
+                                        ],
+                                        "type_s": "Контейнер"
+                                    },
+                                    {
+                                        "type": "LinearLayout",
+                                        "height": "wrap_content",
+                                        "width": "match_parent",
+                                        "weight": "0",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -134,8 +111,6 @@
                                                 "height": "wrap_content",
                                                 "width": "match_parent",
                                                 "weight": "1",
-                                                "Value": "",
-                                                "Variable": "",
                                                 "orientation": "vertical",
                                                 "Elements": [
                                                     {
@@ -144,7 +119,6 @@
                                                         "width": "wrap_content",
                                                         "weight": "0",
                                                         "Value": "@url_configuration",
-                                                        "Variable": "",
                                                         "gravity_horizontal": "left"
                                                     },
                                                     {
@@ -153,19 +127,13 @@
                                                         "width": "wrap_content",
                                                         "weight": "0",
                                                         "Value": "@download_configuration",
-                                                        "Variable": "",
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "Tabs",
@@ -177,7 +145,7 @@
                                             {
                                                 "type": "Tab",
                                                 "height": "wrap_content",
-                                                "width": "wrap_content",
+                                                "width": "match_parent",
                                                 "weight": "0",
                                                 "Variable": "Основное",
                                                 "orientation": "vertical",
@@ -198,6 +166,15 @@
                                                         "weight": "0",
                                                         "Value": "ID публикации|@host_uid",
                                                         "Variable": "host_uid",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "EditTextText",
+                                                        "height": "wrap_content",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "Имя файла|@ConfigurationFileName",
+                                                        "Variable": "ConfigurationFileName",
                                                         "gravity_horizontal": "left"
                                                     },
                                                     {
@@ -281,17 +258,13 @@
                                                         "Variable": "OnKeyboardMain",
                                                         "gravity_horizontal": "left"
                                                     }
-                                                ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": ""
+                                                ]
                                             },
                                             {
                                                 "type": "Tab",
                                                 "height": "wrap_content",
-                                                "width": "wrap_content",
+                                                "width": "match_parent",
                                                 "weight": "0",
-                                                "Value": "",
                                                 "Variable": "Свойства",
                                                 "orientation": "vertical",
                                                 "Elements": [
@@ -377,18 +350,14 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left",
                                                 "gravity_vertical": "center"
                                             },
                                             {
                                                 "type": "Tab",
                                                 "height": "wrap_content",
-                                                "width": "wrap_content",
+                                                "width": "match_parent",
                                                 "weight": "0",
-                                                "Value": "",
                                                 "Variable": "Начальный экран",
                                                 "orientation": "vertical",
                                                 "Elements": [
@@ -429,24 +398,37 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "Tab",
+                                                "height": "wrap_content",
+                                                "width": "match_parent",
+                                                "weight": "0",
+                                                "Variable": "Заголовок html",
+                                                "orientation": "vertical",
+                                                "Elements": [
+                                                    {
+                                                        "type": "MultilineText",
+                                                        "height": "match_parent",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "@HTMLHead",
+                                                        "Variable": "HTMLHead",
+                                                        "gravity_horizontal": "left"
+                                                    }
+                                                ],
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
-                                        "Variable": ""
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Закладки"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                "gravity_horizontal": "left",
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "onlineOnAfterStart": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -475,8 +457,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -488,8 +468,6 @@
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -498,7 +476,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Добавить процесс",
-                                                "Variable": "btn_add_process"
+                                                "Variable": "btn_add_process",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "Button",
@@ -506,7 +485,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Добавить процесс ActiveCV",
-                                                "Variable": "btn_add_processcv"
+                                                "Variable": "btn_add_processcv",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "Button",
@@ -514,7 +494,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Удалить",
-                                                "Variable": "btn_delete_process"
+                                                "Variable": "btn_delete_process",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "Button",
@@ -522,7 +503,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Редактировать",
-                                                "Variable": "btn_edit_process"
+                                                "Variable": "btn_edit_process",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "Button",
@@ -530,7 +512,8 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Копировать",
-                                                "Variable": "btn_copy"
+                                                "Variable": "btn_copy",
+                                                "type_s": "Кнопка"
                                             },
                                             {
                                                 "type": "Button",
@@ -538,12 +521,29 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Вставить",
-                                                "Variable": "btn_paste"
+                                                "Variable": "btn_paste",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вверх",
+                                                "Variable": "btn_up",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вниз",
+                                                "Variable": "btn_down",
+                                                "type_s": "Кнопка"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "TableLayout",
@@ -551,22 +551,13 @@
                                         "width": "match_parent",
                                         "weight": "0",
                                         "Value": "@processes_table",
-                                        "Variable": "processes_table"
+                                        "Variable": "processes_table",
+                                        "type_s": "Таблица"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -589,8 +580,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -600,62 +589,58 @@
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
+                                                "weight": "3",
                                                 "Value": "Сохранить и закрыть",
-                                                "Variable": "btn_save"
+                                                "Variable": "btn_save",
+                                                "type_s": "Кнопка",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
                                             },
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
                                                 "Value": "Закрыть",
-                                                "Variable": "btn_close"
+                                                "Variable": "btn_close",
+                                                "type_s": "Кнопка",
+                                                "style_name": "cancel_button",
+                                                "style_class": "cancel_button",
+                                                "weight": 0
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
-                                        "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
+                                        "weight": "1",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
-                                                "type": "TextView",
+                                                "type": "EditTextText",
                                                 "height": "wrap_content",
                                                 "width": "match_parent",
                                                 "weight": "1",
-                                                "Value": "Название процесса",
-                                                "Variable": ""
-                                            },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "1",
-                                                "Value": "@process_name",
-                                                "Variable": "process_name"
+                                                "Value": "Название процесса|@process_name",
+                                                "Variable": "process_name",
+                                                "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "gravity_horizontal": "center",
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -664,7 +649,8 @@
                                         "weight": "0",
                                         "Value": "Не показывать в меню",
                                         "Variable": "hidden",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -673,7 +659,8 @@
                                         "weight": "0",
                                         "Value": "Переопределить кнопку назад (ON_BACK_PRESSED)",
                                         "Variable": "DefineOnBackPressed",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -682,7 +669,8 @@
                                         "weight": "0",
                                         "Value": "Запускать при старте",
                                         "Variable": "login_screen",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -691,46 +679,24 @@
                                         "weight": "0",
                                         "Value": "SUIP (независимый процесс)",
                                         "Variable": "SC",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
+                                    },
+                                    {
+                                        "type": "EditTextText",
+                                        "height": "wrap_content",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "Value": "Кнопка План/Факт|@PlanFactHeader",
+                                        "Variable": "PlanFactHeader",
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
-                                        "orientation": "horizontal",
-                                        "Elements": [
-                                            {
-                                                "type": "TextView",
-                                                "height": "wrap_content",
-                                                "width": "match_parent",
-                                                "weight": "1",
-                                                "Value": "Кнопка План/Факт",
-                                                "Variable": ""
-                                            },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "1",
-                                                "Value": "@PlanFactHeader",
-                                                "Variable": "PlanFactHeader"
-                                            }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
-                                        "gravity_horizontal": "left"
-                                    },
-                                    {
-                                        "type": "LinearLayout",
-                                        "height": "wrap_content",
-                                        "width": "match_parent",
-                                        "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -756,11 +722,34 @@
                                                 "weight": "0",
                                                 "Value": "Редактировать",
                                                 "Variable": "btn_edit_screen"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вставить из буфера",
+                                                "Variable": "btn_paste"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вверх",
+                                                "Variable": "btn_up"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вниз",
+                                                "Variable": "btn_down"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "TableLayout",
@@ -769,24 +758,15 @@
                                         "weight": "0",
                                         "Value": "@screens_table",
                                         "Variable": "screens_table",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Таблица"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": "",
                                 "gravity_horizontal": "left",
-                                "gravity_vertical": "top"
+                                "gravity_vertical": "center",
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -809,8 +789,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -822,64 +800,55 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
+                                                "weight": "3",
                                                 "Value": "Сохранить и закрыть",
-                                                "Variable": "btn_save"
+                                                "Variable": "btn_save",
+                                                "type_s": "Кнопка",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "Value": "Закрыть",
+                                                "Variable": "btn_close",
+                                                "type_s": "Кнопка",
+                                                "style_name": "cancel_button",
+                                                "style_class": "cancel_button",
+                                                "weight": 0
                                             },
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "Закрыть",
-                                                "Variable": "btn_close"
+                                                "Value": "Копировать в буфер",
+                                                "Variable": "btn_copy",
+                                                "type_s": "Кнопка"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
-                                        "type": "LinearLayout",
+                                        "type": "EditTextText",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
-                                        "orientation": "horizontal",
-                                        "Elements": [
-                                            {
-                                                "type": "TextView",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Название экрана",
-                                                "Variable": "",
-                                                "gravity_horizontal": "left"
-                                            },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "@screen_name",
-                                                "Variable": "screen_name",
-                                                "gravity_horizontal": "left"
-                                            }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
+                                        "Value": "Название экрана|@screen_name",
+                                        "Variable": "screen_name",
                                         "gravity_horizontal": "left",
-                                        "gravity_vertical": "center"
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -888,7 +857,8 @@
                                         "weight": "0",
                                         "Value": "Таймер экрана",
                                         "Variable": "Timer",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -897,7 +867,8 @@
                                         "weight": "0",
                                         "Value": "Скрыть верхнюю панель",
                                         "Variable": "hideToolBarScreen",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -906,7 +877,8 @@
                                         "weight": "0",
                                         "Value": "Скрыть нижнюю панель",
                                         "Variable": "hideBottomBarScreen",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -915,7 +887,8 @@
                                         "weight": "0",
                                         "Value": "Отключить прокрутку корневого контейнера",
                                         "Variable": "noScroll",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -924,7 +897,8 @@
                                         "weight": "0",
                                         "Value": "Подключить обработчик клавиатуры",
                                         "Variable": "handleKeyUp",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -933,15 +907,14 @@
                                         "weight": "0",
                                         "Value": "Закрывать без вопроса",
                                         "Variable": "noConfirmation",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "Tabs",
                                         "height": "match_parent",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "vertical",
                                         "Elements": [
                                             {
@@ -949,7 +922,6 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
                                                 "Variable": "Структура экранов",
                                                 "orientation": "vertical",
                                                 "Elements": [
@@ -966,8 +938,6 @@
                                                         "height": "wrap_content",
                                                         "width": "match_parent",
                                                         "weight": "0",
-                                                        "Value": "",
-                                                        "Variable": "",
                                                         "orientation": "horizontal",
                                                         "Elements": [
                                                             {
@@ -994,10 +964,7 @@
                                                                 "Value": "Редактировать",
                                                                 "Variable": "btn_edit_element"
                                                             }
-                                                        ],
-                                                        "BackgroundColor": "",
-                                                        "StrokeWidth": "",
-                                                        "Padding": ""
+                                                        ]
                                                     },
                                                     {
                                                         "type": "TableLayout",
@@ -1007,17 +974,13 @@
                                                         "Value": "@screen_elements_table",
                                                         "Variable": "screen_elements_table"
                                                     }
-                                                ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": ""
+                                                ]
                                             },
                                             {
                                                 "type": "Tab",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
                                                 "Variable": "Обработчики",
                                                 "orientation": "vertical",
                                                 "Elements": [
@@ -1026,8 +989,6 @@
                                                         "height": "wrap_content",
                                                         "width": "match_parent",
                                                         "weight": "0",
-                                                        "Value": "",
-                                                        "Variable": "",
                                                         "orientation": "horizontal",
                                                         "Elements": [
                                                             {
@@ -1055,9 +1016,6 @@
                                                                 "Variable": "btn_delete_handler"
                                                             }
                                                         ],
-                                                        "BackgroundColor": "",
-                                                        "StrokeWidth": "",
-                                                        "Padding": "",
                                                         "gravity_horizontal": "left"
                                                     },
                                                     {
@@ -1068,30 +1026,15 @@
                                                         "Value": "@handlers_table",
                                                         "Variable": "handlers_table"
                                                     }
-                                                ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": ""
+                                                ]
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Закладки"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -1121,8 +1064,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -1132,27 +1073,35 @@
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
+                                                "weight": "3",
                                                 "Value": "Сохранить и закрыть",
-                                                "Variable": "btn_save"
+                                                "Variable": "btn_save",
+                                                "type_s": "Кнопка",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
                                             },
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
                                                 "Value": "Закрыть",
-                                                "Variable": "btn_close"
+                                                "Variable": "btn_close",
+                                                "type_s": "Кнопка",
+                                                "style_name": "cancel_button",
+                                                "style_class": "cancel_button",
+                                                "weight": 0
                                             },
                                             {
                                                 "type": "Button",
@@ -1160,12 +1109,11 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Копировать в буфер",
-                                                "Variable": "btn_copy"
+                                                "Variable": "btn_copy",
+                                                "type_s": "Кнопка"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1174,7 +1122,8 @@
                                         "weight": "0",
                                         "Value": "Тип|@screen_elements",
                                         "Variable": "type",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1183,7 +1132,8 @@
                                         "weight": "0",
                                         "Value": "Значение|@Value",
                                         "Variable": "Value",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1192,14 +1142,14 @@
                                         "weight": "0",
                                         "Value": "Переменная|@Variable",
                                         "Variable": "Variable",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "layout_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -1239,18 +1189,15 @@
                                                 "Variable": "gravity_vertical"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
                                         "gravity_horizontal": "left",
-                                        "gravity_vertical": "center"
+                                        "gravity_vertical": "center",
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "common_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -1259,8 +1206,6 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
-                                                "Variable": "",
                                                 "orientation": "horizontal",
                                                 "Elements": [
                                                     {
@@ -1282,9 +1227,6 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left"
                                             },
                                             {
@@ -1292,8 +1234,6 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
-                                                "Variable": "",
                                                 "orientation": "horizontal",
                                                 "Elements": [
                                                     {
@@ -1315,9 +1255,6 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left"
                                             },
                                             {
@@ -1328,7 +1265,6 @@
                                                 "Value": "Вес|@weight",
                                                 "Variable": "weight",
                                                 "gravity_horizontal": "left",
-                                                "TextSize": "",
                                                 "NumberPrecision": "0",
                                                 "width_value": "50"
                                             },
@@ -1352,16 +1288,13 @@
                                             }
                                         ],
                                         "gravity_horizontal": "left",
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
-                                        "width": "wrap_content",
+                                        "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "element_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -1430,9 +1363,7 @@
                                             }
                                         ],
                                         "gravity_horizontal": "left",
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1441,14 +1372,14 @@
                                         "weight": "0",
                                         "Value": "Шаблон распознавания|@recognition_templates",
                                         "Variable": "RecognitionTemplate",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "btns_table_elements",
                                         "orientation": "horizontal",
                                         "Elements": [
@@ -1483,11 +1414,25 @@
                                                 "weight": "0",
                                                 "Value": "Вставить из буфера",
                                                 "Variable": "btn_paste"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вверх",
+                                                "Variable": "btn_up"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Вниз",
+                                                "Variable": "btn_down"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "TableLayout",
@@ -1495,22 +1440,13 @@
                                         "width": "match_parent",
                                         "weight": "0",
                                         "Value": "@layout_elements_table",
-                                        "Variable": "layout_elements_table"
+                                        "Variable": "layout_elements_table",
+                                        "type_s": "Таблица"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -1540,8 +1476,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -1553,38 +1487,42 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
+                                                "weight": "3",
                                                 "Value": "Сохранить и закрыть",
-                                                "Variable": "btn_save"
+                                                "Variable": "btn_save",
+                                                "type_s": "Кнопка",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
                                             },
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
                                                 "Value": "Закрыть",
-                                                "Variable": "btn_close"
+                                                "Variable": "btn_close",
+                                                "type_s": "Кнопка",
+                                                "style_name": "cancel_button",
+                                                "style_class": "cancel_button",
+                                                "weight": 0
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -1592,8 +1530,7 @@
                                                 "height": "wrap_content",
                                                 "width": "match_parent",
                                                 "weight": "1",
-                                                "Value": "Название процесса",
-                                                "Variable": ""
+                                                "Value": "Название процесса"
                                             },
                                             {
                                                 "type": "EditTextText",
@@ -1604,9 +1541,7 @@
                                                 "Variable": "process_name"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "CheckBox",
@@ -1615,15 +1550,14 @@
                                         "weight": "0",
                                         "Value": "Не показывать в меню",
                                         "Variable": "hidden",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Галочка"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -1651,9 +1585,7 @@
                                                 "Variable": "btn_edit_step"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "TableLayout",
@@ -1662,24 +1594,15 @@
                                         "weight": "0",
                                         "Value": "@steps_table",
                                         "Variable": "steps_table",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Таблица"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": "",
                                 "gravity_horizontal": "left",
-                                "gravity_vertical": "top"
+                                "gravity_vertical": "top",
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -1702,8 +1625,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -1715,38 +1636,42 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
+                                                "weight": "3",
                                                 "Value": "Сохранить и закрыть",
-                                                "Variable": "btn_save"
+                                                "Variable": "btn_save",
+                                                "type_s": "Кнопка",
+                                                "style_name": "accept_button",
+                                                "style_class": "accept_button",
+                                                "gravity_horizontal": "left",
+                                                "BackgroundColor": "ewrwer",
+                                                "TextSize": "11",
+                                                "TextColor": "33"
                                             },
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
-                                                "weight": "0",
                                                 "Value": "Закрыть",
-                                                "Variable": "btn_close"
+                                                "Variable": "btn_close",
+                                                "type_s": "Кнопка",
+                                                "style_name": "cancel_button",
+                                                "style_class": "cancel_button",
+                                                "weight": 0
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -1755,7 +1680,6 @@
                                                 "width": "wrap_content",
                                                 "weight": "0",
                                                 "Value": "Имя шага",
-                                                "Variable": "",
                                                 "gravity_horizontal": "left"
                                             },
                                             {
@@ -1768,11 +1692,9 @@
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
                                         "gravity_horizontal": "left",
-                                        "gravity_vertical": "center"
+                                        "gravity_vertical": "center",
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1781,7 +1703,8 @@
                                         "weight": "0",
                                         "Value": "Детектор|@CVDetector_elements",
                                         "Variable": "CVDetector",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1790,7 +1713,8 @@
                                         "weight": "0",
                                         "Value": "Разрешение|@CVResolution_elements",
                                         "Variable": "CVResolution",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1799,7 +1723,8 @@
                                         "weight": "0",
                                         "Value": "Режим отображения объектов|@CVMode_elements",
                                         "Variable": "CVMode",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1808,7 +1733,8 @@
                                         "weight": "0",
                                         "Value": "Кнопка действия|@CVActionButtons",
                                         "Variable": "CVActionButtons",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1817,7 +1743,8 @@
                                         "weight": "0",
                                         "Value": "Заголовок действия|@CVAction",
                                         "Variable": "CVAction",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1826,7 +1753,8 @@
                                         "weight": "0",
                                         "Value": "Инфо|@CVInfo",
                                         "Variable": "CVInfo",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1835,7 +1763,8 @@
                                         "weight": "0",
                                         "Value": "Режим камеры|@CVCameraDevice_elements",
                                         "Variable": "CVCameraDevice",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1844,7 +1773,8 @@
                                         "weight": "0",
                                         "Value": "Режим детектора|@CVDetectorMode_elements",
                                         "Variable": "CVDetectorMode",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "EditTextText",
@@ -1853,7 +1783,8 @@
                                         "weight": "0",
                                         "Value": "Маска|@CVMask",
                                         "Variable": "CVMask",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Поле ввода строка"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -1862,15 +1793,14 @@
                                         "weight": "0",
                                         "Value": "Шаблон распознавания|@recognition_templates",
                                         "Variable": "RecognitionTemplate",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Выпадающий список"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -1898,10 +1828,8 @@
                                                 "Variable": "btn_delete_handler"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Контейнер"
                                     },
                                     {
                                         "type": "TableLayout",
@@ -1910,22 +1838,13 @@
                                         "weight": "0",
                                         "Value": "@handlers_table",
                                         "Variable": "handlers_table",
-                                        "gravity_horizontal": "left"
+                                        "gravity_horizontal": "left",
+                                        "type_s": "Таблица"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                "type_s": "Контейнер"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -1943,9 +1862,7 @@
                             }
                         ]
                     }
-                ],
-                "PlanFactHeader": "",
-                "DefineOnBackPressed": false
+                ]
             },
             {
                 "ProcessName": "Общие обработчики",
@@ -1956,8 +1873,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -1969,8 +1884,6 @@
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -1998,9 +1911,6 @@
                                                 "Variable": "btn_delete_handler"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
                                         "gravity_horizontal": "left"
                                     },
                                     {
@@ -2011,20 +1921,9 @@
                                         "Value": "@handlers_table",
                                         "Variable": "handlers_table"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2053,8 +1952,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2066,8 +1963,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2088,10 +1983,7 @@
                                                 "Variable": "btn_delete_mediafile",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2102,20 +1994,9 @@
                                         "Variable": "mediafiles_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2144,8 +2025,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2157,16 +2036,13 @@
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "@header1",
-                                        "Variable": ""
+                                        "Value": "@header1"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2197,9 +2073,6 @@
                                                 "gravity_horizontal": "center"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
                                         "gravity_horizontal": "left"
                                     },
                                     {
@@ -2207,16 +2080,13 @@
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "@header2",
-                                        "Variable": ""
+                                        "Value": "@header2"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2237,18 +2107,13 @@
                                             }
                                         ],
                                         "gravity_horizontal": "left",
-                                        "gravity_vertical": "center",
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "gravity_vertical": "center"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2269,10 +2134,7 @@
                                                 "Variable": "btn_delete_file",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2284,20 +2146,9 @@
                                         "gravity_horizontal": "left"
                                     }
                                 ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": "",
                                 "gravity_horizontal": "left"
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2326,8 +2177,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2339,8 +2188,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2370,10 +2217,7 @@
                                                 "Variable": "btn_delete_timer",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2384,20 +2228,9 @@
                                         "Variable": "timers_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2426,8 +2259,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2439,8 +2270,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2497,10 +2326,7 @@
                                                 "Variable": "btn_delete_recognition",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2511,20 +2337,9 @@
                                         "Variable": "recognition_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2553,8 +2368,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2566,8 +2379,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2597,10 +2408,7 @@
                                                 "Variable": "btn_delete_style",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2611,20 +2419,9 @@
                                         "Variable": "styles_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2653,8 +2450,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2666,8 +2461,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2697,10 +2490,7 @@
                                                 "Variable": "btn_delete_element",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -2711,20 +2501,9 @@
                                         "Variable": "layouts_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -2747,8 +2526,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -2760,8 +2537,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -2780,10 +2555,7 @@
                                                 "Value": "Закрыть",
                                                 "Variable": "btn_close"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -2817,7 +2589,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "layout_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -2857,9 +2628,6 @@
                                                 "Variable": "gravity_vertical"
                                             }
                                         ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": "",
                                         "gravity_horizontal": "left",
                                         "gravity_vertical": "center"
                                     },
@@ -2868,7 +2636,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "common_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -2877,8 +2644,6 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
-                                                "Variable": "",
                                                 "orientation": "horizontal",
                                                 "Elements": [
                                                     {
@@ -2900,9 +2665,6 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left"
                                             },
                                             {
@@ -2910,8 +2672,6 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "",
-                                                "Variable": "",
                                                 "orientation": "horizontal",
                                                 "Elements": [
                                                     {
@@ -2933,9 +2693,6 @@
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
-                                                "BackgroundColor": "",
-                                                "StrokeWidth": "",
-                                                "Padding": "",
                                                 "gravity_horizontal": "left"
                                             },
                                             {
@@ -2946,7 +2703,6 @@
                                                 "Value": "Вес|@weight",
                                                 "Variable": "weight",
                                                 "gravity_horizontal": "left",
-                                                "TextSize": "",
                                                 "NumberPrecision": "0",
                                                 "width_value": "50"
                                             },
@@ -2969,17 +2725,13 @@
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "gravity_horizontal": "left",
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "gravity_horizontal": "left"
                                     },
                                     {
                                         "type": "LinearLayout",
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "element_properties",
                                         "orientation": "vertical",
                                         "Elements": [
@@ -3047,10 +2799,7 @@
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
-                                        "gravity_horizontal": "left",
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        "gravity_horizontal": "left"
                                     },
                                     {
                                         "type": "SpinnerLayout",
@@ -3066,7 +2815,6 @@
                                         "height": "wrap_content",
                                         "width": "match_parent",
                                         "weight": "0",
-                                        "Value": "",
                                         "Variable": "btns_table_elements",
                                         "orientation": "horizontal",
                                         "Elements": [
@@ -3094,10 +2842,7 @@
                                                 "Value": "Редактировать",
                                                 "Variable": "btn_edit_element"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -3107,20 +2852,9 @@
                                         "Value": "@layout_elements_table",
                                         "Variable": "layout_elements_table"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onInput",
@@ -3146,8 +2880,7 @@
                         ]
                     }
                 ]
-            }
-            ,
+            },
             {
                 "ProcessName": "Текст конфигурации",
                 "type": "Process",
@@ -3157,8 +2890,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -3166,27 +2897,28 @@
                                 "orientation": "vertical",
                                 "Elements": [
                                     {
+                                        "type": "Button",
+                                        "height": "wrap_content",
+                                        "width": "wrap_content",
+
+                                        "Value": "Сохранить конфигурацию",
+                                        "Variable": "btn_save",
+                                        "style_name": "accept_button",
+                                        "style_class": "accept_button"
+                                       
+                                       
+                                    },
+                                    {
                                         "type": "html",
                                         "height": "match_parent",
                                         "width": "match_parent",
                                         "weight": "0",
                                         "Value": "@html",
-                                        "Variable": ""
+                                        "Variable": "source_code"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -3194,6 +2926,14 @@
                                 "type": "python",
                                 "method": "source_code",
                                 "postExecute": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "type": "python",
+                                "method": "source_code_save",
+                                "postExecute": "",
+                                "listener": "btn_save"
                             }
                         ]
                     }
@@ -3208,8 +2948,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -3221,8 +2959,6 @@
                                         "height": "wrap_content",
                                         "width": "wrap_content",
                                         "weight": "0",
-                                        "Value": "",
-                                        "Variable": "",
                                         "orientation": "horizontal",
                                         "Elements": [
                                             {
@@ -3252,10 +2988,7 @@
                                                 "Variable": "btn_delete_menu",
                                                 "gravity_horizontal": "left"
                                             }
-                                        ],
-                                        "BackgroundColor": "",
-                                        "StrokeWidth": "",
-                                        "Padding": ""
+                                        ]
                                     },
                                     {
                                         "type": "TableLayout",
@@ -3266,20 +2999,9 @@
                                         "Variable": "menu_table",
                                         "gravity_horizontal": "left"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -3299,7 +3021,7 @@
                     }
                 ]
             },
-              {
+            {
                 "ProcessName": "Инфо",
                 "type": "Process",
                 "Operations": [
@@ -3308,8 +3030,6 @@
                         "type": "Operation",
                         "Elements": [
                             {
-                                "Value": "",
-                                "Variable": "",
                                 "type": "LinearLayout",
                                 "weight": "0",
                                 "height": "match_parent",
@@ -3324,20 +3044,9 @@
                                         "Value": "@html",
                                         "Variable": "html"
                                     }
-                                ],
-                                "BackgroundColor": "",
-                                "StrokeWidth": "",
-                                "Padding": ""
+                                ]
                             }
                         ],
-                        "Timer": false,
-                        "hideToolBarScreen": false,
-                        "noScroll": false,
-                        "handleKeyUp": false,
-                        "hideBottomBarScreen": false,
-                        "onlineOnStart": false,
-                        "onlineOnAfterStart": false,
-                        "onlineOnInput": false,
                         "Handlers": [
                             {
                                 "event": "onStart",
@@ -3349,10 +3058,173 @@
                         ]
                     }
                 ]
+            },
+            {
+                "ProcessName": "Пользователь",
+                "type": "Process",
+                "Operations": [
+                    {
+                        "Name": "Новый экран",
+                        "type": "Operation",
+                        "Elements": [
+                            {
+                                "type": "LinearLayout",
+                                "weight": "0",
+                                "height": "match_parent",
+                                "width": "match_parent",
+                                "orientation": "vertical",
+                                "Elements": [
+                                    {
+                                        "type": "Tabs",
+                                        "height": "match_parent",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "orientation": "vertical",
+                                        "Elements": [
+                                            {
+                                                "type": "Tab",
+                                                "height": "wrap_content",
+                                                "width": "match_parent",
+                                                "weight": "0",
+                                                "Variable": "GitHub",
+                                                "orientation": "vertical",
+                                                "Elements": [
+                                                    {
+                                                        "type": "Button",
+                                                        "height": "wrap_content",
+                                                        "width": "wrap_content",
+                                                        "weight": "3",
+                                                        "Value": "Сохранить настройки пользователя",
+                                                        "Variable": "btn_save",
+                                                        "style_name": "accept_button",
+                                                        "style_class": "accept_button",
+                                                        "gravity_horizontal": "left",
+                                                        "BackgroundColor": "ewrwer",
+                                                        "TextSize": "11",
+                                                        "TextColor": "33"
+                                                    },
+                                                    {
+                                                        "type": "CheckBox",
+                                                        "height": "wrap_content",
+                                                        "width": "wrap_content",
+                                                        "weight": "0",
+                                                        "Value": "Сохранять конфигурацию в GitHub",
+                                                        "Variable": "ui_to_github",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "EditTextText",
+                                                        "height": "wrap_content",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "Имя репо|@ui_repo",
+                                                        "Variable": "ui_repo",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "EditTextText",
+                                                        "height": "wrap_content",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "Ветка|@ui_branch",
+                                                        "Variable": "ui_branch",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "EditTextText",
+                                                        "height": "wrap_content",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "Токен|@ui_token",
+                                                        "Variable": "ui_token",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "EditTextText",
+                                                        "height": "wrap_content",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "Папка с ui-конфигурациями|@ui_folder",
+                                                        "Variable": "ui_folder",
+                                                        "gravity_horizontal": "left"
+                                                    },
+                                                    {
+                                                        "type": "LinearLayout",
+                                                        "height": "wrap_content",
+                                                        "width": "wrap_content",
+                                                        "weight": "0",
+                                                        "orientation": "horizontal",
+                                                        "Elements": [
+                                                            {
+                                                                "type": "Button",
+                                                                "height": "wrap_content",
+                                                                "width": "wrap_content",
+                                                                "weight": "0",
+                                                                "Value": "Обновить",
+                                                                "Variable": "btn_reload",
+                                                                "gravity_horizontal": "left"
+                                                            },
+                                                            {
+                                                                "type": "Button",
+                                                                "height": "wrap_content",
+                                                                "width": "wrap_content",
+                                                                "weight": "0",
+                                                                "Value": "Загрузить конфигурацию",
+                                                                "Variable": "btn_set_configuration",
+                                                                "gravity_horizontal": "left"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "TableLayout",
+                                                        "height": "match_parent",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "@github_table",
+                                                        "Variable": "github_table",
+                                                        "gravity_horizontal": "left"
+                                                    }
+                                                ],
+                                                "gravity_horizontal": "left"
+                                            }
+                                        ],
+                                        "gravity_horizontal": "left"
+                                    }
+                                ],
+                                "gravity_horizontal": "left"
+                            }
+                        ],
+                        "Handlers": [
+                            {
+                                "event": "onStart",
+                                "action": "run",
+                                "type": "python",
+                                "method": "user_open",
+                                "postExecute": "",
+                                "listener": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "type": "python",
+                                "method": "user_input",
+                                "postExecute": "",
+                                "listener": ""
+                            }
+                        ]
+                    }
+                ]
             }
         ],
         "ConfigurationSettings": {
-            "uid": "a85485d00e4a400d8d0c21a8bb849e33"
+            "uid": "a85485d00e4a400d8d0c21a8bb849e33",
+            "dictionaries": "",
+            "vendor": "Dmitry Vorontsov",
+            "vendor_url": "",
+            "vendor_password": "",
+            "handler_split_mode": false,
+            "handler_url": "",
+            "handler_password": ""
         },
         "ConfigurationTags": "Py,off-line",
         "arch2": true,
@@ -3364,6 +3236,15 @@
                 "type": "python",
                 "method": "main_tab_selected",
                 "postExecute": ""
+            },
+            {
+                "event": "onLaunch",
+                "action": "run",
+                "listener": "",
+                "type": "python",
+                "method": "init",
+                "postExecute": "",
+                "alias": ""
             }
         ],
         "Mediafile": [],
@@ -3381,19 +3262,23 @@
             {
                 "name": "accept_button",
                 "use_as_class": true,
-                "row": "background-color: #04AA6D;\ncolor: white;",
-                "weight": "3",
-                "BackgroundColor": "ewrwer",
-                "TextSize": "11",
-                "TextColor": "33",
-                "TextItalic": false,
-                "TextBold": false,
-                "gravity_horizontal": "left"
+                "row": "background-color: #04AA6D;\ncolor: white;\nfont-size: 12px;"
+               
             },
             {
                 "name": "main",
                 "row": "  font-size: 12px;",
                 "use_as_class": true
+            },
+            {
+                "name": "regular_button",
+                "row": "border-radius: 10px;\nborder: 2px solid #154360;\npadding: 10px;\nbackground-color: white;\ncolor: #273746;",
+                "use_as_class": true
+            },
+            {
+                "name": "cancel_button",
+                "use_as_class": true,
+                "row": "background-color: #C0392B;\ncolor: white;\nfont-size: 12px;"
             }
         ],
         "PyTimerTask": [],
@@ -3404,6 +3289,7 @@
         "MenuWebTemplate": "",
         "LaunchVar": "",
         "Launch": "Menu",
+        "HTMLHead": "PCEtLVByaXNtLS0+CjxsaW5rIGhyZWY9Imh0dHBzOi8vY2RuanMuY2xvdWRmbGFyZS5jb20vYWpheC9saWJzL3ByaXNtLzEuMjkuMC90aGVtZXMvcHJpc20uY3NzIiBpZD0iaW1wb3J0LXRoZW1lIiByZWw9InN0eWxlc2hlZXQiLz4KPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuanMuY2xvdWRmbGFyZS5jb20vYWpheC9saWJzL3ByaXNtLzEuMjkuMC9jb21wb25lbnRzL3ByaXNtLWNvcmUubWluLmpzIj48L3NjcmlwdD4KPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuanMuY2xvdWRmbGFyZS5jb20vYWpheC9saWJzL3ByaXNtLzEuMjkuMC9wbHVnaW5zL2F1dG9sb2FkZXIvcHJpc20tYXV0b2xvYWRlci5taW4uanMiPjwvc2NyaXB0Pgo8c2NyaXB0IHNyYz0iaHR0cHM6Ly9jZG5qcy5jbG91ZGZsYXJlLmNvbS9hamF4L2xpYnMvcHJpc20vMS4yOS4wL3BsdWdpbnMvbGluZS1udW1iZXJzL3ByaXNtLWxpbmUtbnVtYmVycy5taW4uanMiPjwvc2NyaXB0Pgo8bGluayBocmVmPSJodHRwczovL2NkbmpzLmNsb3VkZmxhcmUuY29tL2FqYXgvbGlicy9wcmlzbS8xLjI5LjAvcGx1Z2lucy9saW5lLW51bWJlcnMvcHJpc20tbGluZS1udW1iZXJzLm1pbi5jc3MiIHJlbD0ic3R5bGVzaGVldCIvPgoKPCEtLUNvZGUtaW5wdXQgaXMgb24gR2l0SHViID09PiBodHRwczovL2dpdGh1Yi5jb20vV2ViQ29kZXI0OS9jb2RlLWlucHV0LS0+CjxsaW5rIGhyZWY9Imh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9XZWJDb2RlcjQ5L2NvZGUtaW5wdXRAMi4xL2NvZGUtaW5wdXQuY3NzIiByZWw9InN0eWxlc2hlZXQiLz4KPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9naC9XZWJDb2RlcjQ5L2NvZGUtaW5wdXRAMi4xL2NvZGUtaW5wdXQuanMiPjwvc2NyaXB0Pgo8c2NyaXB0IHNyYz0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL1dlYkNvZGVyNDkvY29kZS1pbnB1dEAyLjEvcGx1Z2lucy9pbmRlbnQubWluLmpzIj48L3NjcmlwdD4KPGxpbmsgaHJlZj0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL1dlYkNvZGVyNDkvY29kZS1pbnB1dEAyLjEvcGx1Z2lucy9wcmlzbS1saW5lLW51bWJlcnMubWluLmNzcyIgcmVsPSJzdHlsZXNoZWV0Ii8+CjxzY3JpcHQ+CiAgY29kZUlucHV0LnJlZ2lzdGVyVGVtcGxhdGUoImNvZGUtaW5wdXQiLCBjb2RlSW5wdXQudGVtcGxhdGVzLnByaXNtKFByaXNtLCBbbmV3IGNvZGVJbnB1dC5wbHVnaW5zLkluZGVudCgpXSkpOwogIGNvZGVJbnB1dC5yZWdpc3RlclRlbXBsYXRlKCJkZW1vIiwgY29kZUlucHV0LnRlbXBsYXRlcy5wcmlzbShQcmlzbSwgW25ldyBjb2RlSW5wdXQucGx1Z2lucy5JbmRlbnQoKV0pKTsKPC9zY3JpcHQ+Cg==",
         "MainMenu": [
             {
                 "MenuItem": "выв",
@@ -3411,6 +3297,16 @@
                 "MenuId": "вы",
                 "MenuTop": true
             }
-        ]
+        ],
+        "host_uid": "04a6317afbbb4a9a8f241581df7dfadb",
+        "ConfigurationFileName": "current_configuration.ui",
+        "agent": false,
+        "ForegroundService": false,
+        "StopForegroundServiceOnExit": false,
+        "BroadcastIntent": "",
+        "BroadcastVariable": "",
+        "FaceRecognitionURL": "",
+        "OnKeyboardMain": false,
+        "uid": "776d95b7bfcf495a8f631f8bd8cfe5af"
     }
 }
