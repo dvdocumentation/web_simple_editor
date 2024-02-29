@@ -45,7 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "http://192.168.1.41"
+WS_URL = "http://WRITE_YOUR_IP_HERE"
 
 locale_filename = "ru_locale.json"
 
