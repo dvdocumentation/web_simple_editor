@@ -405,16 +405,56 @@
                                                 "height": "wrap_content",
                                                 "width": "match_parent",
                                                 "weight": "0",
+                                                "Variable": "Общий модуль general (pythonscript)",
+                                                "orientation": "vertical",
+                                                "Elements": [
+                                                    {
+                                                        "type": "html",
+                                                        "height": "match_parent",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "@PyGeneral",
+                                                        "Variable": "PyGeneral",
+                                                        "gravity_horizontal": "left"
+                                                    }
+                                                ],
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "Tab",
+                                                "height": "wrap_content",
+                                                "width": "match_parent",
+                                                "weight": "0",
                                                 "Variable": "Заголовок html",
                                                 "orientation": "vertical",
                                                 "Elements": [
                                                     {
-                                                        "type": "MultilineText",
+                                                        "type": "html",
                                                         "height": "match_parent",
                                                         "width": "match_parent",
                                                         "weight": "0",
                                                         "Value": "@HTMLHead",
                                                         "Variable": "HTMLHead",
+                                                        "gravity_horizontal": "left"
+                                                    }
+                                                ],
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "Tab",
+                                                "height": "wrap_content",
+                                                "width": "match_parent",
+                                                "weight": "0",
+                                                "Variable": "document ready",
+                                                "orientation": "vertical",
+                                                "Elements": [
+                                                    {
+                                                        "type": "html",
+                                                        "height": "match_parent",
+                                                        "width": "match_parent",
+                                                        "weight": "0",
+                                                        "Value": "@HTMLdocument_ready",
+                                                        "Variable": "HTMLdocument_ready",
                                                         "gravity_horizontal": "left"
                                                     }
                                                 ],
@@ -1163,24 +1203,6 @@
                                                 "gravity_horizontal": "left"
                                             },
                                             {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Толщина окантовки|@StrokeWidth",
-                                                "Variable": "StrokeWidth",
-                                                "gravity_horizontal": "left"
-                                            },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Внутренние отступы|@Padding",
-                                                "Variable": "Padding",
-                                                "gravity_horizontal": "left"
-                                            },
-                                            {
                                                 "type": "SpinnerLayout",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
@@ -1284,6 +1306,33 @@
                                                 "weight": "0",
                                                 "Value": "Цвет фона|@BackgroundColor",
                                                 "Variable": "BackgroundColor",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Толщина окантовки|@StrokeWidth",
+                                                "Variable": "StrokeWidth",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Внутренние отступы|@Padding",
+                                                "Variable": "Padding",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Радиус|@Radius",
+                                                "Variable": "Radius",
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
@@ -2601,24 +2650,7 @@
                                                 "Variable": "orientation",
                                                 "gravity_horizontal": "left"
                                             },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Толщина окантовки|@StrokeWidth",
-                                                "Variable": "StrokeWidth",
-                                                "gravity_horizontal": "left"
-                                            },
-                                            {
-                                                "type": "EditTextText",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "Внутренние отступы|@Padding",
-                                                "Variable": "Padding",
-                                                "gravity_horizontal": "left"
-                                            },
+                                            
                                             {
                                                 "type": "SpinnerLayout",
                                                 "height": "wrap_content",
@@ -2722,6 +2754,33 @@
                                                 "weight": "0",
                                                 "Value": "Цвет фона|@BackgroundColor",
                                                 "Variable": "BackgroundColor",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Толщина окантовки|@StrokeWidth",
+                                                "Variable": "StrokeWidth",
+                                                "gravity_horizontal": "left"
+                                            },
+                                            {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Внутренние отступы|@Padding",
+                                                "Variable": "Padding",
+                                                "gravity_horizontal": "left"
+                                            },
+                                             {
+                                                "type": "EditTextText",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Радиус|@Radius",
+                                                "Variable": "Radius",
                                                 "gravity_horizontal": "left"
                                             }
                                         ],
@@ -3214,7 +3273,318 @@
                         ]
                     }
                 ]
+            },
+             {
+                "ProcessName": "Векторный редактор",
+                "type": "Process",
+                "hidden":true,
+                "Operations": [
+                    {
+                        "type": "Operation",
+                        "Name": "Новый экран",
+                        "Elements": [
+                            {
+                                "type": "LinearLayout",
+                                "orientation": "vertical",
+                                "height": "match_parent",
+                                "width": "match_parent",
+                                "Elements": [
+                                    {
+                                        "type": "LinearLayout",
+                                        "height": "wrap_content",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "orientation": "horizontal",
+                                        "Elements": [
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Новый файл",
+                                                "Variable": "btn_new",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "   ...или...  ",
+                                                "type_s": "Надпись"
+                                            },
+                                            {
+                                                "type": "file",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "@sug_file",
+                                                "Variable": "sug_file",
+                                                "type_s": "Файл"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Загрузить файл",
+                                                "Variable": "btn_upload",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Записать",
+                                                "Variable": "btn_savesug",
+                                                "type_s": "Кнопка"
+                                            }
+                                        ],
+                                        "type_s": "Контейнер"
+                                    },
+                                    {
+                                        "type": "LinearLayout",
+                                        "height": "wrap_content",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "orientation": "horizontal",
+                                        "Elements": [
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Ячейки",
+                                                "Variable": "btn_row",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Адреса",
+                                                "Variable": "btn_addr",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Линия",
+                                                "Variable": "btn_line",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Текст",
+                                                "Variable": "btn_text",
+                                                "type_s": "Кнопка"
+                                            },
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Прямоуг",
+                                                "Variable": "btn_rect",
+                                                "type_s": "Кнопка"
+                                            }
+                                            ,
+                                            {
+                                                "type": "Button",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Удалить",
+                                                "Variable": "btn_delete",
+                                                "type_s": "Кнопка"
+                                            }
+                                        ],
+                                        "type_s": "Контейнер"
+                                    },
+                                    {
+                                        "type": "CheckBox",
+                                       
+                                        "height": "wrap_content",
+                                        "width": "wrap_content",
+                                        "type_s": "Кнопка",
+                                        "weight": "0",
+                                        "Value": "Установка имен ячеек",
+                                        "Variable": "AddressMode"
+                                    },
+                                    {
+                                        "type": "Button",
+                                       
+                                        "height": "wrap_content",
+                                        "width": "wrap_content",
+                                        "type_s": "Кнопка",
+                                        "weight": "0",
+                                        "Value": "Прямоугольник",
+                                        "Variable": "btn_1"
+                                    },
+                                    {
+                                        "type": "map",
+                                        "orientation": "vertical",
+                                        "height": "500",
+                                        "width": "500",
+                                        "type_s": "Поле карты",
+                                        "weight": "0",
+                                        "Value": "@map",
+                                        "Variable": "map"
+                                    }
+                                ],
+                                "type_s": "Контейнер",
+                                "weight": "0"
+                            }
+                        ],
+                        "Handlers": [
+                            {
+                                "event": "onPostStart",
+                                "action": "run",
+                                "type": "python",
+                                "method": "canvas_on_start",
+                                "postExecute": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "canvas_mouse_event",
+                                "type": "python",
+                                "method": "mouse_input",
+                                "postExecute": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "",
+                                "type": "python",
+                                "method": "cell_input",
+                                "postExecute": ""
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Process",
+                "ProcessName": "Отладка",
+                "Operations": [
+                    {
+                        "type": "Operation",
+                        "Name": "Новый экран",
+                        "Elements": [
+                            {
+                                "type": "LinearLayout",
+                                "orientation": "vertical",
+                                "height": "match_parent",
+                                "width": "match_parent",
+                                "Elements": [
+                                    {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "1",
+                                                "Value": "Сканируйте этот QR в приложении",
+                                                "gravity_horizontal": "left"
+                                               
+
+                                    },
+                                     {
+                                                "type": "Picture",
+                                                "height": 150,
+                                                "width": 150,
+                                                "weight": "1",
+                                                "Value": "@qr",
+                                                "Variable": "qr",
+                                                "height_value": "150",
+                                                "width_value": "150"
+                                    },
+                                    {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Продолжить",
+                                        "style_class": "accept_button",
+                                        "Variable": "btn_next",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Добавить переменную",
+                                        
+                                        "Variable": "btn_add_row",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
+                                        "type": "TableLayout",
+                                        "height": "match_parent",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "Value": "@StackTable",
+                                        "Variable": "StackTable",
+                                        "gravity_horizontal": "left"
+                                    }
+                                ],
+                                "type_s": "Контейнер",
+                                "weight": "0"
+                            }
+                        ],
+                        "Handlers": [
+                             {
+                                "event": "onStart",
+                                "action": "run",
+                                "type": "python",
+                                "method": "debug_open",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "btn_next",
+                                
+                                "type": "python",
+                                "method": "debug_next",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "TableEditModal",
+                                "type": "python",
+                                "method": "debug_edit",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "btn_add_row",
+                                
+                                "type": "python",
+                                "method": "debug_add",
+                                "postExecute": "",
+                                "alias": ""
+                            }
+
+                        ]
+                    }
+                ]
             }
+             
         ],
         "ConfigurationSettings": {
             "uid": "a85485d00e4a400d8d0c21a8bb849e33",
@@ -3246,6 +3616,7 @@
                 "postExecute": "",
                 "alias": ""
             }
+            
         ],
         "Mediafile": [],
         "RecognitionTemplates": [
