@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
 
-from uiweb import Simple
-#from simpleweb import Simple
+#from uiweb import Simple
+from simpleweb import Simple
 
 async_mode = 'threading'
 fapp = Flask(__name__,template_folder='templates',static_url_path='',  static_folder='static')
@@ -192,6 +192,7 @@ def jscommand(FUNCTION=None):
     
     return ""
 
+
 @fapp.route('/setvaluespulse/', methods=['POST'])
 def jscommandpulse(FUNCTION=None):
     session['SW'].set_values_pulse(request.json)
@@ -210,6 +211,32 @@ def adminpage():
             settings={"url":"","user":"","password":""}
 
         return render_template_string(SW.get_admin_html(),settings = settings)
+
+
+@fapp.route('/debug/<lsid>', methods=['POST'])
+def debug(lsid):
+    for c in connected:
+        if c[1]==lsid:
+            jdata = request.json
+            c[2].debug(jdata)
+            while not "next_"+lsid in c[2].hashMap:
+                pass
+            c[2].hashMap.pop("next_"+lsid,None)
+
+            jtable = json.loads(c[2].hashMap["StackTable"])
+            ex_hashMap = []
+            for r in jtable["rows"]:
+                ex_hashMap.append({"key":r.get("variable"),"value":r.get("value")})    
+            jdata['hashmap'] = ex_hashMap
+            jdata['stop'] =False
+            jdata['ErrorMessage']=""
+            jdata['Rows']=[]
+            return json.dumps(jdata,ensure_ascii=False),200
+
+            
+
+      
+    return "",200
 
 @fapp.route('/uploader', methods = ['PUT', 'POST'])
 def upload_file():
