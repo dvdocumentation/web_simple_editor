@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
 
-#from uiweb import Simple
-from simpleweb import Simple
+from uiweb import Simple
+#from simpleweb import Simple
 
 async_mode = 'threading'
 fapp = Flask(__name__,template_folder='templates',static_url_path='',  static_folder='static')
