@@ -3277,7 +3277,7 @@
              {
                 "ProcessName": "Векторный редактор",
                 "type": "Process",
-                "hidden":true,
+              
                 "Operations": [
                     {
                         "type": "Operation",
@@ -3330,15 +3330,99 @@
                                                 "Value": "Загрузить файл",
                                                 "Variable": "btn_upload",
                                                 "type_s": "Кнопка"
-                                            },
+                                            }
+                                        ],
+                                        "type_s": "Контейнер"
+                                    },
+                                          {
+                                        "type": "LinearLayout",
+                                        "height": "wrap_content",
+                                        "width": "match_parent",
+                                        "weight": "0",
+                                        "orientation": "horizontal",
+                                        "Elements": [
+                      
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "Записать",
+                                                "Value": "Сохранить",
                                                 "Variable": "btn_savesug",
-                                                "type_s": "Кнопка"
+                                                "type_s": "Кнопка",
+                                                "style_class": "accept_button"
+                                            },
+                                            {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "@download_sug",
+                                                "Variable":"download_sug"
+                                                
+                                            }
+                                        ],
+                                        "type_s": "Контейнер"
+                                    },
+                                     {
+                                        "type": "LinearLayout",
+                                        "height": "wrap_content",
+                                        "width": "wrap_content",
+                                        "weight": "0",
+                                        "orientation": "horizontal",
+                                        "Elements": [
+                                            {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Ширина"
+                                               
+                                            },
+                                            {
+                                                "type": "EditTextNumeric",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "@file_w",
+                                                "Variable": "file_w"
+                                               
+                                            },
+                                            {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Высота"
+                                              
+                                               
+                                            },
+                                            {
+                                                "type": "EditTextNumeric",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "@file_h",
+                                                "Variable": "file_h"
+                                               
+                                            },
+                                             {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "Размер"
+                                              
+                                               
+                                            },
+                                            {
+                                                "type": "SpinnerLayout",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "0",
+                                                "Value": "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
+                                                "Variable": "size"
+                                               
                                             }
                                         ],
                                         "type_s": "Контейнер"
@@ -3408,26 +3492,7 @@
                                         ],
                                         "type_s": "Контейнер"
                                     },
-                                    {
-                                        "type": "CheckBox",
-                                       
-                                        "height": "wrap_content",
-                                        "width": "wrap_content",
-                                        "type_s": "Кнопка",
-                                        "weight": "0",
-                                        "Value": "Установка имен ячеек",
-                                        "Variable": "AddressMode"
-                                    },
-                                    {
-                                        "type": "Button",
-                                       
-                                        "height": "wrap_content",
-                                        "width": "wrap_content",
-                                        "type_s": "Кнопка",
-                                        "weight": "0",
-                                        "Value": "Прямоугольник",
-                                        "Variable": "btn_1"
-                                    },
+                                    
                                     {
                                         "type": "map",
                                         "orientation": "vertical",
