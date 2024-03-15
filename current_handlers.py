@@ -5172,8 +5172,7 @@ def debug_edit(hashMap,_files=None,_data=None):
 
     return hashMap
 
-
-#Векторный редактор(в разработке)
+#Векторный редактор
 class Cell():
     x1 = 0
     x2 = 0
@@ -5237,11 +5236,16 @@ session["current_cell"] = None
 session["current_line"] = None
 session["current_rect"] = None
 session["current_text"] = None
+session["draw_mode"] = ""
 
 CANVAS_H = 500
 CANVAS_W = 500
+GRIDSIZE = 21
 
 STROCK_SIZE = 3
+
+RATIO_STROCK = 60
+RATIO_TEXT_SIZE = 5
 
 cellsize = 25
 rows = []
@@ -5255,12 +5259,7 @@ def redraw(hashMap):
     draw_array = []
 
     
-    
-    #item ={"type":"cells","x":10,"y":10,"row_count":5,"cell_size":cellsize,"col_count":1,"tags":[["1-1","1-2","1-3","1-4","1-5"]]}
-    #draw_array.append(item)
 
-    #for cell in session["cells"] :
-    #    draw_array.append({"type":"cells","x":cell.get("x"),"y":cell.get("y"),"row_count":5,"cell_size":cellsize,"col_count":1,"tags":cell.get("tags")})
 
     for r in session["rows"]:
         for cell in r.cells :
@@ -5269,9 +5268,10 @@ def redraw(hashMap):
     for el in session["vectors"]:
         draw_array.append({"type":"line","x1":el.x1,"y1":el.y1,"x2":el.x2,"y2":el.y2, "color":"#0a1a45","strock_size":el.strock_size})        
 
-    hashMap.put("SetCanvas",json.dumps({"map":{"height":CANVAS_H,"width":CANVAS_W,"draw":draw_array}}))
+    #hashMap.put("SetCanvas",json.dumps({"map":{"height":CANVAS_H,"width":CANVAS_W,"draw":draw_array}}))
     for el in session["rectangles"]:
-        draw_array.append({"type":"rect","x1":el.x1,"y1":el.y1,"x2":el.x2,"y2":el.y2, "color":"#0a1a45","strock_size":el.strock_size,"fill_color":"#e4f5c6"})        
+        
+        draw_array.append({"type":"rect","x1":el.x1,"y1":el.y1,"x2":el.x2,"y2":el.y2, "color":"#0a1a45","strock_size":el.strock_size,"fill_color":"#ffffff"})        
    
     for el in session["labels"]:
         draw_array.append({"type":"text","x":el.x,"y":el.y,"text":el.text, "color":"#0a1a45","size":el.size})        
@@ -5282,6 +5282,7 @@ def redraw(hashMap):
 
 def canvas_on_start(hashMap,_files=None,_data=None):
     hashMap.put("InitCanvas",json.dumps({"map":{"height":CANVAS_H,"width":CANVAS_W}}))
+    hashMap.put("size","3")
 
     if hashMap.containsKey("sug_reload"):
         hashMap.remove("sug_reload")
@@ -5305,6 +5306,40 @@ def canvas_on_start(hashMap,_files=None,_data=None):
 
     return hashMap
 
+
+dialog_row = {
+                        "Value": "",
+                        "Variable": "",
+                        "type": "LinearLayout",
+                        "weight": "0",
+                        "height": "match_parent",
+                        "width": "match_parent",
+                        "orientation": "vertical",
+                        "Elements": [
+                            {
+                                "type": "EditTextNumeric",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Количество столбцов|@columns",
+                                "Variable": "columns",
+                                "gravity_horizontal": "left"
+                            },
+                            {
+                                "type": "EditTextNumeric",
+                                "height": "wrap_content",
+                                "width": "match_parent",
+                                "weight": "0",
+                                "Value": "Количество строк|@rows",
+                                "Variable": "rows",
+                                "gravity_horizontal": "left"
+                            }
+                            
+                        ],
+                        "BackgroundColor": "#fcd39d",
+                        "StrokeWidth": "2",
+                        "Padding": ""
+        }
 
 dialog_cell = {
                         "Value": "",
@@ -5356,7 +5391,7 @@ dialog_text = {
                         "Padding": ""
         }
 
-session["draw_mode"] = None
+
 
 def mouse_input(hashMap,_files=None,_data=None):
     global rows
@@ -5383,87 +5418,92 @@ def mouse_input(hashMap,_files=None,_data=None):
             session['rectangles'].append(r)
         rectangles = []  
     
+    
     if data.get("type") == "mouseDown": 
-        if session["draw_mode"] == "address":
-            session["current_row"]=None
-            session["current_cell"]=None
-            for r in session["rows"]:
-                for cell in r.cells :
-                    if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
-                        session["current_row"] = r
-                        session["current_cell"] = cell
-                        break
-            
-            if session["current_row"]!=None:
-                hashMap.put("ShowDialogLayout",json.dumps(dialog_cell,ensure_ascii=False))
-                hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Редактировнаие ячейки"},ensure_ascii=False))
-                hashMap.put("ShowDialog","") 
+            if session["draw_mode"] == "address":
+                session["current_row"]=None
+                session["current_cell"]=None
+                for r in session["rows"]:
+                    for cell in r.cells :
+                        if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
+                            session["current_row"] = r
+                            session["current_cell"] = cell
+                            break
+                
+                if session["current_row"]!=None:
+                    hashMap.put("ShowDialogLayout",json.dumps(dialog_cell,ensure_ascii=False))
+                    hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Редактировнаие ячейки"},ensure_ascii=False))
+                    hashMap.put("ShowDialog","") 
 
-                hashMap.put("StopCanvasEvents","") 
+                    hashMap.put("StopCanvasEvents","")     
 
-        elif session["draw_mode"] == "row":
-            session["current_row"]=None
-            for r in session["rows"]:
-                for cell in r.cells :
-                    if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
-                        session["current_row"] = r
-                        break
-            if session["current_row"]==None:
-                r = generate_row(data.get("x"),data.get("y"),cellsize,5,5) 
-                session["rows"].append(r)
+            elif session["draw_mode"] == "row":
+                session["current_row"]=None
+                for r in session["rows"]:
+                    for cell in r.cells :
+                        if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
+                            session["current_row"] = r
+                            break
+                if session["current_row"]==None:
+                    r = generate_row(data.get("x"),data.get("y"),STROCK_SIZE*RATIO_TEXT_SIZE,int(hashMap.get("rows")),int(hashMap.get("columns"))) 
+                    session["rows"].append(r)   
+                    
 
-            #session["cells"].append({"x":data.get("x"),"y":data.get("y"),"tags":[["1-1","1-2","1-3","1-4","1-5"]]})
-        elif session["draw_mode"] == "line": 
-            for r in session["vectors"]:
-                    if (data.get("x")>=min(r.x1,r.x2) and data.get("x")<=max(r.x2,r.x1)) and (data.get("y")>=min(r.y1,r.y2) and data.get("y")<=max(r.y2,r.y1)):
-                        session["current_line"] = r
-                        break
-            if session["current_line"]==None:
-                r = Line(data.get("x"),data.get("y"),data.get("x"),data.get("y"),STROCK_SIZE)
-                session["vectors"].append(r)
-                session["current_line"]=r
-        elif session["draw_mode"] == "rect": 
-            for r in session["rectangles"]:
-                    if (data.get("x")>=(r.x1-5) and data.get("x")<=(r.x2+5)) and (data.get("y")>=(r.y1-5) and data.get("y")<=(r.y2+5)):
-                        session["current_rect"] = r
-                        session["edit_mode"] = True
-                        break
-            if session["current_rect"]==None:
-                session["edit_mode"] = False
-                r = Rect(data.get("x"),data.get("y"),data.get("x"),data.get("y"),STROCK_SIZE)
-                session["rectangles"].append(r)
-                session["current_rect"]=r        
-        elif session["draw_mode"] == "text": 
-            session["current_text"]=None
-            for r in session["labels"]:
-                    if (data.get("x")>=(r.x-5) and data.get("x")<=(r.x+10)) and (data.get("y")>=(r.y-5) and data.get("y")<=(r.y+5)):
-                        session["current_text"] = r
-                        session["edit_mode"] = True
-                        break
-            if session["current_text"]==None:
-                session["edit_mode"] = False
-                r = Label(data.get("x"),data.get("y"),session["label_text"],STROCK_SIZE*5)
-                session["labels"].append(r)
-                session["current_text"]=r         
-        elif session["draw_mode"] == "delete":
-            for r in session["rows"]:
-                for cell in r.cells :
-                    if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
-                        session["rows"].remove(r)    
-                        break    
-            for r in session["vectors"]:
-                    if (data.get("x")>=min(r.x1,r.x2) and data.get("x")<=max(r.x2,r.x1)) and (data.get("y")>=min(r.y1,r.y2) and data.get("y")<=max(r.y2,r.y1)):
-                        session["vectors"].remove(r)    
-                        break   
-            for r in session["rectangles"]:
-                    if (data.get("x")>=(r.x1-5) and data.get("x")<=(r.x2+5)) and (data.get("y")>=(r.y1-5) and data.get("y")<=(r.y2+5)):
-                        session["rectangles"].remove(r)
-                        break   
-            for r in session["labels"]:
-                    if (data.get("x")>=(r.x-5) and data.get("x")<=(r.x+10)) and (data.get("y")>=(r.y-5) and data.get("y")<=(r.y+5)):
-                        session["labels"].remove(r)
-                        break                    
-        hashMap = redraw(hashMap)
+
+
+                
+            elif session["draw_mode"] == "line": 
+                for r in session["vectors"]:
+                        if (data.get("x")>=min(r.x1,r.x2) and data.get("x")<=max(r.x2,r.x1)) and (data.get("y")>=min(r.y1,r.y2) and data.get("y")<=max(r.y2,r.y1)):
+                            session["current_line"] = r
+                            break
+                if session["current_line"]==None:
+                    r = Line(data.get("x"),data.get("y"),data.get("x"),data.get("y"),STROCK_SIZE)
+                    session["vectors"].append(r)
+                    session["current_line"]=r
+            elif session["draw_mode"] == "rect": 
+                session["current_rect"]=None
+                for r in session["rectangles"]:
+                        if (data.get("x")>=r.x1 and data.get("x")<=r.x2) and (data.get("y")>=r.y1 and data.get("y")<=r.y2):
+                            session["current_rect"] = r
+                            #session["edit_mode"] = True
+                            break
+                if session["current_rect"]==None:
+                    session["edit_mode"] = False
+                    r = Rect(data.get("x"),data.get("y"),data.get("x"),data.get("y"),STROCK_SIZE)
+                    session["rectangles"].append(r)
+                    session["current_rect"]=r        
+            elif session["draw_mode"] == "text": 
+                session["current_text"]=None
+                for r in session["labels"]:
+                        if (data.get("x")>=(r.x-5) and data.get("x")<=(r.x+10)) and (data.get("y")>=(r.y-5) and data.get("y")<=(r.y+5)):
+                            session["current_text"] = r
+                            session["edit_mode"] = True
+                            break
+                if session["current_text"]==None:
+                    session["edit_mode"] = False
+                    r = Label(data.get("x"),data.get("y"),session["label_text"],STROCK_SIZE*RATIO_TEXT_SIZE)
+                    session["labels"].append(r)
+                    session["current_text"]=r         
+            elif session["draw_mode"] == "delete":
+                for r in session["rows"]:
+                    for cell in r.cells :
+                        if (data.get("x")>=cell.x1 and data.get("x")<=cell.x2) and (data.get("y")>=cell.y1 and data.get("y")<=cell.y2):
+                            session["rows"].remove(r)    
+                            break    
+                for r in session["vectors"]:
+                        if (data.get("x")>=min(r.x1,r.x2) and data.get("x")<=max(r.x2,r.x1)) and (data.get("y")>=min(r.y1,r.y2) and data.get("y")<=max(r.y2,r.y1)):
+                            session["vectors"].remove(r)    
+                            break   
+                for r in session["rectangles"]:
+                        if (data.get("x")>=(r.x1-5) and data.get("x")<=(r.x2+5)) and (data.get("y")>=(r.y1-5) and data.get("y")<=(r.y2+5)):
+                            session["rectangles"].remove(r)
+                            break   
+                for r in session["labels"]:
+                        if (data.get("x")>=(r.x-5) and data.get("x")<=(r.x+10)) and (data.get("y")>=(r.y-5) and data.get("y")<=(r.y+5)):
+                            session["labels"].remove(r)
+                            break                    
+            hashMap = redraw(hashMap)
     elif data.get("type") == "mouseMove" and  (not hashMap.get("AddressMode")==True) : 
         if session["draw_mode"] == "row":   
             if session["current_row"]!=None:
@@ -5476,13 +5516,15 @@ def mouse_input(hashMap,_files=None,_data=None):
         
                 hashMap = redraw(hashMap)
         elif session["draw_mode"] == "rect":
+            
             if session["current_rect"]!=None:  
+                print(session["edit_mode"])
                 if session["edit_mode"] == True:
                     offsetx = session["current_rect"].x1 - data.get("x")
                     offsety = session["current_rect"].y1 - data.get("y")
 
-                    #session["current_rect"].x1 =  data.get("x")    
-                    #session["current_rect"].y1 =  data.get("y")    
+                     #session["current_rect"].x1 =  data.get("x")    
+                     #session["current_rect"].y1 =  data.get("y")    
                     
                     session["current_rect"].x1 -=offsetx
                     session["current_rect"].x2 -=offsetx
@@ -5490,6 +5532,7 @@ def mouse_input(hashMap,_files=None,_data=None):
                     session["current_rect"].y2 -=offsety
 
                 else:      
+                
                     session["current_rect"].x2 =data.get("x")
                     session["current_rect"].y2 =data.get("y")
         
@@ -5525,18 +5568,24 @@ def mouse_input(hashMap,_files=None,_data=None):
 
 def generate_row(x,y,cellsize,num_rows,num_columns):
     _cells = []
-    offset_y = 0
-    for i in range(num_rows):
-        c = Cell()
-        c.x1 = x
-        c.x2 = c.x1 + cellsize
-        c.y1 = y+offset_y
-        c.y2 = c.y1 + cellsize
-        c.address = str(i)
+    
+    caddr = 0
+    offset_x = 0
+    for j in range(num_columns):
+        offset_y = 0
+        for i in range(num_rows):
+            c = Cell()
+            c.x1 = x+offset_x
+            c.x2 = c.x1 + cellsize
+            c.y1 = y+offset_y
+            c.y2 = c.y1 + cellsize
+            caddr+=1
+            c.address = str(caddr)
 
-        _cells.append(c)
+            _cells.append(c)
 
-        offset_y+=cellsize
+            offset_y+=cellsize
+        offset_x +=cellsize
 
     r = Row(_cells,num_rows,num_columns,cellsize,x,y)  
 
@@ -5556,13 +5605,32 @@ def update_row(r,x,y):
         c.y2 -=offsety
 
     return r 
+def update_row_cellsize(r,x,y,cellsize):
+    
+    ii=0
+    offset_x = 0
+    for j in range(r.num_columns):
+        offset_y = 0
+        for i in range(r.num_rows):
+            c = r.cells[ii]
+            ii+=1
+            c.x1 = x+offset_x
+            c.x2 = c.x1 + cellsize
+            c.y1 = y+offset_y
+            c.y2 = c.y1 + cellsize
 
+            offset_y+=cellsize
+        offset_x +=cellsize
+
+    return r 
 
 def cell_input(hashMap,_files=None,_data=None):
     global rows
     global vectors
     global labels
     global rectangles
+    global GRIDSIZE
+    global STROCK_SIZE
 
     if len(rows)>0:
         for r in rows:
@@ -5586,6 +5654,16 @@ def cell_input(hashMap,_files=None,_data=None):
 
     if hashMap.get("listener") == "btn_row":
         session["draw_mode"] = "row"
+
+        if not hashMap.containsKey("rows"):
+            hashMap.put("rows","1")
+            hashMap.put("columns","1")
+
+        hashMap.put("ShowDialogLayout",json.dumps(dialog_row,ensure_ascii=False))
+        hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавления ряда ячеек"},ensure_ascii=False))
+        hashMap.put("ShowDialog","") 
+
+        hashMap.put("StopCanvasEvents","") 
     if hashMap.get("listener") == "btn_addr":
         session["draw_mode"] = "address"    
     if hashMap.get("listener") == "btn_line":
@@ -5596,6 +5674,8 @@ def cell_input(hashMap,_files=None,_data=None):
         session["label_text"] = ""
         session["draw_mode"] = "text"
 
+
+
         hashMap.put("ShowDialogLayout",json.dumps(dialog_text,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Ввод текста"},ensure_ascii=False))
         hashMap.put("ShowDialog","") 
@@ -5604,7 +5684,26 @@ def cell_input(hashMap,_files=None,_data=None):
     if hashMap.get("listener") == "btn_delete":
         session["draw_mode"] = "delete"     
 
-             
+    if hashMap.get("listener") == "size":
+        STROCK_SIZE=int(hashMap.get("size"))
+        if session["draw_mode"] == "text":
+            if len(session["labels"])>0:
+                session["labels"][len(session["labels"])-1].size = STROCK_SIZE*RATIO_TEXT_SIZE
+                hashMap = redraw(hashMap)
+        elif session["draw_mode"] == "line":
+            if len(session["vectors"])>0:
+                session["vectors"][len(session["vectors"])-1].strock_size = STROCK_SIZE
+                hashMap = redraw(hashMap)
+        elif session["draw_mode"] == "rect":
+            if len(session["rectangles"])>0:
+                session["rectangles"][len(session["rectangles"])-1].strock_size = STROCK_SIZE
+                hashMap = redraw(hashMap)  
+        elif session["draw_mode"] == "row":
+            if len(session["rows"])>0:
+                r = session["rows"][len(session["rows"])-1]
+                r = update_row_cellsize(r,r.x,r.y,STROCK_SIZE*RATIO_TEXT_SIZE)
+               
+                hashMap = redraw(hashMap)                
 
     if hashMap.get("listener") == "onResultPositive": 
         if session["draw_mode"] == "address":
@@ -5614,6 +5713,15 @@ def cell_input(hashMap,_files=None,_data=None):
             hashMap = redraw(hashMap)
             session["current_cell"] = None
             hashMap.put("StartCanvasEvents","") 
+        if session["draw_mode"] == "row":
+            
+
+
+            dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+            hashMap.put("rows",str(dialog_values.get("rows")))
+            hashMap.put("columns",str(dialog_values.get("columns")))
+            hashMap.put("StartCanvasEvents","") 
+            
         if session["draw_mode"] == "text":
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))    
             session["label_text"] = dialog_values.get("text")
@@ -5621,6 +5729,22 @@ def cell_input(hashMap,_files=None,_data=None):
     elif hashMap.get("listener") == 'btn_upload':
         id = "sug_file"
         hashMap.put("UploadFile",id)
+    elif hashMap.get("listener") == 'btn_new':
+        hashMap.put("SetValuesEdit",json.dumps([{"file_h":"1050"},{"file_w":"1900"},{"size":"1"}],ensure_ascii=False))    
+        session["rows"] = []
+        session["vectors"] = []
+        session["rectangles"] = []
+        session["labels"] = []
+        session["cells"] = []
+        rows = []
+        vectors = []
+        labels = []
+        rectangles = []
+
+        hashMap.put("InitCanvas",json.dumps({"map":{"height":CANVAS_H,"width":CANVAS_W}}))
+        
+
+        
             
     elif hashMap.get("listener") == "upload_file":    
         session["rows"] = []
@@ -5640,7 +5764,20 @@ def cell_input(hashMap,_files=None,_data=None):
             jsug = json.load(conf_file)
             file_w = jsug.get("columncount")*jsug.get("gridsize")
             file_h = jsug.get("rowcount")*jsug.get("gridsize")
+
+            hashMap.put("file_w",str(file_w))
+            hashMap.put("file_h",str(file_h))
+
+
+
+            
+            hashMap.put("SetValuesEdit",json.dumps([{"file_h":hashMap.get("file_h")},{"file_w":hashMap.get("file_w")}],ensure_ascii=False))
+
+
             ratio = CANVAS_H/max(file_w,file_h)
+
+            GRIDSIZE = jsug.get("gridsize")
+
             if 'rows' in jsug:
                 jrows = json.loads(jsug['rows'])
                 for obj in jrows['dataList']:
@@ -5663,19 +5800,19 @@ def cell_input(hashMap,_files=None,_data=None):
             if 'vectors' in jsug:
                 jelements = json.loads(jsug['vectors'])
                 for obj in jelements['dataList']:
-                    l =  Line(int(obj.get("x1")*ratio),int(obj.get("y1")*ratio),int(obj.get("x2")*ratio),int(obj.get("y2")*ratio),int(obj.get("strock_size")/60))
+                    l =  Line(int(obj.get("x1")*ratio),int(obj.get("y1")*ratio),int(obj.get("x2")*ratio),int(obj.get("y2")*ratio),int(obj.get("strock_size")/RATIO_STROCK))
                     vectors.append(l) 
                     session['vectors'].append(l)
             if 'labels' in jsug:
                 jelements = json.loads(jsug['labels'])
                 for obj in jelements['dataList']:
-                    l =  Label(int(obj.get("x")*ratio),int(obj.get("y")*ratio),obj.get("text"), int(obj.get("size")/5))
+                    l =  Label(int(obj.get("x")*ratio),int(obj.get("y")*ratio),obj.get("text"), int(obj.get("size")/RATIO_TEXT_SIZE))
                     labels.append(l)
                     session["labels"].append(l)                       
             if 'rects' in jsug:
                 jelements = json.loads(jsug['rects'])
                 for obj in jelements['dataList']: 
-                    r = Rect(int(obj.get("x1")*ratio),int(obj.get("y1")*ratio),int(obj.get("x2")*ratio),int(obj.get("y2")*ratio),int(obj.get("strock_size")/60))
+                    r = Rect(int(obj.get("x1")*ratio),int(obj.get("y1")*ratio),int(obj.get("x2")*ratio),int(obj.get("y2")*ratio),int(obj.get("strock_size")/RATIO_STROCK))
                     rectangles.append(r)                       
                     session["rectangles"].append(r)                       
             
@@ -5685,10 +5822,42 @@ def cell_input(hashMap,_files=None,_data=None):
             #hashMap.put('sug_reload',"")
             
     elif  hashMap.get("listener") == "btn_savesug":  
-        session["sugfilename"] = session["host_uid"]+".sug" 
-        #hashMap.put("DownloadFile",session["filename"])  
-        #with open(session["sugfilename"] , 'w',encoding="utf-8") as f:
-        #    json.dump(new_configuration, f,ensure_ascii=False,indent=4) 
+        if not "sug_uid" in session:
+            session["sug_uid"] = str(uuid.uuid4().hex) 
 
+        session["sugfilename"] = hashMap.get("base_path")+os.sep+"uploads"+os.sep+session["sug_uid"]+".sug" 
+        
+        file_w = hashMap.get("file_w")
+        file_h = hashMap.get("file_h")
+        if file_w == None or file_h==None:
+            hashMap.put("toast","Не заданы размеры изображения")
+            return hashMap
+        elif  max(file_w,file_h)==0:
+            hashMap.put("toast","Не заданы размеры изображения")
+            return hashMap
+        else:       
+            ratio = CANVAS_H/max(int(file_w),int(file_h))
+        
+        json_out = {"columncount":int(int(file_w)/GRIDSIZE),"rowcount":int(int(file_h)/GRIDSIZE),"gridsize":GRIDSIZE}
+        datalist = []
+        if len(session["rows"]):
+            for row in session["rows"]:
+                row_out = {"count_cells_in_row":row.num_rows,"count_columns":row.num_columns,"orientation":1,"size":int(row.cell_size/ratio),"cells":[],"deleted":False}
+                for cell in row.cells:
+                    c = {"address":cell.address,"x1":int(cell.x1/ratio),"y1":int(cell.y1/ratio), "x2":int(cell.x2/ratio), "y2":int(cell.y2/ratio),"size":int(row.cell_size/ratio),"fillcolor":0,"entarnce_moved":False,"orientation":0,"entrance":{"color":3,"x1":cell.x1,"x2":cell.x1+GRIDSIZE,"y1":cell.y1,"y2":cell.y1+GRIDSIZE}}
+                    row_out["cells"].append(c)
+                datalist.append(row_out)    
+        json_out["rows"] = json.dumps({"dataList":datalist},ensure_ascii=False)
+        with open(session["sugfilename"] , 'w',encoding="utf-8") as f:
+            json.dump(json_out, f,ensure_ascii=False,indent=4) 
+            hashMap.put("download_sug",'sug-file тут: <a href="/download_file?filename='+Path(session["sugfilename"]).name+'" target="_blank" download="vector_drawable.sug">скачать sug-файл</a>')     
+            hashMap.put("SetValues",json.dumps([{"download_sug":hashMap.get("download_sug")}],ensure_ascii=False))
+
+
+
+        #hashMap.put("DownloadFile",session["filename"])  
+        
     return hashMap
+
+
 
