@@ -816,18 +816,18 @@ def save_configuration(configuration,hashMap,full=False):
 
             if str(jcookie.get("ui_to_github")).lower()=="true":
                 if new_configuration["ClientConfiguration"].get("ConfigurationFileName")!="" and new_configuration["ClientConfiguration"].get("ConfigurationFileName")!=None:
-                    r = push_to_github(filename, jcookie.get("ui_repo"), jcookie.get("ui_branch"), jcookie.get("ui_token"),new_configuration["ClientConfiguration"]["ConfigurationFileName"])
+                    r = push_to_github(filename, jcookie.get("ui_repo"), jcookie.get("ui_branch"), jcookie.get("ui_token"),new_configuration["ClientConfiguration"]["ConfigurationFileName"],jcookie.get("ui_folder", ""))
                     if r==False:
                         hashMap.put("toast","Не получилось отправить на GitHub")
         
         
 
-def push_to_github(filename, repo, branch, token,gitfilename):
+def push_to_github(filename, repo, branch, token,gitfilename,folder):
 
     if branch=="" or branch==None:
         branch="main"
 
-    url="https://api.github.com/repos/"+repo+"/contents/"+gitfilename
+    url="https://api.github.com/repos/"+repo+"/contents/"+folder+"/"+gitfilename
 
     base64content=base64.b64encode(open(filename,"rb").read())
 
@@ -852,6 +852,11 @@ def push_to_github(filename, repo, branch, token,gitfilename):
             resp=requests.put(url, data = message, headers = {"Content-Type": "application/json", "Authorization": "token "+token})
         else:    
             resp=requests.put(url, data = message)
+
+        if resp.status_code>203:    
+            print(resp.text) 
+            return False  
+
     else:        
         sha = data['sha']
 
@@ -872,7 +877,7 @@ def push_to_github(filename, repo, branch, token,gitfilename):
             print("nothing to update") 
             return False  
              
-    return True    
+    return True   
 
 def configuration_input(hashMap,_files=None,_data=None):
 
