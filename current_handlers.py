@@ -5424,7 +5424,8 @@ def mouse_input(hashMap,_files=None,_data=None):
         rectangles = []  
     
     
-    if data.get("type") == "mouseDown": 
+    if data.get("type") == "mouseDown":
+        if "draw_mode" in session:     
             if session["draw_mode"] == "address":
                 session["current_row"]=None
                 session["current_cell"]=None
@@ -5510,62 +5511,64 @@ def mouse_input(hashMap,_files=None,_data=None):
                             break                    
             hashMap = redraw(hashMap)
     elif data.get("type") == "mouseMove" and  (not hashMap.get("AddressMode")==True) : 
-        if session["draw_mode"] == "row":   
-            if session["current_row"]!=None:
-                session["current_row"] = update_row(session["current_row"],data.get("x"),data.get("y"))
-                hashMap = redraw(hashMap)
-        elif session["draw_mode"] == "line":
-            if session["current_line"]!=None:     
-                session["current_line"].x2 =data.get("x")
-                session["current_line"].y2 =data.get("y")
-        
-                hashMap = redraw(hashMap)
-        elif session["draw_mode"] == "rect":
+        if "draw_mode" in session:
+            if session["draw_mode"] == "row":   
+                if session["current_row"]!=None:
+                    session["current_row"] = update_row(session["current_row"],data.get("x"),data.get("y"))
+                    hashMap = redraw(hashMap)
+            elif session["draw_mode"] == "line":
+                if session["current_line"]!=None:     
+                    session["current_line"].x2 =data.get("x")
+                    session["current_line"].y2 =data.get("y")
             
-            if session["current_rect"]!=None:  
-                print(session["edit_mode"])
-                if session["edit_mode"] == True:
-                    offsetx = session["current_rect"].x1 - data.get("x")
-                    offsety = session["current_rect"].y1 - data.get("y")
-
-                     #session["current_rect"].x1 =  data.get("x")    
-                     #session["current_rect"].y1 =  data.get("y")    
-                    
-                    session["current_rect"].x1 -=offsetx
-                    session["current_rect"].x2 -=offsetx
-                    session["current_rect"].y1 -=offsety
-                    session["current_rect"].y2 -=offsety
-
-                else:      
+                    hashMap = redraw(hashMap)
+            elif session["draw_mode"] == "rect":
                 
-                    session["current_rect"].x2 =data.get("x")
-                    session["current_rect"].y2 =data.get("y")
-        
-                hashMap = redraw(hashMap)
-        elif session["draw_mode"] == "text":
-            if session["current_text"]!=None:  
-                if session["edit_mode"] == True:
-                                        
-                    session["current_text"].x =data.get("x")
-                    session["current_text"].y =data.get("y")
-                   
+                if session["current_rect"]!=None:  
+                    print(session["edit_mode"])
+                    if session["edit_mode"] == True:
+                        offsetx = session["current_rect"].x1 - data.get("x")
+                        offsety = session["current_rect"].y1 - data.get("y")
 
-                else:      
-                    session["current_text"].x =data.get("x")
-                    session["current_text"].y =data.get("y")
-        
-                hashMap = redraw(hashMap)        
+                        #session["current_rect"].x1 =  data.get("x")    
+                        #session["current_rect"].y1 =  data.get("y")    
+                        
+                        session["current_rect"].x1 -=offsetx
+                        session["current_rect"].x2 -=offsetx
+                        session["current_rect"].y1 -=offsety
+                        session["current_rect"].y2 -=offsety
+
+                    else:      
+                    
+                        session["current_rect"].x2 =data.get("x")
+                        session["current_rect"].y2 =data.get("y")
+            
+                    hashMap = redraw(hashMap)
+            elif session["draw_mode"] == "text":
+                if session["current_text"]!=None:  
+                    if session["edit_mode"] == True:
+                                            
+                        session["current_text"].x =data.get("x")
+                        session["current_text"].y =data.get("y")
+                    
+
+                    else:      
+                        session["current_text"].x =data.get("x")
+                        session["current_text"].y =data.get("y")
+            
+                    hashMap = redraw(hashMap)        
 
     elif data.get("type") == "mouseUp" and (not hashMap.get("AddressMode")==True):
-        if session["draw_mode"] == "row": 
-            session["current_row"]=None 
-        if session["draw_mode"] == "line": 
-            session["current_line"]=None       
-        if session["draw_mode"] == "rect": 
-            session["current_rect"]=None 
-        if session["draw_mode"] == "text": 
-            session["current_text"]=None 
-                                  
+        if "draw_mode" in session:
+            if session["draw_mode"] == "row": 
+                session["current_row"]=None 
+            if session["draw_mode"] == "line": 
+                session["current_line"]=None       
+            if session["draw_mode"] == "rect": 
+                session["current_rect"]=None 
+            if session["draw_mode"] == "text": 
+                session["current_text"]=None 
+                                    
             
          
 
@@ -5733,6 +5736,8 @@ def cell_input(hashMap,_files=None,_data=None):
 
     elif hashMap.get("listener") == 'btn_upload':
         id = "sug_file"
+        
+
         hashMap.put("UploadFile",id)
     elif hashMap.get("listener") == 'btn_new':
         hashMap.put("SetValuesEdit",json.dumps([{"file_h":"1050"},{"file_w":"1900"},{"size":"1"}],ensure_ascii=False))    
@@ -5853,6 +5858,28 @@ def cell_input(hashMap,_files=None,_data=None):
                     row_out["cells"].append(c)
                 datalist.append(row_out)    
         json_out["rows"] = json.dumps({"dataList":datalist},ensure_ascii=False)
+
+        if len(session["labels"]):
+            datalist = []
+            for elem in session["labels"]:
+                elem_out = {"x":int(elem.x/ratio),"y":int(elem.y/ratio),"size":elem.size*RATIO_TEXT_SIZE,"text":elem.text}
+                
+                datalist.append(elem_out)    
+            json_out["labels"] = json.dumps({"dataList":datalist},ensure_ascii=False)
+        if len(session["rectangles"]):
+            datalist = []
+            for elem in session["rectangles"]:
+                elem_out = {"x1":int(elem.x1/ratio),"y1":int(elem.y1/ratio),"x2":int(elem.x2/ratio),"y2":int(elem.y2/ratio),"strock_size":elem.strock_size*RATIO_STROCK}
+                
+                datalist.append(elem_out)    
+            json_out["rects"] = json.dumps({"dataList":datalist},ensure_ascii=False)  
+        if len(session["vectors"]):
+            datalist = []
+            for elem in session["vectors"]:
+                elem_out = {"x1":int(elem.x1/ratio),"y1":int(elem.y1/ratio),"x2":int(elem.x2/ratio),"y2":int(elem.y2/ratio),"strock_size":elem.strock_size*RATIO_STROCK}
+                
+                datalist.append(elem_out)    
+            json_out["vectors"] = json.dumps({"dataList":datalist},ensure_ascii=False)        
         with open(session["sugfilename"] , 'w',encoding="utf-8") as f:
             json.dump(json_out, f,ensure_ascii=False,indent=4) 
             hashMap.put("download_sug",'sug-file тут: <a href="/download_file?filename='+Path(session["sugfilename"]).name+'" target="_blank" download="vector_drawable.sug">скачать sug-файл</a>')     
@@ -5863,6 +5890,3 @@ def cell_input(hashMap,_files=None,_data=None):
         #hashMap.put("DownloadFile",session["filename"])  
         
     return hashMap
-
-
-
