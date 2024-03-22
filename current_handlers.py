@@ -61,13 +61,13 @@ session["opened_element_uid"] = None
 main_menu_elements = ["","qr_settings","offline_exchange","documents","tasklist","product_log","store","save_settings","keyboard_test","ping_bt","update_configurations","Custom menu item"]
 
 action_types = ["","run","runasync","runprogress"]
-handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set","js","pythonscript"]
+handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set","js","pythonscript","pelican"]
 
 session["configuration"] = {"ClientConfiguration":{}}
 
 session["processes_table"] = []
 
-configuration_properties_list = ["ConfigurationName","ConfigurationFileName","ConfigurationVersion","ConfigurationDescription","agent","ForegroundService","StopForegroundServiceOnExit","BroadcastIntent","BroadcastVariable","FaceRecognitionURL","OnKeyboardMain","LaunchProcess","LaunchVar","MenuWebTemplate","Launch","HTMLHead","HTMLdocument_ready","PyGeneral"]
+configuration_properties_list = ["ConfigurationName","ConfigurationFileName","ConfigurationVersion","ConfigurationDescription","agent","ForegroundService","StopForegroundServiceOnExit","BroadcastIntent","BroadcastVariable","FaceRecognitionURL","OnKeyboardMain","LaunchProcess","LaunchVar","MenuWebTemplate","Launch","HTMLHead","HTMLdocument_ready","PyGeneral","PelicanInit"]
 configuration_settings_list = ["dictionaries","vendor","vendor_url","vendor_password","handler_split_mode","handler_url","handler_password"]
 
 mediafile_layout = {
@@ -550,6 +550,7 @@ def configuration_open(hashMap,_files=None,_data=None):
     hashMap.put("HTMLHead",'<code-input required id="HTMLHead" style="resize: both; overflow: hidden; width: 100%;" lang="HTML" placeholder="Write some script!"></code-input>')
     hashMap.put("HTMLdocument_ready",'<code-input required id="HTMLdocument_ready" style="resize: both; overflow: hidden; width: 100%;" lang="JavaScript" placeholder="Write some JavaScript!"></code-input>')
     hashMap.put("PyGeneral",'<code-input required id="PyGeneral" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!"></code-input>')
+    hashMap.put("PelicanInit",'<code-input required id="PelicanInit" style="resize: both; overflow: hidden; width: 100%;" lang="JSON"></code-input>')
     
     for prop in configuration_properties_list:
         hashMap.put(prop,session["configuration"]['ClientConfiguration'].get(prop,""))
@@ -578,7 +579,14 @@ def configuration_open(hashMap,_files=None,_data=None):
             text =  '<code-input required id="PyGeneral" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+txt+'</code-input>'
             
             hashMap.put(prop,text)        
+        
+        elif prop == "PelicanInit":
+            
+            txt = session["configuration"]['ClientConfiguration'].get(prop,"")
 
+            text =  '<code-input required id="PelicanInit" style="resize: both; overflow: hidden; width: 100%;" lang="JSON">'+txt+'</code-input>'
+            
+            hashMap.put(prop,text) 
 
 
     if "ConfigurationSettings" in  session["configuration"]['ClientConfiguration']:
