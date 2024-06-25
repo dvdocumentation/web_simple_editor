@@ -45,14 +45,14 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "http://WRITE_YOUR_IP_HERE"
+WS_URL = "https://seditor.ru"
 
 locale_filename = "ru_locale.json"
 
 session["host_uid"]=""
 
 
-events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusConfirmation","onWebEvent","onLaunchMenu"]
+events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusConfirmation","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
 
 events_screen = ["","onStart","onPostStart","onInput","onResultPositive","onResultNegative"]
 
@@ -529,6 +529,37 @@ def get_operation_elemets(root):
             if not "width" in el:
                 el["width"] = "wrap_content"  
                 
+            if "width" in el:
+                if get_key(scale_elements,el["width"])=="manual":
+                    if "width_value" in el:
+                        if len(el["width_value"])>0:
+                            width = int(el["width_value"])
+                        else:    
+                            width = 0
+                    else:
+                        width = 0        
+                else:
+                    width  = get_key(scale_elements,el["width"])
+
+                el["width"]    = width
+                el["width_value"]    = el["width"]
+            
+            if "height" in el:
+                if get_key(scale_elements,el["height"])=="manual":
+                    if "height_value" in el:
+                        if len(el["height_value"])>0:
+                            width = int(el["height_value"])
+                        else:    
+                            width = 0
+                    else:
+                        width = 0
+                        
+                else:
+                    width  = get_key(scale_elements,el["height"])
+
+                el["height"]    = width
+                el["height_value"]    = el["height"]     
+                
             new_element['Elements'].append(el)
 
     return new_element        
@@ -578,8 +609,8 @@ def configuration_open(hashMap,_files=None,_data=None):
 
             text =  '<code-input required id="PyGeneral" style="resize: both; overflow: hidden; width: 100%;" lang="Python" placeholder="Write some Python!">'+txt+'</code-input>'
             
-            hashMap.put(prop,text)        
-        
+            hashMap.put(prop,text) 
+            
         elif prop == "PelicanInit":
             
             txt = session["configuration"]['ClientConfiguration'].get(prop,"")
@@ -885,7 +916,7 @@ def push_to_github(filename, repo, branch, token,gitfilename,folder):
             print("nothing to update") 
             return False  
              
-    return True   
+    return True     
 
 def configuration_input(hashMap,_files=None,_data=None):
 
@@ -1104,9 +1135,9 @@ captions_detector_elements = get_title_list(detector_elements)
 visual_mode_elements = {"list_only":get_locale("list_only"),"green_and_grey":get_locale("green_and_grey"),"green_and_red":get_locale("green_and_red"),"list_and_grey":get_locale("list_and_grey")}
 captions_visual_mode_elements = get_title_list(visual_mode_elements)
 
-resolution_elements = ['','HD1080','HD720','VGA','QVGA']
+resolution_elements = ['','4K','2K','HD1080','HD720','VGA','QVGA']
 
-start_screen_elements = {"Menu":get_locale("operations_menu"),"Tiles":get_locale("tiles_menu")}
+start_screen_elements = {"Menu":get_locale("operations_menu"),"Tiles":get_locale("tiles_menu"),"Process":"process"}
 captions_start_screen_elements  = get_title_list(start_screen_elements)
 
 detector_mode_elements = {"train":get_locale("training") ,"predict":get_locale("prediction")}
@@ -2113,6 +2144,13 @@ def element_input(hashMap,_files=None,_data=None):
                 d["width_value"] = hashMap.get("width_value")
             if height == "manual":
                 d["height_value"] = hashMap.get("height_value")    
+                
+            if get_key(scale_elements,hashMap.get("width"))=="manual":
+                d["width_value"] = int(hashMap.get("width_value"))   
+                d["width"]="manual"
+            if get_key(scale_elements,hashMap.get("height"))=="manual":
+                d["height_value"] = int(hashMap.get("height_value")) 
+                d["height"]="manual"    
 
 
             if get_key(element_base,hashMap.get('type')) == 'LinearLayout' or get_key(element_base,hashMap.get('type')) == 'Tab' or get_key(element_base,hashMap.get('type')) == 'Tabs':
@@ -2150,17 +2188,19 @@ def element_input(hashMap,_files=None,_data=None):
 
             row[session["elements_table_id"]]['uid'] = closeuid
 
-            if width == "manual":
+            if get_key(scale_elements,hashMap.get("width")) == "manual":
                 row[session["elements_table_id"]]["width_value"] = hashMap.get("width_value")
+                row[session["elements_table_id"]]["width"] = "manual"
             else:
                 if "width_value" in session["current_element"]:
                     del row[session["elements_table_id"]]["width_value"]    
             
-            if height == "manual":
+            if get_key(scale_elements,hashMap.get("height")) == "manual":
                 row[session["elements_table_id"]]["height_value"] = hashMap.get("height_value")  
+                row[session["elements_table_id"]]["height"] = "manual"
             else:
                 if "height_value" in session["current_element"]:
-                    del row[session["elements_table_id"]]["height_value"] 
+                    del row[session["elements_table_id"]]["height_value"]
 
 
         session["current_parent"] =(row[session["elements_table_id"]],session["current_parent"])
@@ -2582,7 +2622,13 @@ def element_open(hashMap,_files=None,_data=None):
         hashMap.put("RecognitionTemplate", session["current_element"].get("RecognitionTemplate",""))
         hashMap.put("style_name", session["current_element"].get("style_name",""))
 
-
+        if type(session["current_element"].get("height"))==int or str(session["current_element"].get("height")).isnumeric():
+            hashMap.put("height", get_synonym(scale_elements,"manual"))
+            hashMap.put("height_value", str(session["current_element"].get("height")))
+        
+        if type(session["current_element"].get("width"))==int or str(session["current_element"].get("width")).isnumeric():
+            hashMap.put("width", get_synonym(scale_elements,"manual"))
+            hashMap.put("width_value", str(session["current_element"].get("width")))   
 
         if "Elements" in session["current_element"]:
             hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_element"]["Elements"]),ensure_ascii=False))
@@ -4695,8 +4741,8 @@ def modules_open(hashMap,_files=None,_data=None):
 
 </head>
 <body>
-<h3 style="font-size:14px; ">Можно использовать 3 варианта работы с модулями python</h3>
-<h3 style="font-size:14px; "><u>Вариант 1: Использовать GitHub приватный или публичный.</u></h3>
+<h3 style="font-size:14px; ">Самый простой способ работать с обработчиками python - pythonscript, не требует привязки к дополнительным файлам. Но если все таки требуется вести разработку во внешнем IDE то привязать внешние файлы к проекту Simple можно через GitHub</h3>
+<h3 style="font-size:14px; "><u>Можно использовать GitHub приватный или публичный.</u></h3>
 <ol>
   <li style="font-size:12px; ">Укажите URL основного файла обработчиков на GitHub в таком виде:
 <b>https://api.github.com/repos/ваш гитхаб/ваше репо/contents/имя_файла.py</b>
@@ -4713,24 +4759,7 @@ def modules_open(hashMap,_files=None,_data=None):
     header2 = """<!DOCTYPE html>
 <html>
 <body>
-<h3 style="font-size:14px; "><u>Вариант 2: Использовать программу-агент на локальном компьютере, которая будет отслеживать изменения в локальных файлах и передавать их в конфигурацию автоматически.</u></h3>
-<ol>
-  <li style="font-size:12px; ">Включите галочку Использовать агент на закладке Конфигурация и сохраните конфигурацию</li>
-  <li style="font-size:12px; ">При необходимости укажите ключи дополнительных модулей, не указывая больше ничего</li>
-  <li style="font-size:12px; ">Скачайте и запустите constructor_agent</li>
-  <li style="font-size:12px; ">Укажите URL веб-конструктора и ID публикации: <a href="{{docdata.url}}">{{ docdata.url }}</a> и <b>{{docdata.uid}}</b></li>
-  
-  <a href="https://ibb.co/2WfVhxr"><img src="https://i.ibb.co/k5WbBjT/agent.png" alt="agent" border="0"></a>
-
-  <li style="font-size:12px; ">Нажмите Connect (также при необходимости этой кнопкой можно обновить состав)</li>
-  <li style="font-size:12px; ">Изменения отслеживаются каждую секунду, при сохранении конфигурации измененные тексты модулей будут применены в конфигурации</li>
-</ol>  
-
-<h3 style="font-size:14px; "><u>Вариант 3: просто указать файлы.</u></h3>
-<ol>
-  <li style="font-size:12px; ">Укажите файлы python модуля обработчиков, при необходимости дополнительных модулей и они применятся сразу же</li>
-  <li style="font-size:12px; ">Изменения не отслеживаются. При изменениях в модулях требуется вручную повторить п.1</li>
-</ol>  
+ 
 </body>
 </html>
 """
@@ -4861,7 +4890,7 @@ def info_on_start(hashMap,_files=None,_data=None):
 
 <p><font style="font-size: 20px !important;">Сайт <a href="http://simpleui.ru/" target="_blank">http://simpleui.ru/</a></font></p>
 
-<p><font style="font-size: 20px !important;">Мои статьи на Инфостарт <a href="https://infostart.ru/profile/129563/public/" target="_blank">http://simpleui.ru/</a></font></p>
+<p><font style="font-size: 20px !important;">Мои статьи на Инфостарт <a href="https://infostart.ru/profile/129563/public/" target="_blank">https://infostart.ru/profile/129563/public/</a></font></p>
 
 </div>
 
@@ -5184,6 +5213,7 @@ def debug_edit(hashMap,_files=None,_data=None):
     hashMap.put("RefreshScreen","")  
 
     return hashMap
+
 
 #Векторный редактор
 class Cell():
