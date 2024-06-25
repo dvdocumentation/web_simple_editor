@@ -45,7 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "https://seditor.ru"
+WS_URL = "WRITR_YOUT_IP_HERE"
 
 locale_filename = "ru_locale.json"
 
