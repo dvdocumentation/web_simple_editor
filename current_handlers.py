@@ -45,14 +45,14 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "WRITR_YOUT_IP_HERE"
+WS_URL = "WRITE_YOUR_ADDRESS_HERE"
 
 locale_filename = "ru_locale.json"
 
 session["host_uid"]=""
 
 
-events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusConfirmation","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
+events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusResponse","onSimpleBusMessageDownload","onSimpleBusConfirmation","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
 
 events_screen = ["","onStart","onPostStart","onInput","onResultPositive","onResultNegative"]
 
@@ -1111,7 +1111,7 @@ captions_screen_elements = get_title_list(screen_elements)
 layout_elements = {"LinearLayout":get_locale("layout"),"Tabs":get_locale("Tabs"),"Tab":get_locale("Tab"),"TextView":get_locale("title"),"Button":get_locale("button"),
 "EditTextText":get_locale("string_input"),"EditTextNumeric":get_locale("numeric_input"),"EditTextPass":get_locale("password_input"),"EditTextAuto":get_locale("event_input"),"EditTextAutocomplete":get_locale("autocompete_input"),
 "ModernEditText":get_locale("modern_input"),"Picture":get_locale("picture"),"CheckBox":get_locale("checkbox"),"Gauge":get_locale("gauge"),"Chart":get_locale("chart"),"SpinnerLayout":get_locale("spinner"),"TableLayout":get_locale("table"),"CartLayout":get_locale("cart"),
-"MultilineText":get_locale("multiline"),"CardsLayout":get_locale("cards"),"CButtons":get_locale("buttons_list"),"CButtonsHorizontal":get_locale("horizontal_buttons_list"),"DateField":get_locale("date_input"),"ProgressButton":get_locale("progress_button"),"html":get_locale("HTML"),"map":get_locale("map"),"file":get_locale("file"),"object":get_locale("object")}
+"MultilineText":get_locale("multiline"),"CardsLayout":get_locale("cards"),"CButtons":get_locale("buttons_list"),"CButtonsHorizontal":get_locale("horizontal_buttons_list"),"DateField":get_locale("date_input"),"ProgressButton":get_locale("progress_button"),"html":get_locale("HTML"),"map":get_locale("map"),"file":get_locale("file"),"object":get_locale("object"),"camera":get_locale("camera")}
 captions_layout_elements =get_title_list(layout_elements)
 
 orientation_elements = {"vertical":get_locale("vertical"),"horizontal":get_locale("horizontal")}
