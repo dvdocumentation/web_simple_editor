@@ -52,7 +52,7 @@ locale_filename = "ru_locale.json"
 session["host_uid"]=""
 
 
-events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusResponse","onSimpleBusMessageDownload","onSimpleBusConfirmation","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
+events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusResponse","onSimpleBusMessageDownload","onSimpleBusConfirmation","onSimpleBusError","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
 
 events_screen = ["","onStart","onPostStart","onInput","onResultPositive","onResultNegative"]
 
@@ -476,6 +476,15 @@ def get_operation_elemets(root):
 
         if "TextItalic" in template:
             new_element["TextItalic"] = template["TextItalic"]     
+       
+        if "ShowEmpty" in template:
+            new_element["ShowEmpty"] = template["ShowEmpty"]     
+
+        if "StopEmpty" in template:
+            new_element["StopEmpty"] = template["StopEmpty"]         
+
+        if "Slice" in template:
+            new_element["Slice"] = template["Slice"]             
 
         if "drawable" in template:
             new_element["drawable"] = template["drawable"] 
@@ -1137,7 +1146,7 @@ captions_visual_mode_elements = get_title_list(visual_mode_elements)
 
 resolution_elements = ['','4K','2K','HD1080','HD720','VGA','QVGA']
 
-start_screen_elements = {"Menu":get_locale("operations_menu"),"Tiles":get_locale("tiles_menu"),"Process":"process"}
+start_screen_elements = {"Menu":get_locale("operations_menu"),"Tiles":get_locale("tiles_menu"),"Process":get_locale("process")}
 captions_start_screen_elements  = get_title_list(start_screen_elements)
 
 detector_mode_elements = {"train":get_locale("training") ,"predict":get_locale("prediction")}
@@ -2133,6 +2142,9 @@ def element_input(hashMap,_files=None,_data=None):
                         "TextColor":hashMap.get("TextColor"),
                         "TextBold":hashMap.get("TextBold"),
                         "TextItalic":hashMap.get("TextItalic"),
+                        "ShowEmpty":hashMap.get("ShowEmpty"),
+                        "StopEmpty":hashMap.get("StopEmpty"),
+                        "Slice":hashMap.get("Slice"),
                         "NumberPrecision":hashMap.get("NumberPrecision"),
                         "RecognitionTemplate":hashMap.get("RecognitionTemplate"),
                         "style_name":hashMap.get("style_name"),
@@ -2181,6 +2193,9 @@ def element_input(hashMap,_files=None,_data=None):
             row[session["elements_table_id"]]['TextColor'] = hashMap.get("TextColor")
             row[session["elements_table_id"]]['TextBold'] = hashMap.get("TextBold")
             row[session["elements_table_id"]]['TextItalic'] = hashMap.get("TextItalic")
+            row[session["elements_table_id"]]['ShowEmpty'] = hashMap.get("ShowEmpty")
+            row[session["elements_table_id"]]['StopEmpty'] = hashMap.get("StopEmpty")
+            row[session["elements_table_id"]]['Slice'] = hashMap.get("Slice")
             row[session["elements_table_id"]]['NumberPrecision'] = hashMap.get("NumberPrecision")
             row[session["elements_table_id"]]['RecognitionTemplate'] = hashMap.get("RecognitionTemplate")
             row[session["elements_table_id"]]['style_name'] = hashMap.get("style_name")
@@ -2618,6 +2633,9 @@ def element_open(hashMap,_files=None,_data=None):
         hashMap.put("TextColor", session["current_element"].get("TextColor",""))
         hashMap.put("TextBold", session["current_element"].get("TextBold",""))
         hashMap.put("TextItalic", session["current_element"].get("TextItalic",""))
+        hashMap.put("ShowEmpty", session["current_element"].get("ShowEmpty",""))
+        hashMap.put("StopEmpty", session["current_element"].get("StopEmpty",""))
+        hashMap.put("Slice", session["current_element"].get("Slice",""))
         hashMap.put("NumberPrecision", session["current_element"].get("NumberPrecision",""))
         hashMap.put("RecognitionTemplate", session["current_element"].get("RecognitionTemplate",""))
         hashMap.put("style_name", session["current_element"].get("style_name",""))
@@ -2661,6 +2679,10 @@ def element_open(hashMap,_files=None,_data=None):
         hashMap.put("NumberPrecision", "")
         hashMap.put("RecognitionTemplate", "")
         hashMap.put("style_name", "")
+        
+        hashMap.put("ShowEmpty", "")
+        hashMap.put("StopEmpty", "")
+        hashMap.put("Slice", "")
 
 
 
@@ -4200,6 +4222,33 @@ style_layout =  {
                     "gravity_horizontal": "left"
                 },
                 {
+                    "type": "CheckBox",
+                    "height": "wrap_content",
+                    "width": "wrap_content",
+                    "weight": "0",
+                    "Value": "Подсвечивать пустое",
+                    "Variable": "ShowEmpty",
+                    "gravity_horizontal": "left"
+                },
+                {
+                    "type": "CheckBox",
+                    "height": "wrap_content",
+                    "width": "wrap_content",
+                    "weight": "0",
+                    "Value": "Не пропускать пустое",
+                    "Variable": "StopEmpty",
+                    "gravity_horizontal": "left"
+                },
+                {
+                    "type": "CheckBox",
+                    "height": "wrap_content",
+                    "width": "wrap_content",
+                    "weight": "0",
+                    "Value": "Писать в слайс",
+                    "Variable": "Slice",
+                    "gravity_horizontal": "left"
+                },
+                {
                     "type": "EditTextNumeric",
                     "height": "wrap_content",
                     "width": "wrap_content",
@@ -4269,6 +4318,10 @@ def styles_input(hashMap,_files=None,_data=None):
         hashMap.put("NumberPrecision", "")
         hashMap.put("use_as_class", "")
         hashMap.put("row", "")
+       
+        hashMap.put("ShowEmpty", "")
+        hashMap.put("StopEmpty", "")
+        hashMap.put("Slice", "")
    
    
     elif hashMap.get("listener")=="btn_edit_style" or hashMap.get("listener") == "TableDoubleClick":
@@ -4312,6 +4365,10 @@ def styles_input(hashMap,_files=None,_data=None):
             hashMap.put("NumberPrecision", session["current_element"].get("NumberPrecision",""))
             hashMap.put("use_as_class", session["current_element"].get("use_as_class",""))
             hashMap.put("row", session["current_element"].get("row",""))
+            
+            hashMap.put("ShowEmpty", session["current_element"].get("ShowEmpty",""))
+            hashMap.put("StopEmpty", session["current_element"].get("StopEmpty",""))
+            hashMap.put("Slice", session["current_element"].get("Slice",""))
             
           
     
@@ -4357,6 +4414,11 @@ def styles_input(hashMap,_files=None,_data=None):
                 "NumberPrecision":dialog_values.get("NumberPrecision"),
                 "use_as_class":dialog_values.get("use_as_class"),
                 "row":dialog_values.get("row"),
+                
+                "ShowEmpty":dialog_values.get("ShowEmpty"),
+                "StopEmpty":dialog_values.get("StopEmpty"),
+                "Slice":dialog_values.get("Slice"),
+
  
                 }
             if dialog_values.get("use_as_class")==True:
@@ -4385,6 +4447,10 @@ def styles_input(hashMap,_files=None,_data=None):
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['NumberPrecision'] = dialog_values.get("NumberPrecision") 
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['use_as_class'] = dialog_values.get("use_as_class")
            session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['row'] = dialog_values.get("row")
+           
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['ShowEmpty'] = dialog_values.get("ShowEmpty")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['StopEmpty'] = dialog_values.get("StopEmpty")
+           session["configuration"]['ClientConfiguration']["StyleTemplates"][session["styles_table_id"]]['Slice'] = dialog_values.get("Slice")
                        
           
 
