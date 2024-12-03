@@ -3696,6 +3696,320 @@
                         ]
                     }
                 ]
+            },
+                        {
+                "type": "Process",
+                "ProcessName": "Отладка шина",
+                "Operations": [
+                    {
+                        "type": "Operation",
+                        "Name": "Новый экран",
+                        "Elements": [
+                            {
+                                "type": "LinearLayout",
+                                "orientation": "horizontal",
+                                "height": "match_parent",
+                                "width": "match_parent",
+                                "Elements": [
+
+                                     {
+                                "type": "LinearLayout",
+                                "orientation": "vertical",
+                                "height": "match_parent",
+                                "width": "match_parent",
+                                "weight": "1",
+                                "Elements": [
+                                     {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Создать сервер",
+                                        "style_class": "accept_button",
+                                        "Variable": "btn_create",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
+                                        "type": "EditTextText",
+                                        "orientation": "vertical",
+                                        "gravity_horizontal":"left",
+                                        "height": "20",
+                                        "width": 300,
+                                        "Value": "token|@token",
+                                        
+                                        "Variable": "token",
+                                        "type_s": "Кнопка",
+                                        "weight": "1"
+                                    },
+                                    {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "1",
+                                                "Value": "Сканируйте этот QR в приложении",
+                                                "gravity_horizontal": "left"
+                                               
+
+                                    },
+                                     {
+                                                "type": "Picture",
+                                                "height": 150,
+                                                "width": 150,
+                                                "weight": "1",
+                                                "Value": "@qr",
+                                                "Variable": "qr",
+                                                "height_value": "150",
+                                                "width_value": "150"
+                                    },
+                                    {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Соединиться",
+                                        "style_class": "accept_button",
+                                        "Variable": "btn_connect",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Отключиться",
+                                        
+                                        "Variable": "btn_disconnect",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "300",
+                                                "Value": "Стек переменных",
+                                                "gravity_horizontal": "left"
+
+                                    },
+                                     
+                                     {
+                                        "type": "html",
+                                        "orientation": "vertical",
+                                        "height": "40",
+                                        "width": 620,
+                                        "gravity_horizontal":"left",
+                                        "Value": "@hmhtml",
+                                        
+                                        "Variable": "hm",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                     
+                                     
+                                     {
+                                        "type": "EditTextText",
+                                        "orientation": "vertical",
+                                        "gravity_horizontal":"left",
+                                        "height": "20",
+                                        "width": 300,
+                                        "Value": "to|@to",
+                                        
+                                        "Variable": "to",
+                                        "type_s": "Кнопка",
+                                        "weight": "1"
+                                    },
+                                    {
+                                        "type": "EditTextText",
+                                        "orientation": "vertical",
+                                        "gravity_horizontal":"left",
+                                        "height": "20",
+                                        "width": 300,
+                                        "Value": "execute_id|@execute_id",
+                                        
+                                        "Variable": "execute_id",
+                                        "type_s": "Кнопка",
+                                        "weight": "1"
+                                    },
+
+                                    {   
+                                        "type": "EditTextText",
+                                        "gravity_horizontal":"left",
+                                        "orientation": "vertical",
+                                        "height": "20",
+                                        "width": 300,
+                                        "Value": "uid|@uid",
+                                        
+                                        "Variable": "uid",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+
+                                    {
+                                        "type": "EditTextText",
+                                        "gravity_horizontal":"left",
+                                        "orientation": "vertical",
+                                        "height": "20",
+                                        "width": 300,
+                                        "Value": "source|@source",
+                                        
+                                        "Variable": "source",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                 
+
+                                    {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "300",
+                                                "Value": "Выполнить Python",
+                                                "gravity_horizontal": "left"
+
+                                    },
+                                    {
+                                        "type": "html",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "@RunPython",
+                                        
+                                        "Variable": "RunPythonCode",
+                                       
+                                        "weight": "0"
+                                    },
+                                   
+                                    {
+                                        "type": "CheckBox",
+                                        "orientation": "vertical",
+                                        "height": "20",
+                                        "width": "wrap_content",
+                                        "Value": "Ответ",
+                                        
+                                        "Variable": "reply",
+                                       
+                                        "weight": "0"
+                                    },
+                                    {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Продолжить",
+                                        "style_class": "accept_button",
+                                        "Variable": "btn_next",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    }
+
+                                ]
+                                
+                                },
+                                
+                                     {
+                                "type": "LinearLayout",
+                                "orientation": "vertical",
+                                "height": "10",
+                                "style_class": "scroll",
+                                "style_name": "scroll",
+                                "width": "match_parent",
+                                "weight": "1",
+                                "Elements": [
+                                     {
+                                                "type": "TextView",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "1",
+                                                "Value": "Сообщения устройств",
+                                                "gravity_horizontal": "left"
+                                               
+
+                                    },
+                                    {
+                                                "type": "html",
+                                                "height": "wrap_content",
+                                                "width": "wrap_content",
+                                                "weight": "1",
+                                                
+                                                "Variable": "messages",
+                                                "Value": "@messages",
+                                                "gravity_horizontal": "left"
+                                               
+
+                                    }
+
+
+                                ]
+                                
+                                }
+
+                                    
+                                ],
+                                "type_s": "Контейнер",
+                                "weight": "0"
+                            }
+                        ],
+                        "Handlers": [
+                             {
+                                "event": "onInput",
+                                "action": "run",
+                                "type": "python",
+                                "listener": "btn_connect",
+                                "method": "debugws_connect",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "type": "python",
+                                "listener": "btn_create",
+                                "method": "debugws_create",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "type": "python",
+                                "listener": "btn_disconnect",
+                                "method": "debugws_disconnect",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                             {
+                                "event": "onStart",
+                                "action": "run",
+                                "type": "python",
+                                "method": "debugws_open",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "btn_next",
+                                
+                                "type": "python",
+                                "method": "debugws_next",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "ws",
+                                
+                                "type": "python",
+                                "method": "debugws_message",
+                                "postExecute": "",
+                                "alias": ""
+                            }
+
+
+                        ]
+                    }
+                ]
             }
              
         ],
@@ -3752,6 +4066,11 @@
             {
                 "name": "main",
                 "row": "  font-size: 12px;",
+                "use_as_class": true
+            },
+            {
+                "name": "scroll",
+                "row": "  height: 900px; overflow-y : scroll;",
                 "use_as_class": true
             },
             {
