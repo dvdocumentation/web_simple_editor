@@ -45,14 +45,15 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "WRITE_YOUR_ADDRESS_HERE"
+WS_URL = "http://YOUR_URL"
+WSONLINE_URL = "ws://YOUR_URL:8000"
 
 locale_filename = "ru_locale.json"
 
 session["host_uid"]=""
 
 
-events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusResponse","onSimpleBusMessageDownload","onSimpleBusConfirmation","onSimpleBusError","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage"]
+events_common = ["","onLaunch","onIntentBarcode","onBluetoothBarcode","onBackgroundCommand","onRecognitionListenerResult","onWEBMainTabSelected","onIntent","onWebServiceSyncCommand","onSQLDataChange","onSQLError","onCloseApp","WSIncomeMessage","onSimpleBusMessage","onSimpleBusResponse","onSimpleBusMessageDownload","onSimpleBusConfirmation","onSimpleBusError","onWebEvent","onLaunchMenu","onInputMenu","onStartMenu","onServiceStarted","onHandlerError","onProcessClose","onPelicanInitialized","onPelicanInitError","onPelicanInitAction","onDirectWIFIMessage","onNFC"]
 
 events_screen = ["","onStart","onPostStart","onInput","onResultPositive","onResultNegative"]
 
@@ -61,7 +62,7 @@ session["opened_element_uid"] = None
 main_menu_elements = ["","qr_settings","offline_exchange","documents","tasklist","product_log","store","save_settings","keyboard_test","ping_bt","update_configurations","Custom menu item"]
 
 action_types = ["","run","runasync","runprogress"]
-handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set","js","pythonscript","pelican"]
+handler_types = ["","python","pythonargs","pythonbytes","online","http","sql","nosql","set","js","pythonscript","pelican","onlinews"]
 
 session["configuration"] = {"ClientConfiguration":{}}
 
@@ -451,7 +452,7 @@ def get_operation_elemets(root):
     if 'RecognitionTemplate' in new_element:
         template = get_recognition_template(new_element.get('RecognitionTemplate'))
         if template!=None:
-            new_element['VisionSettings'] = template
+            new_element['CVRecognitionSettings'] = template
 
     if 'style_name' in new_element:
         template = get_style(new_element.get('style_name'))
@@ -791,7 +792,7 @@ def save_configuration(configuration,hashMap,full=False):
                     if 'RecognitionTemplate' in new_operation:
                         template = get_recognition_template(frame.get('RecognitionTemplate'))
                         if template!=None:
-                            new_operation['VisionSettings'] = template
+                            new_operation['CVRecognitionSettings'] = template
                     new_process['CVFrames'].append(new_operation)        
             
             new_configuration['ClientConfiguration']['Processes'].append(new_process)
@@ -1114,7 +1115,7 @@ def get_locale(key):
 
 screen_elements = {"LinearLayout":get_locale("layout"),"barcode":get_locale("barcode"),"HorizontalGallery":get_locale("horizontal_gallery"),
 "voice":get_locale("voice_input"),"photo":get_locale("camera_capture"),"photoGallery":get_locale("gallery"),"voice":get_locale("tts"),"signature":get_locale("signature"),
-"Vision":get_locale("ocr"),"Cart":get_locale("cart"),"Tiles":get_locale("tiles"),"ImageSlider":get_locale("image_slider"),"MenuItem":get_locale("menu_item"),"Tabs":get_locale("Tabs"),"Tab":get_locale("Tab"),"fab":get_locale("fab")}
+"Vision":get_locale("ocr"),"Cart":get_locale("cart"),"Tiles":get_locale("tiles"),"ImageSlider":get_locale("image_slider"),"MenuItem":get_locale("menu_item"),"Tabs":get_locale("Tabs"),"Tab":get_locale("Tab"),"fab":get_locale("fab"),"NFC":get_locale("NFC")}
 captions_screen_elements = get_title_list(screen_elements)
 
 layout_elements = {"LinearLayout":get_locale("layout"),"Tabs":get_locale("Tabs"),"Tab":get_locale("Tab"),"TextView":get_locale("title"),"Button":get_locale("button"),
@@ -5279,6 +5280,167 @@ def debug_edit(hashMap,_files=None,_data=None):
     hashMap.put("RefreshScreen","")  
 
     return hashMap
+
+
+#Отладка ws
+import websocket
+import threading
+from functools import partial
+
+
+def on_message(ws, message,token,SW):
+    jmessage = json.loads(message)
+    
+    if not jmessage.get("type")=="ping":
+        sw_message = {"values":json.dumps([{"WSMessage":message,"to":jmessage.get("from"),"execute_id":jmessage.get("execute_id"),"uid":jmessage.get("uid"),"source":jmessage.get("source")}],ensure_ascii=False),"source":"**********************************ws"}
+        SW.input_event(sw_message) 
+        print(message)
+
+def on_error(ws, error):
+    print(error)
+
+def on_close(ws, close_status_code, close_msg):
+    print("### closed ###")
+
+def on_open(ws,token,SW):
+    message = {"type":"connect_token",
+		     "token":token,
+		     "from":token}
+	
+    #message = {"type":"connect",
+	#	     "data":"server",
+	#	     "password":"12345"}
+	
+    ws.send(json.dumps(message))
+    sw_message = {"values":json.dumps([{"toast":"opened..."}],ensure_ascii=False),"source":"**********************************ws"}
+    SW.input_event(sw_message) 
+    print("Opened connection"+token)
+
+def debugws_open(hashMap,_files=None,_data=None):
+   
+    if not hashMap.containsKey("token"):
+        if hashMap.containsKey("_cookies"):
+                jcookie = json.loads(hashMap.get("_cookies"))
+
+                if "token" in jcookie:
+                    hashMap.put("token", jcookie.get("token"))
+    
+    if hashMap.containsKey("token"):
+        img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:8000","token":hashMap.get("token")})) 
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        hashMap.put("qr",img_str) 
+
+    source=""
+    if hashMap.containsKey("RunPythonCode") :
+        source = hashMap.get("RunPythonCode")
+
+      
+  
+    #<body><span style="white-space: pre-wrap">"""+source+"""</span></body>
+    edit =  '<code-input required id="RunPythonCode"  style="resize: both; overflow: hidden; width: 300;" lang="Python">'+source+'</code-input>'
+   
+    
+    hashMap.put("RunPython", edit)  
+
+    hm=""
+    if hashMap.containsKey("hm") :
+        hm = hashMap.get("hm") 
+
+    edit =  '<code-input required id="hm"  style="resize: both; overflow: hidden; width: 300;" lang="JSON">'+hm+'</code-input>'
+   
+    
+    hashMap.put("hmhtml", edit) 
+
+    return hashMap
+
+def debugws_connect(hashMap,_files=None,_data=None):
+    if not hashMap.containsKey("token"):
+        hashMap.put("ErrorMessage","Не задан токен")
+        return hashMap
+    session["ws"] = websocket.WebSocketApp("ws://90.156.171.97:8000",
+                              on_open=partial(on_open,token=hashMap.get("token"),SW=session['SW']),
+                              on_message=partial(on_message,token=hashMap.get("token"),SW=session['SW']),
+                              on_error=on_error,
+                              on_close=on_close)
+
+   
+
+    #session["ws"].run_forever(dispatcher=rel,reconnect=5)
+    wst = threading.Thread(target=session["ws"].run_forever)
+    wst.daemon = True
+    wst.start()
+    return hashMap   
+
+def debugws_create(hashMap,_files=None,_data=None):
+    hashMap.put("token",str(uuid.uuid4().hex) )
+    
+    hashMap.put("RefreshScreen","")
+
+    jcookies = [{"key":"token", "value":hashMap.get("token"),"expires":90}]
+        
+    hashMap.put("SetCookie", json.dumps(jcookies,ensure_ascii=False))
+    
+    img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:8000","token":hashMap.get("token")})) 
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    hashMap.put("qr",img_str) 
+    
+    return hashMap 
+
+def debugws_disconnect(hashMap,_files=None,_data=None):
+    session["ws"].close()
+    return hashMap 
+
+def debugws_next(hashMap,_files=None,_data=None):
+    if not hashMap.containsKey("token"):
+        hashMap.put("ErrorMessage","Не задан токен")
+        return hashMap
+    
+    if "ws" in session:
+        message = {"type":"onlinews","execute_id":hashMap.get("execute_id"),"token":hashMap.get("token"),"to":hashMap.get("to"),"reply":hashMap.get("reply"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}
+        if len(hashMap.get("RunPythonCode"))>0:
+            pyscr = base64.b64encode(hashMap.get("RunPythonCode").encode('utf-8')).decode('utf-8')
+            message["RunPython"] = pyscr
+        if len(hashMap.get("hm"))>0:
+            message["HashMap"] = hashMap.get("hm")
+            
+        
+
+        session["ws"] .send(json.dumps(message,ensure_ascii=False))
+    return hashMap 
+
+def debugws_message(hashMap,_files=None,_data=None):
+    
+
+    message = hashMap.get("WSMessage") 
+    
+    if message==None:
+        return hashMap
+    
+    if not hashMap.containsKey("messages"):
+        html_value=""    
+    else:    
+        html_value = hashMap.get("messages")
+    
+    jmessage =json.loads(message)
+
+    hm = jmessage.get("hashMap")
+    #hmstr =str(hm)
+    #html_value=html_value.replace(hmstr,"***")
+
+    html_value+='<p>'+str(message)+'</p>'    
+    hashMap.put("messages",html_value)
+    hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
+
+    hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
+    
+    hashMap.put("hm",json.dumps(hm,ensure_ascii=False,indent=4))
+
+    hashMap.put("RefreshScreen","")
+    return hashMap     
 
 
 #Векторный редактор
