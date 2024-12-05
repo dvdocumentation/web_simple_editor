@@ -45,8 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "http://YOUR_URL"
-WSONLINE_URL = "ws://YOUR_URL:8000"
+WS_URL = "https:YOUR_URL"
 
 locale_filename = "ru_locale.json"
 
@@ -772,6 +771,24 @@ def save_configuration(configuration,hashMap,full=False):
 
     
     new_configuration = copy.deepcopy(configuration)
+    new_configuration['ClientConfiguration']['Layouts'] =[]
+    if "Layouts" in configuration['ClientConfiguration']:
+        for layout in configuration['ClientConfiguration']['Layouts']:
+            new_layout = copy.deepcopy(layout)
+            new_layout = remove_uid(new_layout)
+            new_layout = remove_empty(new_layout)
+            res = get_operation_elemets(layout)  
+            if 'Elements' in res:
+                new_layout['Elements']  = res['Elements']
+            #new_layout["Elements"] = []
+            #for element in layout["Elements"]:
+            #    new_element = copy.deepcopy(element)
+            #    new_element = remove_uid(new_element)
+            #    new_element = remove_empty(new_element)
+            #    new_layout["Elements"].append(new_element)
+    
+            new_configuration['ClientConfiguration']['Layouts'].append(new_layout) 
+    
     new_configuration['ClientConfiguration']['Processes'] =[]
 
     for process in session["processes_table"]:
@@ -5283,7 +5300,7 @@ def debug_edit(hashMap,_files=None,_data=None):
 
 
 #Отладка ws
-import websocket
+from websocket import WebSocketApp
 import threading
 from functools import partial
 
@@ -5294,7 +5311,7 @@ def on_message(ws, message,token,SW):
     if not jmessage.get("type")=="ping":
         sw_message = {"values":json.dumps([{"WSMessage":message,"to":jmessage.get("from"),"execute_id":jmessage.get("execute_id"),"uid":jmessage.get("uid"),"source":jmessage.get("source")}],ensure_ascii=False),"source":"**********************************ws"}
         SW.input_event(sw_message) 
-        print(message)
+        #print(message)
 
 def on_error(ws, error):
     print(error)
@@ -5326,6 +5343,7 @@ def debugws_open(hashMap,_files=None,_data=None):
                     hashMap.put("token", jcookie.get("token"))
     
     if hashMap.containsKey("token"):
+        #session["token"] = hashMap.get("token")
         img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:8000","token":hashMap.get("token")})) 
         buffered = BytesIO()
         img.save(buffered, format="JPEG")
@@ -5359,7 +5377,8 @@ def debugws_connect(hashMap,_files=None,_data=None):
     if not hashMap.containsKey("token"):
         hashMap.put("ErrorMessage","Не задан токен")
         return hashMap
-    session["ws"] = websocket.WebSocketApp("ws://90.156.171.97:8000",
+    session["token"] = hashMap.get("token")
+    session["ws"] = WebSocketApp("ws://90.156.171.97:8000",
                               on_open=partial(on_open,token=hashMap.get("token"),SW=session['SW']),
                               on_message=partial(on_message,token=hashMap.get("token"),SW=session['SW']),
                               on_error=on_error,
@@ -5375,6 +5394,8 @@ def debugws_connect(hashMap,_files=None,_data=None):
 
 def debugws_create(hashMap,_files=None,_data=None):
     hashMap.put("token",str(uuid.uuid4().hex) )
+    
+    session["token"] = hashMap.get("token")
     
     hashMap.put("RefreshScreen","")
 
@@ -5412,6 +5433,90 @@ def debugws_next(hashMap,_files=None,_data=None):
         session["ws"] .send(json.dumps(message,ensure_ascii=False))
     return hashMap 
 
+def search_variables(hm,layout):
+    if "Elements" in layout:
+        for el in layout["Elements"]:
+            if "Value" in el:
+                if el["Value"][0:1]=="@":
+                    hm[el["Value"][1:]]=el["Value"]
+                if el.get("type") == "CardsLayout":
+                    hm[el["Value"][1:]] = json.dumps({ "customcards":         {
+
+        "layout": {
+        "type": "LinearLayout",
+        "orientation": "vertical",
+        "height": "match_parent",
+        "width": "match_parent",
+        "Elements": [
+            {
+            "type": "TextView",
+            "gravity_horizontal": "left",
+            "Value": "@txt1",
+            "TextColor": "#6F9393",
+            "TextBold": True
+           
+        },
+          {
+            "type": "TextView",
+            "gravity_horizontal": "left",
+            "Value": "@txt2"
+           
+        }
+        
+        ]
+    },
+    "cardsdata":[{"txt1":"Карточка 1","txt2":"Содержимое карточки 1"},{"txt1":"Карточка 2","txt2":"Содержимое карточки 2"}]
+
+    }
+    }, ensure_ascii=False)
+                    
+                if el.get("type") == "TableLayout":
+                            hm[el["Value"][1:]] = json.dumps({ "customtable":         {
+
+                "layout": {
+                "type": "LinearLayout",
+                "orientation": "vertical",
+                "height": "match_parent",
+                "width": "match_parent",
+                "Elements": [
+                    {
+                    "type": "TextView",
+                    "gravity_horizontal": "left",
+                    "Value": "@txt1",
+                    "TextColor": "#6F9393",
+                    "TextBold": True
+                
+                },
+                {
+                    "type": "TextView",
+                    "gravity_horizontal": "left",
+                    "Value": "@txt2"
+                
+                }
+                    ]
+            },
+            "tabledata":[{"txt1":"Карточка 1","txt2":"Содержимое карточки 1"},{"txt1":"Карточка 2","txt2":"Содержимое карточки 2"}]
+
+            }
+            }, ensure_ascii=False)                
+
+
+def send_layout(hashMap,layout):
+
+    
+    if "ws" in session:
+        message = {"type":"onlinews","execute_id":hashMap.get("_execute_id"),"token":session["token"],"to":hashMap.get("_to"),"reply":False,"uid":hashMap.get("_uid"),"source":"process"}
+
+        hm = {"SetRootLayout":json.dumps(layout,ensure_ascii=False)}
+
+        search_variables(hm,layout)
+        
+        message["HashMap"] = json.dumps(hm,ensure_ascii=False)
+            
+        
+
+        session["ws"] .send(json.dumps(message,ensure_ascii=False))
+
 def debugws_message(hashMap,_files=None,_data=None):
     
 
@@ -5433,15 +5538,19 @@ def debugws_message(hashMap,_files=None,_data=None):
 
     html_value+='<p>'+str(message)+'</p>'    
     hashMap.put("messages",html_value)
-    hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
+    #hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
 
-    hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
+    #hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
     
+    hashMap.put("_to", hashMap.get("to"))
+    hashMap.put("_uid", hashMap.get("uid"))
+    hashMap.put("_execute_id", hashMap.get("execute_id"))
+
+
     hashMap.put("hm",json.dumps(hm,ensure_ascii=False,indent=4))
 
     hashMap.put("RefreshScreen","")
     return hashMap     
-
 
 #Векторный редактор
 class Cell():
