@@ -8,3 +8,4 @@ lxml
 uiweb
 qrcode
 qrcode[pil]
+websocket-client
