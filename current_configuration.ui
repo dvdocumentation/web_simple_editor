@@ -3785,6 +3785,17 @@
                                         "weight": "0"
                                     },
                                     {
+                                        "type": "Button",
+                                        "orientation": "vertical",
+                                        "height": "wrap_content",
+                                        "width": 300,
+                                        "Value": "Включить/Выключить визуализацию",
+                                        
+                                        "Variable": "btn_preview",
+                                        "type_s": "Кнопка",
+                                        "weight": "0"
+                                    },
+                                    {
                                                 "type": "TextView",
                                                 "height": "wrap_content",
                                                 "width": "300",
@@ -3792,6 +3803,8 @@
                                                 "gravity_horizontal": "left"
 
                                     },
+
+                                     
                                      
                                      {
                                         "type": "html",
@@ -4002,6 +4015,16 @@
                                 
                                 "type": "python",
                                 "method": "debugws_message",
+                                "postExecute": "",
+                                "alias": ""
+                            },
+                            {
+                                "event": "onInput",
+                                "action": "run",
+                                "listener": "btn_preview",
+                                
+                                "type": "python",
+                                "method": "debugws_preview",
                                 "postExecute": "",
                                 "alias": ""
                             }
