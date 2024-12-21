@@ -45,7 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "https:YOUR_URL"
+WS_URL = "http://your_URL"
 
 locale_filename = "ru_locale.json"
 
@@ -771,12 +771,14 @@ def save_configuration(configuration,hashMap,full=False):
 
     
     new_configuration = copy.deepcopy(configuration)
+
     new_configuration['ClientConfiguration']['Layouts'] =[]
     if "Layouts" in configuration['ClientConfiguration']:
         for layout in configuration['ClientConfiguration']['Layouts']:
             new_layout = copy.deepcopy(layout)
             new_layout = remove_uid(new_layout)
             new_layout = remove_empty(new_layout)
+
             res = get_operation_elemets(layout)  
             if 'Elements' in res:
                 new_layout['Elements']  = res['Elements']
@@ -786,9 +788,9 @@ def save_configuration(configuration,hashMap,full=False):
             #    new_element = remove_uid(new_element)
             #    new_element = remove_empty(new_element)
             #    new_layout["Elements"].append(new_element)
-    
+
             new_configuration['ClientConfiguration']['Layouts'].append(new_layout) 
-    
+
     new_configuration['ClientConfiguration']['Processes'] =[]
 
     for process in session["processes_table"]:
@@ -2314,6 +2316,13 @@ def element_input(hashMap,_files=None,_data=None):
 
         save_configuration(session["configuration"],hashMap) 
 
+        if session.get("layouts_edit"):
+            if "primary_layout" in session:
+                send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
+        else:    
+            session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
+            send_layout(hashMap,session["current_layout"])
+
         session["opened_element_uid"] = None    
 
     if  hashMap.get("listener")=="btn_close":
@@ -2365,7 +2374,8 @@ def element_input(hashMap,_files=None,_data=None):
             if session["current_parent"][0].get("type") == "Operation":
                 session["screens_table_id"] = session["current_parent"][1][0]['Operations'].index(session["current_parent"][0])
             else:    
-                session["elements_table_id"] = session["current_parent"][1][0]['Elements'].index(session["current_parent"][0]) 
+                if session["current_parent"][1]!=None:
+                    session["elements_table_id"] = session["current_parent"][1][0]['Elements'].index(session["current_parent"][0]) 
 
         
              
@@ -2533,6 +2543,29 @@ def process_open(hashMap,_files=None,_data=None):
         hashMap.put("screens_table",json.dumps(make_onefield_table([],"Name","Экран"),ensure_ascii=False))
    
     return hashMap
+def  get_layout_screen(process_name ,screen_name):
+    
+    for process in session["configuration_file"]['ClientConfiguration']['Processes']:
+        if process.get("ProcessName") == process_name:
+            if 'Operations' in process:
+                for screen in process['Operations']:
+                
+                    if screen.get("Name")==screen_name:
+                        if 'Elements' in screen:
+                            for el in screen['Elements']:
+                                if el.get("type")=='LinearLayout':
+                                    return el
+    return {}     
+
+def  get_layout_layouts(current_layout):
+    if current_layout.get("Variable")==None or current_layout.get("Variable")=="":
+        return {}
+    
+    for process in session["configuration_file"]['ClientConfiguration']['Layouts']:
+        if process.get("Variable") == current_layout.get("Variable"):
+            return process
+
+    return {}                         
 
 def screen_open(hashMap,_files=None,_data=None):
     hashMap.put("common_events",";".join(events_screen))
@@ -2553,6 +2586,11 @@ def screen_open(hashMap,_files=None,_data=None):
             if t.get("MediafileExt") == "xml":
                 xml_files.append(t.get('MediafileKey'))
     hashMap.put("xml_files",";".join(xml_files)) 
+
+    session["current_screen_name"] = session["current_parent"][0]['Name']
+    session["current_process_name"] = session["current_parent"][1][0]['ProcessName']
+    session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
+    send_layout(hashMap,session["current_layout"])
 
     style_templates = []
     style_templates.append("")
@@ -2608,11 +2646,16 @@ def element_open(hashMap,_files=None,_data=None):
                 hashMap.put("screen_elements",captions_layout_elements)
                 
                 element_base = layout_elements  
+        else:
+            if session.get("layouts_edit"):
+                if session["current_element"]!=None:
+                    session["primary_layout"] = session["current_element"]        
 
         if session["current_element"]!=None:
             if "Elements" in session["current_element"]:
                 hashMap.put("layout_elements_table",json.dumps(make_layoutelements_table(session["current_element"]["Elements"]),ensure_ascii=False))    
-   
+    
+
     if session["current_parent"] == (None,None):
         hashMap.put("type", get_synonym(element_base,"LinearLayout"))
         hashMap.put("screen_elements",captions_layout_elements)
@@ -2770,6 +2813,10 @@ def element_open(hashMap,_files=None,_data=None):
             else:
                 hashMap.put("Show_element_properties","1")      
                 hashMap.put("Show_common_properties","1")
+
+    if session.get("layouts_edit") == True:
+        if "primary_layout" in session:
+            send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
 
     return hashMap
 
@@ -5311,7 +5358,7 @@ def on_message(ws, message,token,SW):
     if not jmessage.get("type")=="ping":
         sw_message = {"values":json.dumps([{"WSMessage":message,"to":jmessage.get("from"),"execute_id":jmessage.get("execute_id"),"uid":jmessage.get("uid"),"source":jmessage.get("source")}],ensure_ascii=False),"source":"**********************************ws"}
         SW.input_event(sw_message) 
-        #print(message)
+        print(message)
 
 def on_error(ws, error):
     print(error)
@@ -5341,6 +5388,8 @@ def debugws_open(hashMap,_files=None,_data=None):
 
                 if "token" in jcookie:
                     hashMap.put("token", jcookie.get("token"))
+    
+                
     
     if hashMap.containsKey("token"):
         #session["token"] = hashMap.get("token")
@@ -5413,6 +5462,21 @@ def debugws_create(hashMap,_files=None,_data=None):
 
 def debugws_disconnect(hashMap,_files=None,_data=None):
     session["ws"].close()
+    return hashMap 
+
+def debugws_preview(hashMap,_files=None,_data=None):
+    if hashMap.containsKey("_debug_preview"):
+        if hashMap.get("_debug_preview")=="true":
+            hashMap.put("toast","Визуализация выключена")
+            hashMap.put("_debug_preview","false")
+        else:
+            hashMap.put("toast","Визуализация включена")
+            hashMap.put("_debug_preview","true")    
+       
+    else:
+        hashMap.put("toast","Визуализация включена")
+        hashMap.put("_debug_preview","true")   
+         
     return hashMap 
 
 def debugws_next(hashMap,_files=None,_data=None):
@@ -5505,17 +5569,18 @@ def send_layout(hashMap,layout):
 
     
     if "ws" in session:
-        message = {"type":"onlinews","execute_id":hashMap.get("_execute_id"),"token":session["token"],"to":hashMap.get("_to"),"reply":False,"uid":hashMap.get("_uid"),"source":"process"}
+        if hashMap.get("_debug_preview")=="true":
+            message = {"type":"onlinews","execute_id":hashMap.get("_execute_id"),"token":session["token"],"to":hashMap.get("_to"),"reply":False,"uid":hashMap.get("_uid"),"source":"process"}
 
-        hm = {"SetRootLayout":json.dumps(layout,ensure_ascii=False)}
+            hm = {"SetRootLayout":json.dumps(layout,ensure_ascii=False)}
 
-        search_variables(hm,layout)
-        
-        message["HashMap"] = json.dumps(hm,ensure_ascii=False)
+            search_variables(hm,layout)
             
-        
+            message["HashMap"] = json.dumps(hm,ensure_ascii=False)
+                
+            
 
-        session["ws"] .send(json.dumps(message,ensure_ascii=False))
+            session["ws"] .send(json.dumps(message,ensure_ascii=False))
 
 def debugws_message(hashMap,_files=None,_data=None):
     
@@ -5540,7 +5605,7 @@ def debugws_message(hashMap,_files=None,_data=None):
     hashMap.put("messages",html_value)
     #hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
 
-    #hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
+    hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
     
     hashMap.put("_to", hashMap.get("to"))
     hashMap.put("_uid", hashMap.get("uid"))
@@ -5551,6 +5616,7 @@ def debugws_message(hashMap,_files=None,_data=None):
 
     hashMap.put("RefreshScreen","")
     return hashMap     
+
 
 #Векторный редактор
 class Cell():
