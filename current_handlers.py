@@ -2818,7 +2818,9 @@ def element_open(hashMap,_files=None,_data=None):
     if session.get("layouts_edit") == True:
         if "primary_layout" in session:
             send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
-
+        hashMap.put("Show_Value","-1")
+        hashMap.put("Show_type","-1")
+	    
     return hashMap
 
 
