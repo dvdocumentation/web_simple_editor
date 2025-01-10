@@ -45,7 +45,7 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "http://YOUR_URL"
+WS_URL = "https://TYPE_YOUR_URL_HERE"
 
 locale_filename = "ru_locale.json"
 
@@ -2236,7 +2236,13 @@ def element_input(hashMap,_files=None,_data=None):
             else:
                 if "height_value" in session["current_element"]:
                     del row[session["elements_table_id"]]["height_value"]
-
+                    
+        if session.get("layouts_edit")==True and get_key(element_base,hashMap.get('type')) == 'LinearLayout':
+            if session["current_parent"]==None:
+                row[session["elements_table_id"]]['Value'] =""
+                if row[session["elements_table_id"]]['Variable']=='':
+                    hashMap.put("toast","Необходимо указать переменную контейнера. Переменная сгенерирована автоматически.")
+                    row[session["elements_table_id"]]['Variable']=str(uuid.uuid4().hex)
 
         session["current_parent"] =(row[session["elements_table_id"]],session["current_parent"])
 
@@ -2818,9 +2824,8 @@ def element_open(hashMap,_files=None,_data=None):
     if session.get("layouts_edit") == True:
         if "primary_layout" in session:
             send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
-        hashMap.put("Show_Value","-1")
-        hashMap.put("Show_type","-1")
-	    
+        
+        
     return hashMap
 
 
@@ -4826,6 +4831,7 @@ def modules_input(hashMap,_files=None,_data=None):
                 else:    
                     session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
 
+        save_configuration(session["configuration"],hashMap,True) 
         hashMap.put("RefreshScreen","")
         
 
@@ -4834,6 +4840,7 @@ def modules_input(hashMap,_files=None,_data=None):
         sel_line = 'selected_line_id'
         if hashMap.containsKey(sel_line):
             session["configuration"]["ClientConfiguration"]["PyFiles"].pop(int(hashMap.get(sel_line)))
+            save_configuration(session["configuration"],hashMap,True) 
             
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
@@ -4853,9 +4860,11 @@ def modules_input(hashMap,_files=None,_data=None):
 
             base64file  = base64.b64encode(data.encode('utf-8')).decode('utf-8') 
             session["configuration"]["ClientConfiguration"]["PyHandlers"]=base64file
+            save_configuration(session["configuration"],hashMap,True) 
     elif hashMap.get("listener")=="btn_handlers_save":        
         session["configuration"]["ClientConfiguration"]["GitHubHandlers"] = hashMap.get("handlers_url")
         session["configuration"]["ClientConfiguration"]["GitHubToken"] = hashMap.get("handlers_token")
+        save_configuration(session["configuration"],hashMap,True) 
         
 
         
