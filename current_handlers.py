@@ -4860,11 +4860,11 @@ def modules_input(hashMap,_files=None,_data=None):
 
             base64file  = base64.b64encode(data.encode('utf-8')).decode('utf-8') 
             session["configuration"]["ClientConfiguration"]["PyHandlers"]=base64file
-            save_configuration(session["configuration"],hashMap,True) 
+            save_configuration(session["configuration"],hashMap) 
     elif hashMap.get("listener")=="btn_handlers_save":        
         session["configuration"]["ClientConfiguration"]["GitHubHandlers"] = hashMap.get("handlers_url")
         session["configuration"]["ClientConfiguration"]["GitHubToken"] = hashMap.get("handlers_token")
-        save_configuration(session["configuration"],hashMap,True) 
+        save_configuration(session["configuration"],hashMap) 
         
 
         
