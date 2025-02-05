@@ -2602,9 +2602,9 @@ def screen_open(hashMap,_files=None,_data=None):
     if session["current_parent"][0]!=None:
         session["current_screen_name"] = session["current_parent"][0]['Name']
         session["current_process_name"] = session["current_parent"][1][0]['ProcessName']
-        
-        session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
-        send_layout(hashMap,session["current_layout"])
+        if "current_screen_name" in session and  "current_process_name" in session:
+        	session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
+        	send_layout(hashMap,session["current_layout"])
 
     style_templates = []
     style_templates.append("")
