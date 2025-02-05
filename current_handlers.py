@@ -45,7 +45,8 @@ session["layouts_edit"] = False
 
 
 WSPORT = "1555"
-WS_URL = "https://TYPE_YOUR_URL_HERE"
+WS_URL = "http://YOUR_URL"
+WSONLINE_URL = "ws://YOUR_URL:7000"
 
 locale_filename = "ru_locale.json"
 
@@ -2236,20 +2237,24 @@ def element_input(hashMap,_files=None,_data=None):
             else:
                 if "height_value" in session["current_element"]:
                     del row[session["elements_table_id"]]["height_value"]
-                    
+
+        
+
+        
+        
         if session.get("layouts_edit")==True and get_key(element_base,hashMap.get('type')) == 'LinearLayout':
             if session["current_parent"]==None:
                 row[session["elements_table_id"]]['Value'] =""
                 if row[session["elements_table_id"]]['Variable']=='':
                     hashMap.put("toast","Необходимо указать переменную контейнера. Переменная сгенерирована автоматически.")
                     row[session["elements_table_id"]]['Variable']=str(uuid.uuid4().hex)
+                    
+                   
 
         session["current_parent"] =(row[session["elements_table_id"]],session["current_parent"])
 
         session["current_element"] = session["current_parent"][0]
         session["current_parent_dict"][closeuid] = session["current_parent"]
-        
-
 
     if hashMap.get("listener")=="btn_close":
         if session["current_parent"]!=None:
@@ -2325,9 +2330,10 @@ def element_input(hashMap,_files=None,_data=None):
         if session.get("layouts_edit"):
             if "primary_layout" in session:
                 send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
-        else:    
-            session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
-            send_layout(hashMap,session["current_layout"])
+        else:
+            if "current_screen_name" in session and  "current_process_name" in session:   
+                session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
+                send_layout(hashMap,session["current_layout"])
 
         session["opened_element_uid"] = None    
 
@@ -2596,6 +2602,7 @@ def screen_open(hashMap,_files=None,_data=None):
     if session["current_parent"][0]!=None:
         session["current_screen_name"] = session["current_parent"][0]['Name']
         session["current_process_name"] = session["current_parent"][1][0]['ProcessName']
+        
         session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
         send_layout(hashMap,session["current_layout"])
 
@@ -2824,8 +2831,10 @@ def element_open(hashMap,_files=None,_data=None):
     if session.get("layouts_edit") == True:
         if "primary_layout" in session:
             send_layout(hashMap,get_layout_layouts(session["primary_layout"] ))
+
         
         
+
     return hashMap
 
 
@@ -4860,11 +4869,11 @@ def modules_input(hashMap,_files=None,_data=None):
 
             base64file  = base64.b64encode(data.encode('utf-8')).decode('utf-8') 
             session["configuration"]["ClientConfiguration"]["PyHandlers"]=base64file
-            save_configuration(session["configuration"],hashMap) 
+            save_configuration(session["configuration"],hashMap,True) 
     elif hashMap.get("listener")=="btn_handlers_save":        
         session["configuration"]["ClientConfiguration"]["GitHubHandlers"] = hashMap.get("handlers_url")
         session["configuration"]["ClientConfiguration"]["GitHubToken"] = hashMap.get("handlers_token")
-        save_configuration(session["configuration"],hashMap) 
+        save_configuration(session["configuration"],hashMap,True) 
         
 
         
@@ -5405,7 +5414,7 @@ def debugws_open(hashMap,_files=None,_data=None):
     
     if hashMap.containsKey("token"):
         #session["token"] = hashMap.get("token")
-        img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:8000","token":hashMap.get("token")})) 
+        img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:7000","token":hashMap.get("token")})) 
         buffered = BytesIO()
         img.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -5439,7 +5448,7 @@ def debugws_connect(hashMap,_files=None,_data=None):
         hashMap.put("ErrorMessage","Не задан токен")
         return hashMap
     session["token"] = hashMap.get("token")
-    session["ws"] = WebSocketApp("ws://90.156.171.97:8000",
+    session["ws"] = WebSocketApp("ws://90.156.171.97:7000",
                               on_open=partial(on_open,token=hashMap.get("token"),SW=session['SW']),
                               on_message=partial(on_message,token=hashMap.get("token"),SW=session['SW']),
                               on_error=on_error,
@@ -5464,7 +5473,7 @@ def debugws_create(hashMap,_files=None,_data=None):
         
     hashMap.put("SetCookie", json.dumps(jcookies,ensure_ascii=False))
     
-    img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:8000","token":hashMap.get("token")})) 
+    img = qrcode.make(json.dumps({"type":"ConnectBus","url": "ws://90.156.171.97:7000","token":hashMap.get("token")})) 
     buffered = BytesIO()
     img.save(buffered, format="JPEG")
     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -5488,7 +5497,7 @@ def debugws_preview(hashMap,_files=None,_data=None):
     else:
         hashMap.put("toast","Визуализация включена")
         hashMap.put("_debug_preview","true")   
-         
+
     return hashMap 
 
 def debugws_next(hashMap,_files=None,_data=None):
@@ -5615,7 +5624,7 @@ def debugws_message(hashMap,_files=None,_data=None):
 
     html_value+='<p>'+str(message)+'</p>'    
     hashMap.put("messages",html_value)
-    #hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
+    hashMap.put("SetValuesHTML",json.dumps([{"messages":html_value}],ensure_ascii=False))
 
     hashMap.put("SetValuesEdit",json.dumps([{"hm":json.dumps(hm,ensure_ascii=False,indent=4),"to":hashMap.get("to"),"execute_id":hashMap.get("execute_id"),"uid":hashMap.get("uid"),"source":hashMap.get("source")}],ensure_ascii=False))
     
