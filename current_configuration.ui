@@ -2185,20 +2185,13 @@
                                         "weight": "0",
                                         "orientation": "horizontal",
                                         "Elements": [
-                                            {
-                                                "type": "file",
-                                                "height": "wrap_content",
-                                                "width": "wrap_content",
-                                                "weight": "0",
-                                                "Value": "@handlers_file",
-                                                "Variable": "handlers_file"
-                                            },
+
                                             {
                                                 "type": "Button",
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "Загрузить",
+                                                "Value": "Загрузить основной py-файл",
                                                 "Variable": "btn_load_handlers"
                                             }
                                         ],
@@ -2217,7 +2210,7 @@
                                                 "height": "wrap_content",
                                                 "width": "wrap_content",
                                                 "weight": "0",
-                                                "Value": "Добавить",
+                                                "Value": "Добавить дополнительный py-файл",
                                                 "Variable": "btn_add_file",
                                                 "gravity_horizontal": "left"
                                             },
