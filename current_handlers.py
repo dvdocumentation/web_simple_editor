@@ -46,7 +46,7 @@ session["layouts_edit"] = False
 
 WSPORT = "1555"
 WS_URL = "http://YOUR_URL"
-WSONLINE_URL = "ws://YOUR_URL:7000"
+WSONLINE_URL = "ws://YOUR_URL:8000"
 
 locale_filename = "ru_locale.json"
 
@@ -879,6 +879,8 @@ def save_configuration(configuration,hashMap,full=False):
     with open(filename, 'w',encoding="utf-8") as f:
         json.dump(new_configuration, f,ensure_ascii=False,indent=4)
 
+    #hashMap.put("_ui_conf",json.dumps(new_configuration,ensure_ascii=False,indent=4))  
+
     if full:
         if hashMap.containsKey("_cookies"):
             jcookie = json.loads(hashMap.get("_cookies"))
@@ -889,7 +891,7 @@ def save_configuration(configuration,hashMap,full=False):
                     if r==False:
                         hashMap.put("toast","Не получилось отправить на GitHub")
         
-        
+    
 
 def push_to_github(filename, repo, branch, token,gitfilename,folder):
 
@@ -2603,8 +2605,8 @@ def screen_open(hashMap,_files=None,_data=None):
         session["current_screen_name"] = session["current_parent"][0]['Name']
         session["current_process_name"] = session["current_parent"][1][0]['ProcessName']
         if "current_screen_name" in session and  "current_process_name" in session:
-        	session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
-        	send_layout(hashMap,session["current_layout"])
+            session["current_layout"] = get_layout_screen(session["current_process_name"] ,session["current_screen_name"] )
+            send_layout(hashMap,session["current_layout"])
 
     style_templates = []
     style_templates.append("")
@@ -4805,44 +4807,90 @@ module_layout =     {
             "Padding": ""
    }
 
-session["modules_table_id"] = -1
+module_layout_1 =     {
+            "Value": "",
+            "Variable": "",
+            "type": "LinearLayout",
+            "weight": "0",
+            "height": "match_parent",
+            "width": "match_parent",
+            "orientation": "vertical",
+            "Elements": [
+                
+                {
+                    "type": "file",
+                    "height": "wrap_content",
+                    "width": "wrap_content",
+                    "weight": "0",
+                    "Value": "@file",
+                    "Variable": "file"
+                }
+            ],
+            "BackgroundColor": "",
+            "StrokeWidth": "",
+            "Padding": ""
+   }
+
+#session["modules_table_id"] = -1
 session["handlers_file_type"] = -1
 def modules_input(hashMap,_files=None,_data=None):
 
   
     if hashMap.get("listener")=="btn_add_file":
         session["modules_table_id"]  = -1
+        hashMap.put("dialog_mode","add_files")
         hashMap.put("ShowDialogLayout",json.dumps(module_layout,ensure_ascii=False))
         hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление модуля"},ensure_ascii=False))
         hashMap.put("ShowDialog","")
         hashMap.put("key","")
+        #hashMap.put("_ui_conf",json.dumps(session['configuration'],ensure_ascii=False,indent=4))
+        #hashMap.put("host_uid",session['host_uid'])
 
     
     elif hashMap.get("listener") == "onResultPositive": 
-        if session["modules_table_id"]  == -1:
+        if hashMap.get("dialog_mode")  == "add_files":
+            session["modules_table_id"]  = 0
             dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+            
+            #if hashMap.containsKey("_ui_conf"):
+            #    session['configuration']    =json.loads(hashMap.get("_ui_conf"))
+            #    session['host_uid'] = hashMap.get('host_uid')
 
             if not "PyFiles" in session["configuration"]["ClientConfiguration"]:
                     session["configuration"]["ClientConfiguration"]["PyFiles"] = []
             
-            if 'base64' in dialog_values:
-                
+            if len(list(filter(lambda person: person['PyFileKey'] == dialog_values.get("key"), session["configuration"]["ClientConfiguration"]["PyFiles"])))==0 and (('base64' in dialog_values) or (len(dialog_values.get("url",""))>0)):
+                if 'base64' in dialog_values:
+                    
 
-                filename,ext = os.path.splitext(dialog_values.get("file"))
+                    filename,ext = os.path.splitext(dialog_values.get("file"))
 
-                if ext[1:]=='py':
-                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileData":dialog_values.get("base64")}) 
-                
-            else:
+                    if ext[1:]=='py':
+                        session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileData":dialog_values.get("base64")}) 
+                    
+                else:
 
-                if len(dialog_values.get("url",""))>0:
-                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileLink":dialog_values.get("url")})     
-                else:    
-                    session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
+                    if len(dialog_values.get("url",""))>0:
+                        session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key"),"PyFileLink":dialog_values.get("url")})     
+                    else:    
+                        session["configuration"]["ClientConfiguration"]["PyFiles"].append({"PyFileKey":dialog_values.get("key")})     
 
-        save_configuration(session["configuration"],hashMap,True) 
-        hashMap.put("RefreshScreen","")
-        
+            save_configuration(session["configuration"],hashMap,True) 
+            hashMap.put("RefreshScreen","")
+        elif hashMap.get("dialog_mode")  == "py_handlers":
+            
+                session['pyhandlers_dialog'] = False
+                dialog_values = list_to_dict(json.loads(hashMap.get("dialog_values")))
+                if 'base64' in dialog_values:
+
+                    filename,ext = os.path.splitext(dialog_values.get("file"))
+
+                    if ext[1:]=='py':
+                            session["configuration"]["ClientConfiguration"]["PyHandlers"] = dialog_values.get("base64")
+
+                    save_configuration(session["configuration"],hashMap,True) 
+                    
+                    hashMap.put("toast", "Обработчики обновлены")
 
     elif hashMap.get("listener")=="btn_delete_file":
         
@@ -4854,12 +4902,28 @@ def modules_input(hashMap,_files=None,_data=None):
             hashMap.put("RefreshScreen","")
             hashMap.remove(sel_line)
 
-    elif hashMap.get("listener")=="btn_load_handlers" and hashMap.containsKey("handlers_file"):
-        if ".py" in hashMap.get("handlers_file"):
-            session["handlers_file_type"] =1
-            hashMap.put("UploadFile","handlers_file")
-    elif     hashMap.get("listener")=="upload_file":
+    elif hashMap.get("listener")=="btn_load_handlers":
+        session['pyhandlers_dialog'] = True
+        hashMap.put("dialog_mode","py_handlers")
+        hashMap.put("ShowDialogLayout",json.dumps(module_layout_1,ensure_ascii=False))
+        hashMap.put("ShowDialogStyle",json.dumps({"yes":"Сохранить","no":"Отмена","title":"Добавление модуля"},ensure_ascii=False))
+        hashMap.put("ShowDialog","")
+        hashMap.put("key","")
+        #hashMap.put("_ui_conf",json.dumps(session['configuration'],ensure_ascii=False,indent=4))
+        #hashMap.put("host_uid",session['host_uid'])
 
+
+#    elif hashMap.get("listener")=="btn_load_handlers" and hashMap.containsKey("handlers_file"):
+#
+#        if ".py" in hashMap.get("handlers_file"):
+#            session["handlers_file_type"] =1
+#            hashMap.put("UploadFile","handlers_file")
+#            hashMap.put("_ui_conf",json.dumps(session['configuration'],ensure_ascii=False,indent=4))
+#            hashMap.put("host_uid",session['host_uid'])
+    elif     hashMap.get("listener")=="upload_file":
+        #if hashMap.containsKey("_ui_conf"):
+        #    session['configuration']    =json.loads(hashMap.get("_ui_conf"))
+        #    session['host_uid'] = hashMap.get('host_uid')
         filename = hashMap.get("base_path")+os.sep+"uploads"+os.sep+ hashMap.get("filename")
 
         #if session["handlers_file_type"] ==1:
@@ -5061,10 +5125,15 @@ def info_on_start(hashMap,_files=None,_data=None):
 
 
 def source_code(hashMap,_files=None,_data=None):
-
     
-    if "configuration_file" in session:
-        source = json.dumps(session["configuration_file"],ensure_ascii=False,indent=4,separators=(',', ': '))
+   
+    #return send_from_directory(PYTHONPATH+os.sep+os.path.join(fapp.config['UPLOAD_FOLDER']), filename, as_attachment=True,download_name='')
+    
+    if 'host_uid' in session:
+        filename =hashMap.get("base_path")+os.sep+"uploads"+os.sep+  session['host_uid']+".ui"
+        with open(filename,encoding="utf-8") as conf_file:
+            jsug = json.load(conf_file)
+            source = json.dumps(jsug,ensure_ascii=False,indent=4,separators=(',', ': '))
     else:    
         source = json.dumps(session["configuration"],ensure_ascii=False,indent=4,separators=(',', ': '))
 
