@@ -426,8 +426,9 @@ def remove_uid(d):
 
 def remove_empty(d):
     for k in list(d.keys()):
-        if d[k]=="" or d[k]==None or d[k]==False:
-           d.pop(k) 
+        if not (k=="width" or k=="height" or k=="width_value" or k=="height_value"):
+            if d[k]=="" or d[k]==None or d[k]==False:
+                d.pop(k) 
     return d        
 
 def get_recognition_template(name):
