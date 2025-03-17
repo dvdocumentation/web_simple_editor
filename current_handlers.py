@@ -543,10 +543,13 @@ def get_operation_elemets(root):
             if "width" in el:
                 if get_key(scale_elements,el["width"])=="manual":
                     if "width_value" in el:
-                        if len(el["width_value"])>0:
-                            width = int(el["width_value"])
-                        else:    
-                            width = 0
+                        if isinstance(el["width_value"],str):
+                            if len(el["width_value"])>0:
+                                width = int(el["width_value"])
+                            else:    
+                                width = 0
+                        else:
+                             width = el["width_value"]        
                     else:
                         width = 0        
                 else:
@@ -558,17 +561,21 @@ def get_operation_elemets(root):
             if "height" in el:
                 if get_key(scale_elements,el["height"])=="manual":
                     if "height_value" in el:
-                        if len(el["height_value"])>0:
-                            width = int(el["height_value"])
-                        else:    
-                            width = 0
+                        if isinstance(el["height_value"],str):
+                            if len(el["height_value"])>0:
+                                height = int(el["height_value"])
+                            else:    
+                                height = 0
+                        else:
+                            height = el["height_value"]
+
                     else:
                         width = 0
                         
                 else:
-                    width  = get_key(scale_elements,el["height"])
+                    height  = get_key(scale_elements,el["height"])
 
-                el["height"]    = width
+                el["height"]    = height
                 el["height_value"]    = el["height"]     
                 
             new_element['Elements'].append(el)
