@@ -742,9 +742,10 @@ def update_configuration_properties(write_file=True):
 
             
     tags=[]
+	tags.append('off-line')        
     if isPython:
         tags.append('Py') 
-        tags.append('off-line')        
+        #tags.append('off-line')        
     if isOnline:
         tags.append('Online')        
     if isCV:
@@ -6429,3 +6430,4 @@ def cell_input(hashMap,_files=None,_data=None):
         #hashMap.put("DownloadFile",session["filename"])  
         
     return hashMap
+
